@@ -6,6 +6,8 @@ This is the Kimi Code CLI edition of [oh-my-openagent](https://github.com/code-y
 
 It brings LazyCodex's engineering discipline — rules injection, comment checking, LSP diagnostics, structural code search, autonomous execution modes, telemetry, and team orchestration — into Kimi Code CLI using Kimi-native hooks, MCP servers, Skills, and `Agent` / `AgentSwarm`.
 
+For the full capability reference, see [`docs/capabilities.md`](docs/capabilities.md).
+
 ---
 
 ## Quick start
