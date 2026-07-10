@@ -14,3 +14,4 @@ plugin/hooks/
 !plugin/.mcp.json
 !plugin/skills/
 !plugin/skills/**/SKILL.md
+.worktrees/
