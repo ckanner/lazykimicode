@@ -51,7 +51,6 @@ export function parseFile(filePath: string, content: string): Symbol[] {
   if (!patterns) return [];
 
   const symbols: Symbol[] = [];
-  const lines = content.split('\n');
 
   for (const pattern of patterns) {
     let match: RegExpExecArray | null;

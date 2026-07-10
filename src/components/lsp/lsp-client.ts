@@ -19,14 +19,14 @@ export interface PublishDiagnosticsParams {
 export class LspClient {
   private transport: LspTransport;
   private nextId = 1;
-  private pending = new Map<number, (msg: LspMessage) => void>();
+  private pending = new Map<number, { resolve: (msg: LspMessage) => void; reject: (err: Error) => void }>();
   private diagnosticsHandlers = new Set<(params: PublishDiagnosticsParams) => void>();
 
   constructor(transport: LspTransport) {
     this.transport = transport;
     this.transport.onMessage((msg) => this.handleMessage(msg));
     this.transport.onError((err) => {
-      for (const [, reject] of this.pending) reject({ error: { code: -1, message: err.message } });
+      for (const [, { reject }] of this.pending) reject(new Error(err.message));
       this.pending.clear();
     });
   }
@@ -47,7 +47,7 @@ export class LspClient {
   }
 
   requestDiagnostics(uri: string): Promise<Diagnostic[]> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       const handler = (params: PublishDiagnosticsParams) => {
         if (params.uri === uri) {
           this.diagnosticsHandlers.delete(handler);
@@ -72,8 +72,8 @@ export class LspClient {
     return this.request('shutdown', {});
   }
 
-  exit(): Promise<void> {
-    return this.notify('exit', {});
+  exit(): void {
+    this.notify('exit', {});
   }
 
   close(): void {
@@ -83,7 +83,7 @@ export class LspClient {
   private request(method: string, params: unknown): Promise<LspMessage> {
     const id = this.nextId++;
     return new Promise((resolve, reject) => {
-      this.pending.set(id, resolve);
+      this.pending.set(id, { resolve, reject });
       this.transport.send({ jsonrpc: '2.0', id, method, params });
       setTimeout(() => {
         if (this.pending.has(id)) {
@@ -104,8 +104,8 @@ export class LspClient {
       for (const handler of this.diagnosticsHandlers) handler(params);
       return;
     }
-    if (msg.id !== undefined && this.pending.has(msg.id)) {
-      const resolve = this.pending.get(msg.id)!;
+    if (typeof msg.id === 'number' && this.pending.has(msg.id)) {
+      const { resolve } = this.pending.get(msg.id)!;
       this.pending.delete(msg.id);
       resolve(msg);
     }

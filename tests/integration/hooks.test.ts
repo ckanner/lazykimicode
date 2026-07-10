@@ -56,7 +56,7 @@ describe('hook execution integration', () => {
 
   it('ultrawork detects ultrawork keyword', () => {
     const out = runHook('ultrawork', 'user-prompt-submit', { hookEventName: 'UserPromptSubmit', prompt: 'ultrawork plan my feature' });
-    expect(out.hookSpecificOutput?.additionalContext.toLowerCase()).toContain('ultrawork');
+    expect(out.hookSpecificOutput?.additionalContext?.toLowerCase()).toContain('ultrawork');
   });
 
   it('rules discovers rules files', () => {

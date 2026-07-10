@@ -28,7 +28,7 @@ export class StdioLspTransport implements LspTransport {
     this.process = process;
     this.process.stdout?.setEncoding('utf-8');
     this.process.stdout?.on('data', (chunk: string) => this.onData(chunk));
-    this.process.stderr?.on('data', (chunk: string) => {
+    this.process.stderr?.on('data', (_chunk: string) => {
       // stderr is often noisy; ignore unless debugging
     });
     this.process.on('error', (err) => this.errorHandler?.(err));
@@ -87,6 +87,7 @@ export class MockLspTransport implements LspTransport {
   private closeHandler?: () => void;
   private responses: Map<number | string, LspMessage> = new Map();
   private onSendHandler?: (message: LspMessage) => LspMessage | undefined;
+  private nextId = 1;
 
   constructor(responses: LspMessage[] = []) {
     for (const msg of responses) {

@@ -7,8 +7,8 @@ import { handleRequest, executeGitBash, findBashPath } from '../../../src/compon
 function createMockSpawn(stdout: string, stderr: string, exitCode: number) {
   return vi.fn((_cmd: string, _args: string[], _opts: unknown) => {
     const child = new EventEmitter() as unknown as ChildProcessWithoutNullStreams;
-    const stdoutEmitter = new EventEmitter();
-    const stderrEmitter = new EventEmitter();
+    const stdoutEmitter = new EventEmitter() as unknown as { setEncoding: ReturnType<typeof vi.fn>; on: EventEmitter['on']; emit: EventEmitter['emit'] };
+    const stderrEmitter = new EventEmitter() as unknown as { setEncoding: ReturnType<typeof vi.fn>; on: EventEmitter['on']; emit: EventEmitter['emit'] };
     stdoutEmitter.setEncoding = vi.fn();
     stderrEmitter.setEncoding = vi.fn();
     child.stdout = stdoutEmitter as unknown as ChildProcessWithoutNullStreams['stdout'];
