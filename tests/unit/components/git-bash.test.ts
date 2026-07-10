@@ -25,7 +25,7 @@ function createMockSpawn(stdout: string, stderr: string, exitCode: number) {
 describe('git-bash', () => {
   describe('recommend hook', () => {
     it('returns empty context on non-Windows', () => {
-      const out = recommendGitBash({ hookEventName: 'PreToolUse' });
+      const out = recommendGitBash({ hookEventName: 'PreToolUse' }, 'darwin');
       expect(out.hookSpecificOutput?.additionalContext).toBe('');
     });
 
