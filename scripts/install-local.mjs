@@ -10,5 +10,8 @@ if (!fs.existsSync(built)) {
   console.error('Built installer not found. Run `pnpm run build` first.');
   process.exit(1);
 }
-const result = spawnSync(process.execPath, [built, ...process.argv.slice(2)], { stdio: 'inherit' });
+const args = [built, ...process.argv.slice(2)];
+console.error('[install-local] spawn', process.execPath, args);
+const result = spawnSync(process.execPath, args, { stdio: 'inherit' });
+console.error('[install-local] spawn exit', result.status, result.error?.message);
 process.exit(result.status ?? 1);
