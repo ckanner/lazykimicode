@@ -58,8 +58,8 @@ async function main() {
   await Promise.all(COMPONENTS.map(buildComponent));
   await Promise.all([
     buildMcp('codegraph', 'serve.mjs'),
-    buildMcp('lsp', 'cli.mjs'),
-    buildMcp('git-bash', 'cli.mjs'),
+    buildMcp('lsp', 'mcp-server.mjs'),
+    buildMcp('git-bash', 'mcp-server.mjs'),
   ]);
   await buildInstaller();
   console.log('Build complete');
