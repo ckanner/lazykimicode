@@ -2,16 +2,24 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { runKimiInstaller } from '../../src/install/install-kimi.js';
+import { runKimiInstaller, runKimiUninstaller } from '../../src/install/install-kimi.js';
 
 describe('installer integration', () => {
   let tmpDir: string;
+  let originalConfigDir: string | undefined;
 
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'omo-installer-'));
+    originalConfigDir = process.env.OMO_KIMI_CONFIG_DIR;
+    process.env.OMO_KIMI_CONFIG_DIR = path.join(tmpDir, '.omo');
   });
 
   afterEach(() => {
+    if (originalConfigDir === undefined) {
+      delete process.env.OMO_KIMI_CONFIG_DIR;
+    } else {
+      process.env.OMO_KIMI_CONFIG_DIR = originalConfigDir;
+    }
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
@@ -60,6 +68,23 @@ describe('installer integration', () => {
     runKimiInstaller({ kimiCodeHome: tmpDir });
     const backups = fs.readdirSync(tmpDir).filter((f) => f.startsWith('config.toml.bak'));
     expect(backups.length).toBe(1);
+  });
+
+  it('uninstall removes hooks and cache', async () => {
+    await runKimiInstaller({ kimiCodeHome: tmpDir, binDir: path.join(tmpDir, 'bin') });
+
+    await runKimiUninstaller({ kimiCodeHome: tmpDir, binDir: path.join(tmpDir, 'bin') });
+
+    const config = fs.readFileSync(path.join(tmpDir, 'config.toml'), 'utf-8');
+    expect(config).not.toContain('oh-my-kimicode');
+    expect(fs.existsSync(path.join(tmpDir, 'plugins', 'cache', 'oh-my-kimicode'))).toBe(false);
+  });
+
+  it('uninstall preserves rules with --preserve-rules', async () => {
+    await runKimiInstaller({ kimiCodeHome: tmpDir });
+    expect(fs.existsSync(path.join(tmpDir, '.omo'))).toBe(true);
+    await runKimiUninstaller({ kimiCodeHome: tmpDir, preserveRules: true });
+    expect(fs.existsSync(path.join(tmpDir, '.omo'))).toBe(true);
   });
 });
 

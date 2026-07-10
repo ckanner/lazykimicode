@@ -33,5 +33,5 @@ export function pluginCacheDir(kimiCodeHome: string, version: string): string {
 }
 
 export function omoConfigDir(): string {
-  return path.join(os.homedir(), '.omo');
+  return process.env.OMO_KIMI_CONFIG_DIR ?? path.join(os.homedir(), '.omo');
 }
