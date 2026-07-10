@@ -7,7 +7,7 @@
   "sessionStart": {
     "skill": "rules"
   },
-  "skillInstructions": "You are running with oh-my-kimicode (OmO for Kimi Code). Prefer the oh-my-kimicode MCP tools for structural search (codegraph), LSP, and Git Bash on Windows. Respect project rules from .omo/rules/ and AGENTS.md.",
+  "skillInstructions": "You are running with oh-my-kimicode (OmO for Kimi Code). Prefer the oh-my-kimicode MCP tools for structural search (codegraph) and LSP. Respect project rules from .omo/rules/ and AGENTS.md. On Windows, prefer the git_bash MCP for shell operations when available.",
   "mcpServers": {
     "codegraph": {
       "command": "node",
@@ -17,11 +17,6 @@
     "lsp": {
       "command": "node",
       "args": ["./components/lsp/dist/mcp-server.mjs"],
-      "cwd": "./"
-    },
-    "git_bash": {
-      "command": "node",
-      "args": ["./components/git-bash/dist/mcp-server.mjs"],
       "cwd": "./"
     }
   },

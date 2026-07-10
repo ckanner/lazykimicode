@@ -11,7 +11,10 @@ fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 
 function toKebab(str) {
-  return str.replace(/([A-Z])/g, '-$1').toLowerCase();
+  return str
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2')
+    .toLowerCase();
 }
 
 for (const comp of fs.readdirSync(SRC)) {

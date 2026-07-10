@@ -5,12 +5,14 @@ export interface PathOptions {
   kimiCodeHome?: string;
   projectDirectory?: string;
   binDir?: string;
+  version?: string;
 }
 
 export function resolveKimiEnv(options: PathOptions = {}): {
   kimiCodeHome: string;
   projectDirectory: string;
   binDir: string;
+  version: string;
 } {
   const kimiCodeHome = options.kimiCodeHome
     ?? process.env.KIMI_CODE_HOME
@@ -25,7 +27,11 @@ export function resolveKimiEnv(options: PathOptions = {}): {
     ?? process.env.KIMI_LOCAL_BIN_DIR
     ?? (kimiCodeHome === defaultHome ? path.join(os.homedir(), '.local', 'bin') : path.join(kimiCodeHome, 'bin'));
 
-  return { kimiCodeHome, projectDirectory, binDir };
+  const version = options.version
+    ?? process.env.OMO_KIMI_VERSION
+    ?? '0.1.0';
+
+  return { kimiCodeHome, projectDirectory, binDir, version };
 }
 
 export function pluginCacheDir(kimiCodeHome: string, version: string): string {

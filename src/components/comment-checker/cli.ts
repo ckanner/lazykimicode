@@ -1,5 +1,5 @@
 import { checkFile } from './check.js';
-import { writeHookOutput } from '../../shared/serialize.js';
+import { writeHookOutput, exitCodeForHookOutput } from '../../shared/serialize.js';
 
 async function main() {
   let raw = '';
@@ -12,18 +12,18 @@ async function main() {
     return;
   }
   const result = checkFile(filePath);
-  if (result.hasIssue) {
-    writeHookOutput({
-      decision: 'block',
-      reason: `Found unresolved markers: ${result.matches.slice(0, 3).join(', ')}`,
-      hookSpecificOutput: {
-        hookEventName: 'PostToolUse',
-        additionalContext: `Please resolve TODO/FIXME comments in ${filePath} before proceeding.`,
-      },
-    });
-  } else {
-    writeHookOutput({ hookSpecificOutput: { hookEventName: 'PostToolUse', additionalContext: '' } });
-  }
+  const output = result.hasIssue
+    ? {
+        decision: 'block' as const,
+        reason: `Found unresolved markers: ${result.matches.slice(0, 3).join(', ')}`,
+        hookSpecificOutput: {
+          hookEventName: 'PostToolUse',
+          additionalContext: `Please resolve TODO/FIXME comments in ${filePath} before proceeding.`,
+        },
+      }
+    : { hookSpecificOutput: { hookEventName: 'PostToolUse', additionalContext: '' } };
+  writeHookOutput(output);
+  process.exit(exitCodeForHookOutput(output));
 }
 
 main().catch((e) => { console.error(e); process.exit(0); });

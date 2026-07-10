@@ -28,6 +28,7 @@ export function runSessionStart(_payload: HookPayload): HookOutput {
         `agents=${result.agentCacheDir}`,
         `sg=${result.sgAvailable ? (result.sgPath ?? 'available') : 'missing'}`,
       ];
+      if (result.sgInstalled) parts.push('sg_installed=true');
       if (result.warnings.length) parts.push(`warnings=${result.warnings.join('; ')}`);
       details += `\n${parts.join('; ')}`;
     } catch (e) {

@@ -2,10 +2,15 @@ import { recommendGitBash } from './recommend.js';
 import { writeHookOutput } from '../../shared/serialize.js';
 
 async function main() {
+  const event = process.argv[3];
   let raw = '';
   process.stdin.setEncoding('utf8');
   for await (const chunk of process.stdin) raw += chunk;
   const payload = raw ? JSON.parse(raw) : {};
+  if (event === 'post-compact') {
+    writeHookOutput({ hookSpecificOutput: { hookEventName: 'PostCompact', additionalContext: '' } });
+    return;
+  }
   writeHookOutput(recommendGitBash(payload));
 }
 

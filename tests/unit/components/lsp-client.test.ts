@@ -3,6 +3,42 @@ import { LspClient } from '../../../src/components/lsp/lsp-client.js';
 import { MockLspTransport } from '../../../src/components/lsp/transport.js';
 
 describe('LspClient', () => {
+  it('requests goto definition', async () => {
+    const transport = new MockLspTransport([
+      { jsonrpc: '2.0', id: 1, result: { capabilities: {} } },
+      {
+        jsonrpc: '2.0',
+        id: 2,
+        result: [{ uri: 'file:///tmp/test.ts', range: { start: { line: 0, character: 0 }, end: { line: 0, character: 1 } } }],
+      },
+    ]);
+    const client = new LspClient(transport);
+    await client.initialize('file:///tmp/');
+    const result = await client.gotoDefinition('file:///tmp/test.ts', { line: 1, character: 4 });
+    expect(result).toEqual([
+      { uri: 'file:///tmp/test.ts', range: { start: { line: 0, character: 0 }, end: { line: 0, character: 1 } } },
+    ]);
+    client.close();
+  });
+
+  it('requests find references', async () => {
+    const transport = new MockLspTransport([
+      { jsonrpc: '2.0', id: 1, result: { capabilities: {} } },
+      {
+        jsonrpc: '2.0',
+        id: 2,
+        result: [{ uri: 'file:///tmp/test.ts', range: { start: { line: 0, character: 0 }, end: { line: 0, character: 1 } } }],
+      },
+    ]);
+    const client = new LspClient(transport);
+    await client.initialize('file:///tmp/');
+    const result = await client.findReferences('file:///tmp/test.ts', { line: 1, character: 4 });
+    expect(result).toEqual([
+      { uri: 'file:///tmp/test.ts', range: { start: { line: 0, character: 0 }, end: { line: 0, character: 1 } } },
+    ]);
+    client.close();
+  });
+
   it('initializes and receives diagnostics', async () => {
     const transport = new MockLspTransport([
       { jsonrpc: '2.0', id: 1, result: { capabilities: {} } },

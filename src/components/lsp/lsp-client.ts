@@ -16,6 +16,11 @@ export interface PublishDiagnosticsParams {
   diagnostics: Diagnostic[];
 }
 
+export interface Position {
+  line: number;
+  character: number;
+}
+
 export class LspClient {
   private transport: LspTransport;
   private nextId = 1;
@@ -66,6 +71,23 @@ export class LspClient {
         resolve([]);
       }, 5000);
     });
+  }
+
+  async gotoDefinition(uri: string, position: Position): Promise<unknown> {
+    const msg = await this.request('textDocument/definition', {
+      textDocument: { uri },
+      position,
+    });
+    return (msg as { result?: unknown }).result;
+  }
+
+  async findReferences(uri: string, position: Position): Promise<unknown> {
+    const msg = await this.request('textDocument/references', {
+      textDocument: { uri },
+      position,
+      context: { includeDeclaration: true },
+    });
+    return (msg as { result?: unknown }).result;
   }
 
   shutdown(): Promise<LspMessage> {

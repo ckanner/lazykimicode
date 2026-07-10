@@ -23,8 +23,10 @@ async function buildComponent(name) {
 }
 
 async function buildMcp(name, outName) {
-  const src = path.join(SRC, name, 'mcp-server.ts');
-  if (!fs.existsSync(src)) return;
+  const tsSrc = path.join(SRC, name, 'mcp-server.ts');
+  const mjsSrc = path.join(SRC, name, 'serve.mjs');
+  const src = fs.existsSync(tsSrc) ? tsSrc : fs.existsSync(mjsSrc) ? mjsSrc : null;
+  if (!src) return;
   const outdir = path.join('plugin/components', name, 'dist');
   fs.mkdirSync(outdir, { recursive: true });
   await build({

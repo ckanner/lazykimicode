@@ -9,17 +9,52 @@ const OUT = path.join(__dirname, '..', 'plugin/skills');
 
 const KIMI_COMPAT = `\n\n## Kimi Code Harness Compatibility\n\n- Use \`Agent\` tool with \`subagent_type\` \`coder\` / \`explore\` / \`plan\`.\n- Use \`AgentSwarm\` for parallel work.\n- Use \`TodoList\` for tracking.\n`;
 
+function copyDir(src, dst) {
+  fs.mkdirSync(dst, { recursive: true });
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+    const srcPath = path.join(src, entry.name);
+    const dstPath = path.join(dst, entry.name);
+    if (entry.isDirectory()) {
+      copyDir(srcPath, dstPath);
+    } else {
+      fs.copyFileSync(srcPath, dstPath);
+    }
+  }
+}
+
+function rewriteSkillMd(content) {
+  // Strip any legacy Codex compatibility section.
+  content = content.replace(/## Codex Harness Tool Compatibility[\s\S]*?(?=\n## |\n*$)/, '');
+  // Strip the LazyCodex-specific agent YAML references; Kimi does not load agent TOMLs from skills.
+  content = content.replace(/agents\/openai\.yaml[\s\S]{0,200}?\n\n/, '\n');
+  const hasCompat = content.includes('## Kimi Code Harness Compatibility') ||
+    content.includes('# Kimi Code Harness Compatibility');
+  if (!hasCompat) {
+    content += KIMI_COMPAT;
+  }
+  return content;
+}
+
 function copySkill(srcDir, outName) {
   const skillMd = path.join(srcDir, 'SKILL.md');
   if (!fs.existsSync(skillMd)) return;
   const outDir = path.join(OUT, outName);
   fs.mkdirSync(outDir, { recursive: true });
-  let content = fs.readFileSync(skillMd, 'utf-8');
-  // Remove Codex compatibility section if present.
-  content = content.replace(/## Codex Harness Tool Compatibility[\s\S]*?(?=\n## |\n*$)/, '');
-  if (!content.includes('## Kimi Code Harness Compatibility')) {
-    content += KIMI_COMPAT;
+
+  // Copy everything except SKILL.md as-is; references/scripts/agents are preserved.
+  for (const entry of fs.readdirSync(srcDir, { withFileTypes: true })) {
+    const srcPath = path.join(srcDir, entry.name);
+    const dstPath = path.join(outDir, entry.name);
+    if (entry.name === 'SKILL.md') continue;
+    if (entry.isDirectory()) {
+      copyDir(srcPath, dstPath);
+    } else {
+      fs.copyFileSync(srcPath, dstPath);
+    }
   }
+
+  let content = fs.readFileSync(skillMd, 'utf-8');
+  content = rewriteSkillMd(content);
   fs.writeFileSync(path.join(outDir, 'SKILL.md'), content);
 }
 

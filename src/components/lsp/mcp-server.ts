@@ -1,7 +1,11 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import fs from 'node:fs';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { runDiagnostics, createTransport } from './diagnostics.js';
+import { LspClient } from './lsp-client.js';
 
 export function startLspServer() {
   const server = new Server({ name: 'lsp', version: '0.1.0' }, { capabilities: { tools: {} } });
@@ -37,9 +41,28 @@ export function startLspServer() {
         }
       }
       case 'lsp_goto_definition':
-        return { content: [{ type: 'text', text: JSON.stringify({ locations: [] }) }] };
-      case 'lsp_find_references':
-        return { content: [{ type: 'text', text: JSON.stringify({ locations: [] }) }] };
+      case 'lsp_find_references': {
+        const args = req.params.arguments as { file: string; line: number; character: number };
+        const transport = lspCommand ? createTransport(lspCommand, lspArgs) : undefined;
+        if (!transport) {
+          return { content: [{ type: 'text', text: JSON.stringify({ locations: [] }) }] };
+        }
+        const client = new LspClient(transport);
+        try {
+          const uri = pathToFileURL(path.resolve(args.file)).href;
+          const text = fs.existsSync(args.file) ? fs.readFileSync(args.file, 'utf-8') : '';
+          await client.initialize(pathToFileURL(process.cwd()).href);
+          client.openDocument(uri, path.extname(args.file).replace('.', '') || 'text', text);
+          const locations = await (req.params.name === 'lsp_goto_definition'
+            ? client.gotoDefinition(uri, { line: args.line, character: args.character })
+            : client.findReferences(uri, { line: args.line, character: args.character }));
+          return { content: [{ type: 'text', text: JSON.stringify({ locations }) }] };
+        } catch (err) {
+          return { content: [{ type: 'text', text: JSON.stringify({ error: (err as Error).message }) }], isError: true };
+        } finally {
+          client.close();
+        }
+      }
       default:
         return { content: [{ type: 'text', text: 'unknown tool' }], isError: true };
     }
