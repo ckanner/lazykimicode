@@ -1,0 +1,33 @@
+{
+  "name": "oh-my-kimicode",
+  "version": "0.1.0",
+  "description": "OmO agent harness for Kimi Code CLI",
+  "keywords": ["omo", "agent-harness", "lsp", "rules", "ultrawork"],
+  "skills": "./skills",
+  "sessionStart": {
+    "skill": "rules"
+  },
+  "skillInstructions": "You are running with oh-my-kimicode (OmO for Kimi Code). Prefer the oh-my-kimicode MCP tools for structural search (codegraph), LSP, and Git Bash on Windows. Respect project rules from .omo/rules/ and AGENTS.md.",
+  "mcpServers": {
+    "codegraph": {
+      "command": "node",
+      "args": ["./components/codegraph/dist/serve.mjs"],
+      "cwd": "./"
+    },
+    "lsp": {
+      "command": "node",
+      "args": ["./components/lsp/dist/cli.mjs"],
+      "cwd": "./"
+    },
+    "git_bash": {
+      "command": "node",
+      "args": ["./components/git-bash/dist/cli.mjs"],
+      "cwd": "./"
+    }
+  },
+  "interface": {
+    "displayName": "Oh My KimiCode",
+    "shortDescription": "OmO agent harness for Kimi Code CLI",
+    "developerName": "Sisyphus Labs"
+  }
+}
