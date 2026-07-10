@@ -22,3 +22,4 @@ jobs:
       - run: pnpm test
       - run: pnpm run build
       - run: node scripts/install-local.mjs install --kimi-code-home ./tmp-home
+        shell: bash
