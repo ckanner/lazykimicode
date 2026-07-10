@@ -8,4 +8,6 @@ if (!fs.existsSync(built)) {
   console.error('Built installer not found. Run `pnpm run build` first.');
   process.exit(1);
 }
-await import(pathToFileURL(built).href);
+const builtUrl = pathToFileURL(built).href;
+console.error(`[install-local] importing ${builtUrl}`);
+await import(builtUrl);
