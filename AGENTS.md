@@ -11,6 +11,7 @@ This repo builds a Kimi Code CLI plugin plus a Node installer.
 - `plugin/` — built plugin assets (manifest, skills, hooks, component dist)
 - `scripts/` — build and sync scripts
 - `tests/unit/` — unit tests
+- `tests/integration/` — end-to-end installer and hook execution tests
 
 ## Build
 
