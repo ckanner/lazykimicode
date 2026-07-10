@@ -37,7 +37,7 @@ function archive(sessionId) {
   console.log(`Team archived`);
 }
 
-const [, , cmd, sessionId, ...args] = process.argv;
+const [, , cmd, sessionId] = process.argv;
 
 switch (cmd) {
   case 'init':
