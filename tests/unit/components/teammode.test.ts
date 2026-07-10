@@ -174,6 +174,7 @@ describe('teammode', () => {
     fs.mkdirSync(repoDir, { recursive: true });
     process.chdir(repoDir);
     execSync('git init', { stdio: 'ignore' });
+    execSync('git config init.defaultBranch main');
     execSync('git config user.email "test@test.com"');
     execSync('git config user.name "Test"');
     fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
@@ -284,6 +285,7 @@ describe('teammode', () => {
       fs.mkdirSync(repoDir, { recursive: true });
       process.chdir(repoDir);
       execSync('git init', { stdio: 'ignore' });
+    execSync('git config init.defaultBranch main');
       execSync('git config user.email "test@test.com"');
       execSync('git config user.name "Test"');
       fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
@@ -320,6 +322,7 @@ describe('teammode', () => {
       fs.mkdirSync(repoDir, { recursive: true });
       process.chdir(repoDir);
       execSync('git init', { stdio: 'ignore' });
+    execSync('git config init.defaultBranch main');
       execSync('git config user.email "test@test.com"');
       execSync('git config user.name "Test"');
       fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
@@ -362,6 +365,7 @@ describe('teammode', () => {
       fs.mkdirSync(repoDir, { recursive: true });
       process.chdir(repoDir);
       execSync('git init', { stdio: 'ignore' });
+    execSync('git config init.defaultBranch main');
       execSync('git config user.email "test@test.com"');
       execSync('git config user.name "Test"');
       fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
@@ -400,6 +404,7 @@ describe('teammode', () => {
       fs.mkdirSync(repoDir, { recursive: true });
       process.chdir(repoDir);
       execSync('git init', { stdio: 'ignore' });
+    execSync('git config init.defaultBranch main');
       execSync('git config user.email "test@test.com"');
       execSync('git config user.name "Test"');
       fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
@@ -437,6 +442,7 @@ describe('teammode', () => {
       fs.mkdirSync(repoDir, { recursive: true });
       process.chdir(repoDir);
       execSync('git init', { stdio: 'ignore' });
+    execSync('git config init.defaultBranch main');
       execSync('git config user.email "test@test.com"');
       execSync('git config user.name "Test"');
       fs.writeFileSync(path.join(repoDir, 'shared.txt'), 'base');
