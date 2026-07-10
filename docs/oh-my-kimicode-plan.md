@@ -1,5 +1,9 @@
 # oh-my-kimicode Design & Implementation Plan
 
+> **Status:** Implemented and verified. This document records the approved design. The current code may contain small refinements beyond this plan; where specifics differ, the source code and `AGENTS.md` are authoritative.
+>
+> **Verification:** `pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build` passes (22 test files, 219 tests).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build `oh-my-kimicode`, a Kimi Code CLI distribution of the OmO agent harness that ports LazyCodex's Codex-CLI plugin to Kimi Code CLI. The artifact is a Kimi plugin plus a small Node installer that wires Kimi-native hooks, MCP servers, Skills, and agent orchestration.
@@ -100,15 +104,15 @@ The stdout protocol is a single line of JSON, identical to LazyCodex's component
 | `bootstrap` | `SessionStart` | Version-change bootstrap: bin links, agent profile cache, `sg` binary, config re-stamping |
 | `rules` | `SessionStart`, `UserPromptSubmit`, `PostToolUse`, `PostCompact` | Inject static/dynamic project rules (`.omo/rules/`, `AGENTS.md`) |
 | `comment-checker` | `PostToolUse` | After `Write`/`Edit`, check for stale TODO/FIXME comments |
-| `lsp` | `PostToolUse`, `PostCompact` | Run LSP diagnostics on edited files; clear cache on compact |
-| `codegraph` | `SessionStart`, `PostToolUse` | Bootstrap CodeGraph; guide when CodeGraph tools fail |
+| `lsp` | `PostToolUse`, `PostCompact` | Run LSP diagnostics on edited files; clear cache on compact. Exposes MCP tools `lsp_status`, `lsp_diagnostics`, `lsp_goto_definition`, `lsp_find_references`, `lsp_symbols` via the persistent `lsp-daemon` binary |
+| `codegraph` | `SessionStart`, `PostToolUse` | Bootstrap CodeGraph; guide when CodeGraph tools fail. Exposes `codegraph_search`, `codegraph_relate`, `codegraph_reindex`, `codegraph_explore`, `codegraph_files`, `codegraph_callers`, `codegraph_callees`, `codegraph_impact` |
 | `ultrawork` | `UserPromptSubmit` | Detect `ultrawork`/`ulw` keywords and inject ultrawork prompt |
 | `ulw-loop` | `UserPromptSubmit`, `PreToolUse` | Parse `OMO_ULW_LOOP_STEER:` steering; deny budgeted `CreateGoal` |
 | `telemetry` | `SessionStart` | Daily active telemetry (opt-out) |
 | `git-bash` | `PreToolUse`, `PostCompact` | Windows: recommend `git_bash` MCP over `Bash` |
 | `start-work-continuation` | `Stop`, `SubagentStop` | Prevent stop when Boulder/start-work plan is incomplete |
 | `executor-verify` | `SubagentStop` | Prevent `lazycodex-executor`-like subagent stop without evidence |
-| `teammode` | N/A (skill-driven) | Kimi-native team orchestration using `AgentSwarm`; no Codex thread equivalent |
+| `teammode` | N/A (skill-driven) | Kimi-native team orchestration using `AgentSwarm`. State script supports `init`, `add-member`, `member-prompt`, `set-status`, `worktree-add`, `worktree-remove`, `integrate`, `archive`, `delete`, `status` |
 
 ### 3.2 Hook aggregation
 
@@ -136,7 +140,7 @@ timeout = 30
   "keywords": ["omo", "agent-harness", "lsp", "rules", "ultrawork"],
   "skills": "./skills",
   "sessionStart": {
-    "skill": "omo-rules"
+    "skill": "rules"
   },
   "skillInstructions": "You are running with oh-my-kimicode (OmO for Kimi Code). Prefer the oh-my-kimicode MCP tools for structural search (codegraph), LSP, and Git Bash on Windows. Respect project rules from .omo/rules/ and AGENTS.md.",
   "mcpServers": {
@@ -147,12 +151,7 @@ timeout = 30
     },
     "lsp": {
       "command": "node",
-      "args": ["./components/lsp/dist/cli.mjs"],
-      "cwd": "./"
-    },
-    "git_bash": {
-      "command": "node",
-      "args": ["./components/git-bash/dist/cli.mjs"],
+      "args": ["./components/lsp/dist/daemon.mjs"],
       "cwd": "./"
     }
   },
@@ -167,6 +166,7 @@ timeout = 30
 Notes:
 - `grep_app` and `context7` are remote MCPs. They are **not** declared in the plugin manifest because they require API keys. The installer writes placeholder blocks into the user `config.toml` or project `.mcp.json` with instructions, similar to LazyCodex's Context7 placeholder guard.
 - `git_bash` MCP is enabled only on Windows via the installer's config patching.
+- The `lsp` MCP uses the persistent `lsp-daemon` binary. The separate `lsp-tools-mcp` binary is a stateless per-request MCP server used as a fallback / tooling entry.
 
 ## 5. Skills
 
@@ -323,15 +323,34 @@ Removes managed plugin cache, hook entries from `config.toml`, bin links, and ag
 
 ### 8.1 Unit tests
 
+Current suite covers:
+
 - `tests/unit/install/config-patcher.test.ts` — idempotency, backup, dry-run, hook deduplication
+- `tests/unit/install/bin-links.test.ts` — managed binary linking/unlinking
+- `tests/unit/install/doctor.test.ts` — health checks
+- `tests/unit/shared/*.test.ts` — paths, serialization
+- `tests/unit/components/bootstrap.test.ts`
 - `tests/unit/components/comment-checker.test.ts` — detect TODO/FIXME in fake tool output
-- `tests/unit/components/rules.test.ts` — rule discovery and injection
+- `tests/unit/components/codegraph.test.ts` — indexing, search, relate, explore, callers, callees, impact
+- `tests/unit/components/executor-verify.test.ts`
+- `tests/unit/components/git-bash.test.ts`
 - `tests/unit/components/lsp.test.ts` — diagnostics caching
+- `tests/unit/components/lsp-client.test.ts` — LSP client methods including `documentSymbol`
+- `tests/unit/components/rules.test.ts` — rule discovery and injection
+- `tests/unit/components/start-work-continuation.test.ts`
+- `tests/unit/components/teammode.test.ts` — all 10 team subcommands and worktree management
+- `tests/unit/components/telemetry.test.ts` — daily-active guard and PostHog capture semantics
+- `tests/unit/components/ultrawork.test.ts`
+- `tests/unit/components/ulw-loop.test.ts`
+- `tests/unit/skills/create-pr-body.test.ts` — PR body generator
+- `tests/unit/skills/sync.test.ts` — skill aggregation
 
 ### 8.2 Integration tests
 
 - `tests/integration/install.test.ts` — run installer with `KIMI_CODE_HOME=<temp>`, assert plugin cache exists, hooks written, no duplicate hooks on second run.
 - `tests/integration/hooks.test.ts` — pipe synthetic Kimi hook payloads to component CLIs and assert JSON stdout.
+
+**Latest result:** 22 test files, 219 tests passing.
 
 ### 8.3 Manual validation checklist
 
@@ -1804,12 +1823,7 @@ console.log('Hooks synced to', OUT);
     },
     "lsp": {
       "command": "node",
-      "args": ["./components/lsp/dist/cli.mjs"],
-      "cwd": "./"
-    },
-    "git_bash": {
-      "command": "node",
-      "args": ["./components/git-bash/dist/cli.mjs"],
+      "args": ["./components/lsp/dist/daemon.mjs"],
       "cwd": "./"
     }
   },

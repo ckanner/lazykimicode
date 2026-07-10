@@ -47,8 +47,8 @@ ulw add OAuth login to this project
 
 - **Rules injection** — auto-load `AGENTS.md` and `.omo/rules/*.md`
 - **Comment checker** — block edits that leave unresolved TODO/FIXME markers
-- **LSP diagnostics** — run diagnostics after file edits via a real LSP client
-- **CodeGraph** — structural code search MCP with indexing for TS/JS/Python/Go/Rust
+- **LSP diagnostics** — run diagnostics after file edits via a persistent `lsp-daemon` MCP server (`lsp_status`, `lsp_diagnostics`, `lsp_goto_definition`, `lsp_find_references`, `lsp_symbols`)
+- **CodeGraph** — structural code search MCP with indexing for TS/JS/Python/Go/Rust (`codegraph_search`, `codegraph_relate`, `codegraph_explore`, `codegraph_files`, `codegraph_callers`, `codegraph_callees`, `codegraph_impact`)
 - **Ultrawork / ULW-loop** — autonomous execution modes
 - **Teammode** — parallel multi-agent orchestration via `AgentSwarm`
 - **Telemetry** — anonymous daily-active telemetry (opt-out via `OMO_KIMI_DISABLE_POSTHOG=1`)
