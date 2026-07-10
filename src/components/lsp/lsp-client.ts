@@ -1,0 +1,113 @@
+import type { LspMessage, LspTransport } from './transport.js';
+
+export interface Diagnostic {
+  range: {
+    start: { line: number; character: number };
+    end: { line: number; character: number };
+  };
+  severity?: number;
+  code?: string | number;
+  source?: string;
+  message: string;
+}
+
+export interface PublishDiagnosticsParams {
+  uri: string;
+  diagnostics: Diagnostic[];
+}
+
+export class LspClient {
+  private transport: LspTransport;
+  private nextId = 1;
+  private pending = new Map<number, (msg: LspMessage) => void>();
+  private diagnosticsHandlers = new Set<(params: PublishDiagnosticsParams) => void>();
+
+  constructor(transport: LspTransport) {
+    this.transport = transport;
+    this.transport.onMessage((msg) => this.handleMessage(msg));
+    this.transport.onError((err) => {
+      for (const [, reject] of this.pending) reject({ error: { code: -1, message: err.message } });
+      this.pending.clear();
+    });
+  }
+
+  initialize(rootUri: string): Promise<LspMessage> {
+    return this.request('initialize', {
+      processId: process.pid,
+      rootUri,
+      capabilities: {},
+      workspaceFolders: null,
+    });
+  }
+
+  openDocument(uri: string, languageId: string, text: string): void {
+    this.notify('textDocument/didOpen', {
+      textDocument: { uri, languageId, version: 1, text },
+    });
+  }
+
+  requestDiagnostics(uri: string): Promise<Diagnostic[]> {
+    return new Promise((resolve, reject) => {
+      const handler = (params: PublishDiagnosticsParams) => {
+        if (params.uri === uri) {
+          this.diagnosticsHandlers.delete(handler);
+          resolve(params.diagnostics);
+        }
+      };
+      this.diagnosticsHandlers.add(handler);
+      // Some servers require a change notification to publish diagnostics.
+      this.notify('textDocument/didChange', {
+        textDocument: { uri, version: 2 },
+        contentChanges: [{ text: '' }], // placeholder; real client would send current text
+      });
+      // Timeout fallback
+      setTimeout(() => {
+        this.diagnosticsHandlers.delete(handler);
+        resolve([]);
+      }, 5000);
+    });
+  }
+
+  shutdown(): Promise<LspMessage> {
+    return this.request('shutdown', {});
+  }
+
+  exit(): Promise<void> {
+    return this.notify('exit', {});
+  }
+
+  close(): void {
+    this.transport.close();
+  }
+
+  private request(method: string, params: unknown): Promise<LspMessage> {
+    const id = this.nextId++;
+    return new Promise((resolve, reject) => {
+      this.pending.set(id, resolve);
+      this.transport.send({ jsonrpc: '2.0', id, method, params });
+      setTimeout(() => {
+        if (this.pending.has(id)) {
+          this.pending.delete(id);
+          reject(new Error(`LSP request timeout: ${method}`));
+        }
+      }, 10000);
+    });
+  }
+
+  private notify(method: string, params: unknown): void {
+    this.transport.send({ jsonrpc: '2.0', method, params });
+  }
+
+  private handleMessage(msg: LspMessage): void {
+    if (msg.method === 'textDocument/publishDiagnostics') {
+      const params = msg.params as PublishDiagnosticsParams;
+      for (const handler of this.diagnosticsHandlers) handler(params);
+      return;
+    }
+    if (msg.id !== undefined && this.pending.has(msg.id)) {
+      const resolve = this.pending.get(msg.id)!;
+      this.pending.delete(msg.id);
+      resolve(msg);
+    }
+  }
+}

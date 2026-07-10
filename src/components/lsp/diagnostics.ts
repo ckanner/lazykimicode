@@ -1,11 +1,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { LspClient } from './lsp-client.js';
+import { StdioLspTransport, type LspTransport } from './transport.js';
 
 export interface Diagnostic {
   file: string;
   line: number;
   message: string;
-  severity: 'error' | 'warning';
+  severity: 'error' | 'warning' | 'info';
 }
 
 const CACHE_FILE = '.omo/lsp-cache.json';
@@ -21,7 +24,50 @@ export function writeCache(projectDir: string, files: string[]): void {
   fs.writeFileSync(p, JSON.stringify(files));
 }
 
-export async function runDiagnostics(_file: string): Promise<Diagnostic[]> {
-  // Placeholder: real implementation shells out to lsp-tools-mcp / lsp-daemon.
-  return [];
+export function createTransport(command?: string, args?: string[], cwd?: string): LspTransport | undefined {
+  if (!command) return undefined;
+  try {
+    return StdioLspTransport.spawn(command, args ?? [], cwd);
+  } catch {
+    return undefined;
+  }
+}
+
+export async function runDiagnostics(file: string, transport?: LspTransport): Promise<Diagnostic[]> {
+  const content = fs.readFileSync(file, 'utf-8');
+  const uri = pathToFileURL(path.resolve(file)).href;
+  const languageId = inferLanguageId(file);
+
+  if (!transport) {
+    return [];
+  }
+
+  const client = new LspClient(transport);
+  try {
+    await client.initialize(pathToFileURL(process.cwd()).href + '/');
+    client.openDocument(uri, languageId, content);
+    const raw = await client.requestDiagnostics(uri);
+    return raw.map((d) => ({
+      file,
+      line: d.range.start.line + 1,
+      message: d.message,
+      severity: d.severity === 1 ? 'error' : d.severity === 2 ? 'warning' : 'info',
+    }));
+  } finally {
+    client.close();
+  }
+}
+
+function inferLanguageId(filePath: string): string {
+  const ext = path.extname(filePath);
+  switch (ext) {
+    case '.ts': return 'typescript';
+    case '.tsx': return 'typescriptreact';
+    case '.js': return 'javascript';
+    case '.jsx': return 'javascriptreact';
+    case '.py': return 'python';
+    case '.json': return 'json';
+    case '.md': return 'markdown';
+    default: return 'plaintext';
+  }
 }

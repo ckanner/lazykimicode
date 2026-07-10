@@ -1,4 +1,4 @@
-import { readCache, writeCache, runDiagnostics } from './diagnostics.js';
+import { readCache, writeCache, runDiagnostics, createTransport } from './diagnostics.js';
 import { writeHookOutput } from '../../shared/serialize.js';
 
 async function main() {
@@ -18,10 +18,20 @@ async function main() {
   for (const f of files) cached.add(f);
   writeCache(projectDir, [...cached]);
 
+  const lspCommand = process.env.OMO_KIMI_LSP_COMMAND;
+  const lspArgs = process.env.OMO_KIMI_LSP_ARGS?.split(' ') ?? [];
+  const transport = lspCommand ? createTransport(lspCommand, lspArgs, projectDir) : undefined;
+
   const all: string[] = [];
-  for (const f of files) {
-    const diagnostics = await runDiagnostics(f);
-    if (diagnostics.length) all.push(...diagnostics.map((d) => `${d.file}:${d.line}: ${d.severity}: ${d.message}`));
+  try {
+    for (const f of files) {
+      const diagnostics = await runDiagnostics(f, transport);
+      if (diagnostics.length) {
+        all.push(...diagnostics.map((d) => `${d.file}:${d.line}: ${d.severity}: ${d.message}`));
+      }
+    }
+  } finally {
+    transport?.close();
   }
 
   writeHookOutput({
