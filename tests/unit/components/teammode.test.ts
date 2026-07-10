@@ -177,6 +177,7 @@ describe('teammode', () => {
     execSync('git config init.defaultBranch main');
     execSync('git config user.email "test@test.com"');
     execSync('git config user.name "Test"');
+    execSync('git checkout -b main');
     fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
     execSync('git add README.md');
     execSync('git commit -m "initial"');
@@ -285,9 +286,10 @@ describe('teammode', () => {
       fs.mkdirSync(repoDir, { recursive: true });
       process.chdir(repoDir);
       execSync('git init', { stdio: 'ignore' });
-    execSync('git config init.defaultBranch main');
+      execSync('git config init.defaultBranch main');
       execSync('git config user.email "test@test.com"');
       execSync('git config user.name "Test"');
+      execSync('git checkout -b main');
       fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
       execSync('git add README.md');
       execSync('git commit -m "initial"');
@@ -322,9 +324,10 @@ describe('teammode', () => {
       fs.mkdirSync(repoDir, { recursive: true });
       process.chdir(repoDir);
       execSync('git init', { stdio: 'ignore' });
-    execSync('git config init.defaultBranch main');
+      execSync('git config init.defaultBranch main');
       execSync('git config user.email "test@test.com"');
       execSync('git config user.name "Test"');
+      execSync('git checkout -b main');
       fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
       execSync('git add README.md');
       execSync('git commit -m "initial"');
@@ -365,9 +368,10 @@ describe('teammode', () => {
       fs.mkdirSync(repoDir, { recursive: true });
       process.chdir(repoDir);
       execSync('git init', { stdio: 'ignore' });
-    execSync('git config init.defaultBranch main');
+      execSync('git config init.defaultBranch main');
       execSync('git config user.email "test@test.com"');
       execSync('git config user.name "Test"');
+      execSync('git checkout -b main');
       fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
       execSync('git add README.md');
       execSync('git commit -m "initial"');
@@ -404,9 +408,10 @@ describe('teammode', () => {
       fs.mkdirSync(repoDir, { recursive: true });
       process.chdir(repoDir);
       execSync('git init', { stdio: 'ignore' });
-    execSync('git config init.defaultBranch main');
+      execSync('git config init.defaultBranch main');
       execSync('git config user.email "test@test.com"');
       execSync('git config user.name "Test"');
+      execSync('git checkout -b main');
       fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
       execSync('git add README.md');
       execSync('git commit -m "initial"');
@@ -442,9 +447,10 @@ describe('teammode', () => {
       fs.mkdirSync(repoDir, { recursive: true });
       process.chdir(repoDir);
       execSync('git init', { stdio: 'ignore' });
-    execSync('git config init.defaultBranch main');
+      execSync('git config init.defaultBranch main');
       execSync('git config user.email "test@test.com"');
       execSync('git config user.name "Test"');
+      execSync('git checkout -b main');
       fs.writeFileSync(path.join(repoDir, 'shared.txt'), 'base');
       execSync('git add shared.txt');
       execSync('git commit -m "initial"');
