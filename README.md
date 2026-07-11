@@ -176,7 +176,7 @@ pnpm run sync:skills
 pnpm run sync:hooks
 ```
 
-Latest full-suite result: **38 test files, 211 tests passing**.
+Latest full-suite result: **39 test files, 223 tests passing**.
 
 ---
 
