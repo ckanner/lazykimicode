@@ -1,4 +1,5 @@
 import type { HookPayload, HookOutput } from '../../shared/types.js';
+import { VERSION } from '../../shared/version.js';
 import { runBootstrapProvisioning } from './provision.js';
 
 export interface BootstrapContext {
@@ -9,7 +10,7 @@ export interface BootstrapContext {
 
 export function getBootstrapContext(): BootstrapContext {
   return {
-    version: process.env.OMO_KIMI_VERSION ?? '0.1.0',
+    version: process.env.OMO_KIMI_VERSION ?? VERSION,
     cacheDir: process.env.OMO_KIMI_PLUGIN_CACHE ?? '',
     binDir: process.env.OMO_KIMI_BIN_DIR ?? '',
   };

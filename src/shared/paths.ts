@@ -1,5 +1,6 @@
 import path from 'node:path';
 import os from 'node:os';
+import { VERSION } from './version.js';
 
 export interface PathOptions {
   kimiCodeHome?: string;
@@ -29,7 +30,7 @@ export function resolveKimiEnv(options: PathOptions = {}): {
 
   const version = options.version
     ?? process.env.OMO_KIMI_VERSION
-    ?? '0.1.0';
+    ?? VERSION;
 
   return { kimiCodeHome, projectDirectory, binDir, version };
 }

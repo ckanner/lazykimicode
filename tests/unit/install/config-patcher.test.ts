@@ -4,6 +4,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { patchConfigToml } from '../../../src/install/config-patcher.js';
 import { getHookDefs } from '../../../src/install/hook-defs.js';
+import pkg from '../../../package.json' with { type: 'json' };
 
 describe('patchConfigToml', () => {
   let tmpDir: string;
@@ -12,7 +13,7 @@ describe('patchConfigToml', () => {
 
   it('adds hooks idempotently', () => {
     const configPath = path.join(tmpDir, 'config.toml');
-    const hooks = getHookDefs('0.1.0', '/tmp/cache');
+    const hooks = getHookDefs(pkg.version, '/tmp/cache');
     const r1 = patchConfigToml(configPath, hooks);
     expect(r1.wrote).toBe(true);
     const r2 = patchConfigToml(configPath, hooks);
@@ -22,7 +23,7 @@ describe('patchConfigToml', () => {
   it('backs up existing config', () => {
     const configPath = path.join(tmpDir, 'config.toml');
     fs.writeFileSync(configPath, 'default_model = "kimi"\n');
-    const hooks = getHookDefs('0.1.0', '/tmp/cache');
+    const hooks = getHookDefs(pkg.version, '/tmp/cache');
     const r = patchConfigToml(configPath, hooks);
     expect(r.backupPath).toBeDefined();
     expect(fs.existsSync(r.backupPath!)).toBe(true);
@@ -31,7 +32,7 @@ describe('patchConfigToml', () => {
   it('dry run does not write', () => {
     const configPath = path.join(tmpDir, 'config.toml');
     fs.writeFileSync(configPath, 'default_model = "kimi"\n');
-    const hooks = getHookDefs('0.1.0', '/tmp/cache');
+    const hooks = getHookDefs(pkg.version, '/tmp/cache');
     const r = patchConfigToml(configPath, hooks, true);
     expect(r.wrote).toBe(false);
     expect(fs.readFileSync(configPath, 'utf-8')).toBe('default_model = "kimi"\n');
