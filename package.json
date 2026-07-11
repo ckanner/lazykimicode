@@ -35,7 +35,7 @@
     "bin/"
   ],
   "scripts": {
-    "build": "node scripts/build.mjs",
+    "build": "node scripts/sync-hooks.mjs && node scripts/build.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/ scripts/ tests/",
     "test": "vitest run",

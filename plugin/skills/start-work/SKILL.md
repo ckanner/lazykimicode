@@ -148,7 +148,11 @@ Write `.omo/boulder.json` before implementation starts. Prefix session ids with 
       "plan_name": "<plan-name>",
       "session_ids": ["kimi:<session_id>"],
       "status": "active",
-      "worktree_path": null
+      "worktree_path": null,
+      "tasks": [
+        { "id": "t1", "title": "First top-level checkbox / sub-task", "status": "unchecked" },
+        { "id": "t2", "title": "Second top-level checkbox / sub-task", "status": "unchecked" }
+      ]
     }
   }
 }
@@ -229,9 +233,10 @@ Rules:
 Only after verification passes:
 
 1. Edit the plan checkbox from `- [ ]` to `- [x]`.
-2. Re-read the plan and confirm the remaining count decreased.
-3. Append a `task-completed` ledger entry.
-4. Continue with the next checkbox. Do not ask whether to continue.
+2. Update the matching Boulder task's `status` from `unchecked` to `done` in `.omo/boulder.json`.
+3. Re-read the plan and confirm the remaining count decreased.
+4. Append a `task-completed` ledger entry.
+5. Continue with the next checkbox. Do not ask whether to continue.
 
 ## Completion
 

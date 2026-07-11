@@ -16,8 +16,10 @@ export interface ToolRequest {
   };
 }
 
-const projectDir = process.env.OMO_KIMI_PROJECT ?? process.cwd();
-export const rootUri = pathToFileURL(projectDir).href + '/';
+export function getRootUri(): string {
+  const projectDir = process.env.OMO_KIMI_PROJECT ?? process.cwd();
+  return pathToFileURL(projectDir).href + '/';
+}
 
 export async function handleToolRequest(
   req: ToolRequest,
@@ -132,7 +134,7 @@ export function startLspServer() {
     ],
   }));
 
-  server.setRequestHandler(CallToolRequestSchema, async (req) => handleToolRequest(req, rootUri));
+  server.setRequestHandler(CallToolRequestSchema, async (req) => handleToolRequest(req, getRootUri()));
 
   const transport = new StdioServerTransport();
   server.connect(transport);

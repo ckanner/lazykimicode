@@ -1,6 +1,7 @@
 import type { HookPayload, HookOutput } from '../../shared/types.js';
 import { VERSION } from '../../shared/version.js';
 import { runBootstrapProvisioning } from './provision.js';
+import { readBoulder, hasUncheckedTasks, formatResumeContext } from '../start-work-continuation/boulder.js';
 
 export interface BootstrapContext {
   version: string;
@@ -35,6 +36,12 @@ export function runSessionStart(_payload: HookPayload): HookOutput {
     } catch (e) {
       details += `\nBootstrap provisioning error: ${e instanceof Error ? e.message : String(e)}`;
     }
+  }
+
+  const projectDir = process.env.OMO_KIMI_PROJECT ?? process.cwd();
+  const boulder = readBoulder(projectDir);
+  if (boulder && hasUncheckedTasks(boulder)) {
+    details += `\n${formatResumeContext(boulder)}`;
   }
 
   return {

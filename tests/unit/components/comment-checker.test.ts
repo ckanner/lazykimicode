@@ -40,6 +40,21 @@ describe('comment-checker', () => {
     expect(r.hasIssue).toBe(false);
   });
 
+  it('ignores markers inside URLs', () => {
+    const p = path.join(tmp, 'url.ts');
+    fs.writeFileSync(p, 'const url = "https://example.com/TODO#FIXME";\n');
+    const r = checkFile(p);
+    expect(r.hasIssue).toBe(false);
+  });
+
+  it('still detects TODO after a real line comment', () => {
+    const p = path.join(tmp, 'real-comment.ts');
+    fs.writeFileSync(p, 'const x = 1; // TODO: real marker\n');
+    const r = checkFile(p);
+    expect(r.hasIssue).toBe(true);
+    expect(r.matches).toContain('TODO');
+  });
+
   it('returns empty result for missing file', () => {
     const r = checkFile(path.join(tmp, 'missing.ts'));
     expect(r.hasIssue).toBe(false);

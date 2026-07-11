@@ -1377,11 +1377,11 @@ git commit -m "test(integration): add uninstall, doctor, and release-zip e2e tes
 - `codegraph` 行：更新 remote MCP 说明为已提供占位。
 - `start-work-continuation` 行：改为 block stop + resume guidance。
 - `git-bash` 行：说明 manifest 已声明。
-- 更新 test count 为 26/238。
+- 更新 test count 为 38/211。
 
 - [x] **Step 2: 修正 capabilities.md**
 
-- 更新 test count 为 26/238。
+- 更新 test count 为 38/211。
 
 - [x] **Step 3: 修正 Plan 文档**
 

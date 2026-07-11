@@ -1,6 +1,7 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
+import path from 'node:path';
 import { VERSION } from '../../shared/version.js';
 
 export interface McpRequest {
@@ -41,7 +42,24 @@ const GIT_BASH_CANDIDATES = [
 
 export function findBashPath(): string | null {
   for (const candidate of GIT_BASH_CANDIDATES) {
+    if (path.isAbsolute(candidate) || candidate.includes(path.sep)) {
+      if (fs.existsSync(candidate)) return candidate;
+      continue;
+    }
+
+    // Bare names: check cwd first, then search PATH (and Path/path on Windows).
     if (fs.existsSync(candidate)) return candidate;
+    const pathEnv = process.env.PATH ?? process.env.Path ?? process.env.path ?? '';
+    const dirs = pathEnv.split(path.delimiter).filter(Boolean);
+    for (const dir of dirs) {
+      const full = path.join(dir, candidate);
+      if (fs.existsSync(full)) return full;
+      // On Windows, also try the default executable extension.
+      if (process.platform === 'win32' && !path.extname(candidate)) {
+        const fullExe = `${full}.exe`;
+        if (fs.existsSync(fullExe)) return fullExe;
+      }
+    }
   }
   return null;
 }

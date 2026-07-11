@@ -49,8 +49,10 @@ function extractComments(content: string): Array<{ text: string; line: number }>
       }
     }
 
-    // Line comments
-    const lineMatch = line.match(/(?:\/\/|#)(.*)/);
+    // Line comments. Require start-of-line or whitespace before the comment
+    // marker so that URLs such as https://example.com or example.com#anchor
+    // are not treated as comments.
+    const lineMatch = line.match(/(?:^|\s)(?:\/\/|#)(.*)/);
     if (lineMatch) {
       comments.push({ text: lineMatch[1], line: i + 1 });
     }

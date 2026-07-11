@@ -38,6 +38,61 @@ describe('bootstrap', () => {
     }
   });
 
+  it('appends resume guidance when an interrupted Boulder work has unchecked tasks', () => {
+    fs.mkdirSync(path.join(tmpDir, '.omo'), { recursive: true });
+    fs.writeFileSync(
+      path.join(tmpDir, '.omo', 'boulder.json'),
+      JSON.stringify({
+        active_work_id: 'feat-auth',
+        works: {
+          'feat-auth': {
+            title: 'Add auth',
+            status: 'active',
+            tasks: [
+              { id: 't1', title: 'Login form', status: 'done' },
+              { id: 't2', title: 'Session handling', status: 'unchecked' },
+            ],
+          },
+        },
+      }),
+      'utf-8',
+    );
+    process.env.OMO_KIMI_PROJECT = tmpDir;
+    try {
+      const out = runSessionStart({ hookEventName: 'SessionStart' });
+      expect(out.hookSpecificOutput?.additionalContext).toContain('Active work: Add auth');
+      expect(out.hookSpecificOutput?.additionalContext).toContain('Session handling');
+      expect(out.hookSpecificOutput?.additionalContext).toContain('Unchecked tasks');
+    } finally {
+      delete process.env.OMO_KIMI_PROJECT;
+    }
+  });
+
+  it('does not append resume guidance when Boulder work is complete', () => {
+    fs.mkdirSync(path.join(tmpDir, '.omo'), { recursive: true });
+    fs.writeFileSync(
+      path.join(tmpDir, '.omo', 'boulder.json'),
+      JSON.stringify({
+        active_work_id: 'feat-auth',
+        works: {
+          'feat-auth': {
+            title: 'Add auth',
+            status: 'completed',
+            tasks: [{ id: 't1', title: 'Login form', status: 'done' }],
+          },
+        },
+      }),
+      'utf-8',
+    );
+    process.env.OMO_KIMI_PROJECT = tmpDir;
+    try {
+      const out = runSessionStart({ hookEventName: 'SessionStart' });
+      expect(out.hookSpecificOutput?.additionalContext).not.toContain('Active work: Add auth');
+    } finally {
+      delete process.env.OMO_KIMI_PROJECT;
+    }
+  });
+
   describe('provision', () => {
     it('creates agent cache with profiles', () => {
       const dir = ensureAgentCache(tmpDir);

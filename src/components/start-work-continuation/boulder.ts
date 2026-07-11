@@ -28,13 +28,14 @@ export function hasUncheckedTasks(boulder: Boulder | null): boolean {
   if (!boulder?.active_work_id) return false;
   const work = boulder.works?.[boulder.active_work_id];
   if (!work) return false;
-  return work.tasks.some((t) => t.status === 'unchecked');
+  return Array.isArray(work.tasks) && work.tasks.some((t) => t.status === 'unchecked');
 }
 
 export function formatResumeContext(boulder: Boulder): string {
   const work = boulder.works[boulder.active_work_id];
   if (!work) return 'Active work not found. Please check .omo/boulder.json.';
-  const unchecked = work.tasks.filter((t) => t.status === 'unchecked');
+  const tasks = Array.isArray(work.tasks) ? work.tasks : [];
+  const unchecked = tasks.filter((t) => t.status === 'unchecked');
   const lines = [
     `Active work: ${work.title}`,
     `Unchecked tasks (${unchecked.length}):`,

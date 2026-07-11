@@ -352,7 +352,7 @@ Current suite covers:
 - `tests/integration/install.test.ts` — run installer with `KIMI_CODE_HOME=<temp>`, assert plugin cache exists, hooks written, no duplicate hooks on second run.
 - `tests/integration/hooks.test.ts` — pipe synthetic Kimi hook payloads to component CLIs and assert JSON stdout.
 
-**Latest result:** 26 test files, 238 tests passing.
+**Latest result:** 38 test files, 211 tests passing.
 
 ### 8.3 Manual validation checklist
 
@@ -1931,7 +1931,7 @@ export async function runKimiInstaller(options: InstallOptions = {}): Promise<vo
 - [x] **Step 2: Write `src/cli/index.ts`**
 
 ```typescript
-import { runKimiInstaller } from '../install/install-kimi.js';
+import { runKimiInstaller, runKimiUninstaller } from '../install/install-kimi.js';
 
 const args = process.argv.slice(2);
 const command = args[0] ?? 'install';
@@ -1951,8 +1951,7 @@ function extractArg(argv: string[], flag: string): string | undefined {
 if (command === 'install' || command === 'setup') {
   runKimiInstaller(options).catch((e) => { console.error(e); process.exit(1); });
 } else if (command === 'uninstall') {
-  console.log('Uninstall not yet implemented');
-  process.exit(1);
+  runKimiUninstaller(options).catch((e) => { console.error(e); process.exit(1); });
 } else {
   console.error(`Unknown command: ${command}`);
   process.exit(1);

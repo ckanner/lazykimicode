@@ -197,4 +197,4 @@ The full verification command used in CI and development:
 pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build
 ```
 
-Latest result: **38 test files, 211 tests passing**.
+Latest result: **38 test files, 220 tests passing**.

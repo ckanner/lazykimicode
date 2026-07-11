@@ -122,4 +122,33 @@ describe('start-work-continuation resume guidance', () => {
     expect(out.decision).toBe('block');
     expect(out.hookSpecificOutput?.additionalContext).toContain('Session handling');
   });
+
+  it('blocks Stop for the skill-documented Boulder schema (schema_version 2 with tasks)', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.omo', 'boulder.json'),
+      JSON.stringify({
+        schema_version: 2,
+        active_work_id: 'feat-auth',
+        works: {
+          'feat-auth': {
+            work_id: 'feat-auth',
+            active_plan: '.omo/plans/auth.md',
+            plan_name: 'auth',
+            session_ids: ['kimi:session-1'],
+            status: 'active',
+            worktree_path: null,
+            tasks: [
+              { id: 't1', title: 'Login form', status: 'done' },
+              { id: 't2', title: 'Session handling', status: 'unchecked' },
+            ],
+          },
+        },
+      }),
+      'utf-8',
+    );
+    const out = runStop({ hookEventName: 'Stop' });
+    expect(out.decision).toBe('block');
+    expect(out.hookSpecificOutput?.additionalContext).toContain('Session handling');
+    expect(out.hookSpecificOutput?.additionalContext).toContain('Unchecked tasks');
+  });
 });

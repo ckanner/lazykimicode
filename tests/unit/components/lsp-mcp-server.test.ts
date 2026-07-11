@@ -23,8 +23,8 @@ describe('lsp mcp-server', () => {
     const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lsp-root-'));
     process.env.OMO_KIMI_PROJECT = projectDir;
     vi.resetModules();
-    const { rootUri } = await import(modulePath);
-    expect(rootUri).toBe(pathToFileURL(projectDir).href + '/');
+    const { getRootUri } = await import(modulePath);
+    expect(getRootUri()).toBe(pathToFileURL(projectDir).href + '/');
     fs.rmSync(projectDir, { recursive: true, force: true });
   });
 
