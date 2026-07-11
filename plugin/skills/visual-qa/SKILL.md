@@ -24,7 +24,7 @@ In the commands below, `$SKILL_DIR` is this skill's own directory (the folder co
 - Use `ReadMediaFile` to inspect screenshot images. Kimi Code CLI has no built-in browser tool or `view_image`/`look_at` viewer.
 - For unauthenticated browser/page QA, prefer the project's configured browser tooling (playwright, agent-browser, dev-browser skill) or the `kimi-webbridge` skill if available. If neither is available, ask the user how to capture the page. Do not silently install global tools.
 
-> **Fallback if `kimi-webbridge` is not available:** Use `FetchURL` to read the page, or ask the user to perform the browser step manually and paste the result.
+  > **Fallback if `kimi-webbridge` is not available:** Use `FetchURL` to read the page, or ask the user to perform the browser step manually and paste the result.
 
 - Apply fixes with `Write` / `Edit`. Kimi Code CLI has no thread title API, so drop any `codex_app.set_thread_title` step.
 

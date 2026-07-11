@@ -59,12 +59,13 @@ exercises the surface; capture the artifact.
   2. Terminal / TUI - drive a real pty and prove it through the
      project's TUI tooling or the `visual-qa` skill. NEVER `tmux capture-pane`
      for color / layout / CJK evidence, which degrades truecolor.
-
-> **Fallback if `kimi-webbridge` is not available:** Use `FetchURL` to read the page, or ask the user to perform the browser step manually and paste the result.
-
   3. Browser use — in Kimi Code CLI, use the `kimi-webbridge` skill
      first when available and no authenticated/persistent user browser
-     profile is required. Otherwise use the project's configured browser
+     profile is required.
+
+     > **Fallback if `kimi-webbridge` is not available:** Use `FetchURL` to read the page, or ask the user to perform the browser step manually and paste the result.
+
+     Otherwise use the project's configured browser
      tooling (Playwright, agent-browser, dev-browser skill) to drive the
      REAL page; if none is available, ask the user how to capture it.
      Capture action log + screenshot path. Never downgrade to a non-browser

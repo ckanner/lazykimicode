@@ -202,6 +202,6 @@ Do not:
 - Use `Write`/`Edit` only for scratch notes under `OH_MY_KIMICODE_SOURCE_ROOT`; never use them to mutate the user's `~/.kimi-code`, project config, or repositories during diagnosis.
 - Kimi Code CLI has no built-in browser tool. Browser work should use the `kimi-webbridge` skill if available, or ask the user for a URL/download.
 
-> **Fallback if `kimi-webbridge` is not available:** Use `FetchURL` to read the page, or ask the user to perform the browser step manually and paste the result.
+  > **Fallback if `kimi-webbridge` is not available:** Use `FetchURL` to read the page, or ask the user to perform the browser step manually and paste the result.
 
 - Kimi has no per-skill agent TOMLs and no thread-title API; do not reference `agents/openai.yaml`, `codex_app.*`, `multi_agent_v2`, or `lazycodex-gate-reviewer`.
