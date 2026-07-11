@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { execFileSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 
 const SCRIPT = path.resolve('plugin/skills/lcx-contribute-bug-fix/scripts/create-pr-body.mjs');
 
@@ -33,7 +33,8 @@ describe('create-pr-body', () => {
     };
     fs.writeFileSync(inputPath, JSON.stringify(input), 'utf-8');
 
-    execFileSync('node', [SCRIPT, inputPath, outputPath], { encoding: 'utf-8' });
+    const result = spawnSync('node', [SCRIPT, inputPath, outputPath], { encoding: 'utf-8' });
+    expect(result.status).toBe(0);
 
     const body = fs.readFileSync(outputPath, 'utf-8');
     expect(body).toContain('## Problem Situation');
@@ -48,6 +49,7 @@ describe('create-pr-body', () => {
   it('errors on missing required fields', () => {
     const inputPath = path.join(tmpDir, 'input.json');
     fs.writeFileSync(inputPath, JSON.stringify({ title: 'x' }), 'utf-8');
-    expect(() => execFileSync('node', [SCRIPT, inputPath, path.join(tmpDir, 'out.md')], { encoding: 'utf-8' })).toThrow();
+    const result = spawnSync('node', [SCRIPT, inputPath, path.join(tmpDir, 'out.md')], { encoding: 'utf-8' });
+    expect(result.status).not.toBe(0);
   });
 });
