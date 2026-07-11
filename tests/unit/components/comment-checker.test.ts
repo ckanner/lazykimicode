@@ -99,4 +99,34 @@ describe('comment-checker', () => {
     const markers = findStaleMarkers(content);
     expect(markers.filter((m) => m.marker === 'TODO')).toHaveLength(1);
   });
+
+  it('detects TODO with no whitespace before //', () => {
+    const markers = findStaleMarkers('const code = 1;// TODO fix\n');
+    expect(markers).toHaveLength(1);
+    expect(markers[0].marker).toBe('TODO');
+  });
+
+  it('detects TODO after code with whitespace before //', () => {
+    const markers = findStaleMarkers('return 1 // TODO fix\n');
+    expect(markers).toHaveLength(1);
+    expect(markers[0].marker).toBe('TODO');
+  });
+
+  it('ignores TODO inside http:// URLs', () => {
+    const markers = findStaleMarkers('const url = "http://example.com/TODO";\n');
+    expect(markers).toHaveLength(0);
+  });
+
+  it('does not treat /* inside a line comment as a block start', () => {
+    const markers = findStaleMarkers('// /* unclosed\nTODO\n');
+    expect(markers).toHaveLength(0);
+  });
+
+  it('handles backslash runs before closing quotes', () => {
+    // '\\' in source is a string containing one backslash; the // TODO after
+    // it is a real line comment and should be reported.
+    const markers = findStaleMarkers("'\\\\' // TODO\n");
+    expect(markers).toHaveLength(1);
+    expect(markers[0].marker).toBe('TODO');
+  });
 });

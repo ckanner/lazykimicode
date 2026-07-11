@@ -14,11 +14,15 @@ export interface CheckResult {
 function isInsideString(line: string, index: number): boolean {
   let inSingle = false;
   let inDouble = false;
+  let escaped = false;
   for (let i = 0; i < index && i < line.length; i++) {
     const ch = line[i];
-    const prev = i > 0 ? line[i - 1] : '';
-    if (ch === '\\' && prev !== '\\') {
-      i++; // skip escaped character
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (ch === '\\') {
+      escaped = true;
       continue;
     }
     if (ch === "'" && !inDouble) {
@@ -30,6 +34,35 @@ function isInsideString(line: string, index: number): boolean {
   return inSingle || inDouble;
 }
 
+function findLineCommentStart(line: string): number {
+  let start = -1;
+
+  // Find the earliest '//' that is not preceded by ':' (avoids '://' in URLs)
+  // and is not inside a string literal.
+  let idx = -1;
+  while (true) {
+    const next = line.indexOf('//', idx + 1);
+    if (next === -1) break;
+    if (line.charAt(next - 1) !== ':' && !isInsideString(line, next)) {
+      start = next;
+      break;
+    }
+    idx = next;
+  }
+
+  // Find the earliest '#' that is at the start of the line or preceded by
+  // whitespace, and is not inside a string literal.
+  const hashMatch = line.match(/(?:^|\s)#/);
+  if (hashMatch) {
+    const hashStart = hashMatch.index! + hashMatch[0].length - 1;
+    if (!isInsideString(line, hashStart) && (start === -1 || hashStart < start)) {
+      start = hashStart;
+    }
+  }
+
+  return start;
+}
+
 function extractComments(content: string): Array<{ text: string; line: number }> {
   const comments: Array<{ text: string; line: number }> = [];
   const lines = content.split('\n');
@@ -39,6 +72,8 @@ function extractComments(content: string): Array<{ text: string; line: number }>
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+    const lineCommentStart = findLineCommentStart(line);
+
     if (inBlock) {
       const end = line.indexOf('*/');
       if (end !== -1 && !isInsideString(line, end)) {
@@ -58,30 +93,36 @@ function extractComments(content: string): Array<{ text: string; line: number }>
       comments.push({ text: htmlMatch[1], line: i + 1 });
     }
 
-    // C-style block comment start
+    // C-style block comment start. Ignore a `/*` that is inside a line comment
+    // (e.g. `// /* TODO`) or inside a string literal.
     const start = line.indexOf('/*');
-    if (start !== -1 && !isInsideString(line, start)) {
+    let blockStart = -1;
+    let blockEnd = -1;
+    if (start !== -1 && !isInsideString(line, start) && (lineCommentStart === -1 || start < lineCommentStart)) {
       const end = line.indexOf('*/', start + 2);
-      if (end !== -1) {
+      if (end !== -1 && !isInsideString(line, end)) {
         comments.push({ text: line.slice(start + 2, end), line: i + 1 });
+        blockStart = start;
+        blockEnd = end;
       } else {
         inBlock = true;
         blockStartLine = i;
         blockText = line.slice(start + 2);
+        continue;
       }
     }
 
-    // Line comments. Require start-of-line or whitespace before the comment
-    // marker so that URLs such as https://example.com or example.com#anchor
-    // are not treated as comments.
-    const lineMatch = line.match(/(?:^|\s)(?:\/\/|#)(.*)/);
-    if (lineMatch) {
-      const idx = lineMatch.index!;
-      const markerStart =
-        line.indexOf('//', idx) !== -1 ? line.indexOf('//', idx) : line.indexOf('#', idx);
-      if (markerStart !== -1 && !isInsideString(line, markerStart)) {
-        comments.push({ text: lineMatch[1], line: i + 1 });
+    // Line comments. Split '//' and '#' handling: allow '//' after any
+    // character except ':', and require '#' to start the line or follow
+    // whitespace.
+    if (lineCommentStart !== -1) {
+      // Ignore a line-comment marker that is actually inside a same-line block
+      // comment (e.g. `/* block // comment */`).
+      if (blockStart !== -1 && blockEnd !== -1 && lineCommentStart > blockStart && lineCommentStart < blockEnd) {
+        continue;
       }
+      const markerLen = line.charAt(lineCommentStart) === '/' ? 2 : 1;
+      comments.push({ text: line.slice(lineCommentStart + markerLen), line: i + 1 });
     }
   }
   return comments;

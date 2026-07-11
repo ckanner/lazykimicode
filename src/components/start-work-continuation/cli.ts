@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readBoulder, hasUncheckedTasks, formatResumeContext } from './boulder.js';
 import { writeHookOutput, exitCodeForHookOutput } from '../../shared/serialize.js';
@@ -41,7 +42,9 @@ async function main() {
   process.exit(exitCodeForHookOutput(output));
 }
 
-const isMain = import.meta.url.startsWith('file:') && process.argv[1] === fileURLToPath(import.meta.url);
+const isMain =
+  import.meta.url.startsWith('file:') &&
+  path.resolve(process.argv[1] ?? '') === path.resolve(fileURLToPath(import.meta.url));
 if (isMain) {
   main().catch((e) => { console.error(e); process.exit(0); });
 }

@@ -1,25 +1,42 @@
 import { describe, it, expect } from 'vitest';
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 
-const PROJECT_ROOT = process.cwd();
-
 describe('release zip', () => {
   it('contains dist/ and bin/ and runs --help', () => {
-    execSync('pnpm run build', { cwd: PROJECT_ROOT, stdio: 'ignore' });
-    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'release-zip-'));
-    const extractDir = path.join(tmp, 'extracted');
-    const zipPath = path.join(tmp, 'lazykimicode.zip');
+    const projectRoot = path.resolve('.');
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'release-zip-'));
     try {
-      execSync(`zip -r "${zipPath}" plugin scripts bin dist package.json`, { cwd: PROJECT_ROOT, stdio: 'ignore' });
+      fs.cpSync(projectRoot, tmpDir, {
+        recursive: true,
+        filter: (src) => {
+          const rel = path.relative(projectRoot, src);
+          if (!rel) return true;
+          const top = rel.split(path.sep)[0];
+          if (['.git', 'node_modules', 'dist'].includes(top)) return false;
+          const parts = rel.split(path.sep);
+          if (parts[0] === 'plugin' && parts[1] === 'components' && parts[3] === 'dist') return false;
+          return true;
+        },
+      });
+      fs.symlinkSync(path.join(projectRoot, 'node_modules'), path.join(tmpDir, 'node_modules'), 'dir');
+
+      execFileSync('node', ['scripts/build.mjs'], {
+        cwd: tmpDir,
+        env: { ...process.env, OMO_KIMI_POSTHOG_API_KEY: 'test-key' },
+      });
+
+      const extractDir = path.join(tmpDir, 'extracted');
+      const zipPath = path.join(tmpDir, 'lazykimicode.zip');
       fs.mkdirSync(extractDir, { recursive: true });
+      execSync(`zip -r "${zipPath}" plugin scripts bin dist package.json`, { cwd: tmpDir, stdio: 'ignore' });
       execSync(`unzip -q ${zipPath} -d ${extractDir}`);
       const help = execSync('node ' + path.join(extractDir, 'bin', 'lazykimicode.mjs') + ' --help', { encoding: 'utf-8' });
       expect(help).toContain('lazykimicode');
     } finally {
-      fs.rmSync(tmp, { recursive: true, force: true });
+      fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   });
 });

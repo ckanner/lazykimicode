@@ -3,7 +3,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import fs from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { LspClient } from './lsp-client.js';
 import { VERSION } from '../../shared/version.js';
 import { StdioLspTransport, type LspTransport } from './transport.js';
@@ -201,4 +201,9 @@ export function startLspDaemon() {
   process.on('SIGTERM', () => daemon.close());
 }
 
-startLspDaemon();
+if (
+  import.meta.url.startsWith('file:') &&
+  path.resolve(process.argv[1] ?? '') === path.resolve(fileURLToPath(import.meta.url))
+) {
+  startLspDaemon();
+}
