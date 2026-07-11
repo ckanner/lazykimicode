@@ -24,9 +24,9 @@
 - **codegraph PostToolUse 失败引导已修复（Task 2）** — `src/components/codegraph/bootstrap.ts` 现在检测 `codegraph_*` / `mcp__codegraph__*` 工具失败，并返回 `codegraph_reindex` 重试引导。
 - **版本号硬编码已修复（Task 3）** — `VERSION` 从 `package.json` 派生，`src/shared/paths.ts`、`src/components/bootstrap/session-start.ts`、`plugin/kimi.plugin.json` 等均使用生成版本。
 - **Plan / AGENTS.md 声明已修正（Task 4）** — `docs/lazykimicode-plan.md` 状态块与 `AGENTS.md` 组件表已更新，与当前实现保持一致。
-- **Release workflow 已包含 `dist/` 目录（remaining-gap Task 1）** — `.github/workflows/release.yml` 在发布 zip 中打包 `dist/`，并补充 lint/test 检查，保证发布资产完整。
+- **Release workflow 已包含 `dist/` 目录（remaining-gap Task 1）** — `.github/workflows/release.yml` 在发布 zip 中打包 `dist/`；lint/typecheck/test 由 `ci.yml` 在 push/PR 时执行，release workflow 不重复执行。
 - **根目录 `.mcp.json` 已提供远程 MCP 默认占位（remaining-gap Task 2）** — `grep_app` / `context7` 以禁用占位形式存在，用户填入 API key 后即可启用。
-- **PostHog release key 注入已实现/无需修复** — 构建脚本读取 `POSTHOG_RELEASE_KEY` 并在遥测初始化时注入；CI 已存在相关环境变量校验。
+- **PostHog release key 注入已实现/无需修复** — `.github/workflows/release.yml:21-27` 通过 `OMO_KIMI_POSTHOG_API_KEY` secret 执行 `sed` 替换，将 `src/components/telemetry/posthog.ts:7` 中的 `phc_placeholder_replace_in_build` 替换为真实 key。
 - **`bootstrap` 完整验证已实现/无需修复** — `bootstrap` 组件的 bin 链接、agent profile 缓存、`sg` 安装、config re-stamping 等功能在实现层面已存在并通过测试，不再列为未验证缺口。
 
 ---
@@ -56,7 +56,7 @@
 | 16 | MCP 工具名对齐（`lsp_*`、`codegraph_*` 等） | ✅ | `tests/unit/skills/mcp-alignment.test.ts` 通过；`codegraph_status`、`lsp_prepare_rename`、`lsp_rename` 等已声明 |
 | 17 | 远程 MCP 路由（`grep_app`、`context7`） | ✅ | 根目录 `.mcp.json` 已提供禁用占位配置；实际启用需要用户 API key |
 | 18 | `lcx-*` 仓库路由 | ✅ | 已实现为 Skills：`lcx-contribute-bug-fix`、`lcx-doctor`、`lcx-report-bug` |
-| 19 | PostHog release key 注入 | ✅ | 构建脚本读取 `POSTHOG_RELEASE_KEY` 并注入遥测初始化；已实现/无需修复 |
+| 19 | PostHog release key 注入 | ✅ | `.github/workflows/release.yml:21-27` 通过 `OMO_KIMI_POSTHOG_API_KEY` secret 执行 `sed` 替换，将 `src/components/telemetry/posthog.ts:7` 的 `phc_placeholder_replace_in_build` 替换为真实 key；已实现/无需修复 |
 | 20 | `create-pr-body.mjs` | ✅ | 位于 `plugin/skills/lcx-contribute-bug-fix/scripts/create-pr-body.mjs`，不是 `scripts/` 根目录；测试 `tests/unit/skills/create-pr-body.test.ts` 通过 |
 
 ---
@@ -92,7 +92,7 @@
 | `.omo/boulder.json` 工作流 | `start-work-continuation` | ✅ |
 | `teammode` 多代理编排 | Skill + `team.mjs` 状态脚本 | ✅ 已实现 |
 | 规则系统 `.omo/rules/*.md` | `rules` 组件 | ✅ |
-| 遥测（PostHog） | `telemetry` 组件 | ✅ release key 注入已实现/无需修复 |
+| 遥测（PostHog） | `telemetry` 组件 | ✅ release key 注入：`.github/workflows/release.yml:21-27` 通过 `OMO_KIMI_POSTHOG_API_KEY` secret 执行 `sed` 替换，将 `src/components/telemetry/posthog.ts:7` 的 `phc_placeholder_replace_in_build` 替换为真实 key |
 | CodeGraph 结构搜索 | `codegraph` MCP | ✅ hooks 已注册，SessionStart 初始化与 PostToolUse 失败引导已实现 |
 
 ---
@@ -112,7 +112,7 @@
 |---|------|------|-------------|------|
 | 3 | **版本号多处硬编码且不一致** | ✅ 已修复 | 构建脚本从 `package.json` 生成 `src/shared/version.ts` / `.mjs`，所有位置统一读取 `VERSION`（Task 3） | 发布流程可能产生错误版本资产 |
 | 4 | **`bootstrap` 组件版本号也硬编码** | ✅ 已修复 | `src/components/bootstrap/session-start.ts:13` 使用 `VERSION`，不再硬编码 `0.1.0`（Task 3） | 与 `package.json` 的 `0.1.3` 不一致，启动信息可能显示错误版本 |
-| 5 | **Release workflow 未包含 `dist/` 目录且缺少 lint/test 步骤** | ✅ 已修复 | `.github/workflows/release.yml` 在 zip 中打包 `dist/`，并在构建前执行 lint/test（remaining-gap Task 1） | 发布的 zip/npm 包可能不完整 |
+| 5 | **Release workflow 未包含 `dist/` 目录** | ✅ 已修复 | `.github/workflows/release.yml` 在 zip 中打包 `dist/`（`zip -r lazykimicode.zip plugin scripts bin dist package.json`）。lint/typecheck/test 由 `ci.yml` 在 push/PR 时执行，release workflow 不重复执行（remaining-gap Task 1） | 发布的 zip/npm 包可能不完整 |
 | 6 | **远程 MCP（grep_app、context7）未提供默认配置** | ✅ 已修复 | 根目录 `.mcp.json` 提供禁用占位配置（remaining-gap Task 2） | 用户无法开箱即用 |
 | 7 | **Plan 文档状态声明不准确** | ✅ 已修复 | `docs/lazykimicode-plan.md:3` 已改为 **Partially implemented** 并列出剩余缺口（Task 4） | 误导后续开发者/代理 |
 
@@ -130,15 +130,15 @@
 
 | # | 问题 | 状态 | 证据 / 位置 | 备注 |
 |---|------|------|-------------|------|
-| 12 | **PostHog release key 注入** | ✅ 已实现 | 构建脚本读取 `POSTHOG_RELEASE_KEY` 并注入 `src/shared/telemetry.ts` 初始化逻辑；CI 中已配置校验 | release 遥测 key 注入工作正常 |
-| 13 | **`bootstrap` 组件完整验证** | ✅ 已实现 | `src/components/bootstrap/session-start.ts`、`src/install/installer.ts` 与相关测试已覆盖 bin 链接、agent profile 缓存、`sg` 安装、config re-stamping 等功能 | 不再是未验证缺口 |
+| 12 | **PostHog release key 注入** | ✅ 已实现 | `.github/workflows/release.yml:21-27` 通过 secret `OMO_KIMI_POSTHOG_API_KEY` 执行 `sed` 替换，将 `src/components/telemetry/posthog.ts:7` 的 `phc_placeholder_replace_in_build` 替换为真实 key | release 遥测 key 注入工作正常 |
+| 13 | **`bootstrap` 组件完整验证** | ✅ 已实现 | `src/components/bootstrap/provision.ts` 实现 bin 链接、agent profile 缓存、`sg` 安装、config re-stamping；`src/components/bootstrap/session-start.ts` 编排启动流程；`src/install/install-kimi.ts` 与 `tests/integration/installer.test.ts` 覆盖安装器 idempotence/migration | 不再是未验证缺口 |
 
 ---
 
 ## 6. 推荐修复优先级 TOP 5
 
 1. **确认 `lsp` 组件的 daemon 与 `lsp-tools-mcp` 拆分是否完整可用，并在 CI 中增加对应覆盖。**
-2. **在下次发布标签推送时验证 release workflow 确实包含 `dist/` 目录且 lint/test 步骤通过。**
+2. **在下次发布标签推送时验证 release workflow 确实包含 `dist/` 目录，并确认 `ci.yml` 的 lint/typecheck/test 在发布前已通过。**
 3. **验证根目录 `.mcp.json` 中的远程 MCP 占位配置能被 Kimi Code CLI 正确读取，补充用户启用指引。**
 4. **完成一次完整的跨平台手动验证清单（macOS / Linux / Windows），重点覆盖 install、bootstrap、hooks 执行路径。**
 5. **持续清理文档/AGENTS.md 与实现之间的微小漂移，保持 audit 与 plan 状态同步。**
