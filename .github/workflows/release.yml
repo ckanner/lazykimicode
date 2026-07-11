@@ -12,7 +12,7 @@ jobs:
           version: 9
       - uses: actions/setup-node@v4
         with:
-          node-version: latest
+          node-version: '26.5.0'
           registry-url: 'https://registry.npmjs.org'
       - run: pnpm install
       - name: Inject PostHog API key
