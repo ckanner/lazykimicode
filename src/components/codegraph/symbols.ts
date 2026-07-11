@@ -44,7 +44,7 @@ const PARSERS: Record<string, ParserPattern[]> = {
   ],
   '.go': [
     { regex: /func\s+(?:\(.*\)\s+)?(?<name>\w+)/dg, kind: 'function' },
-    { regex: /type\s+(?<name>\w+)/dg, kind: 'class' },
+    { regex: /type\s+(?<name>\w+)/dg, kind: 'type' },
     { regex: /\bfunc\s+\([^)]+\)\s+(?<name>\w+)\s*\(/dg, kind: 'function' },
   ],
   '.rs': [
