@@ -2,8 +2,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
+import { spawnSync } from 'node:child_process';
 
 const modulePath = '../../../src/components/git-bash/mcp-server.js';
+const SERVER = path.resolve('plugin/components/git-bash/dist/mcp-server.mjs');
 
 describe('git-bash mcp-server findBashPath', () => {
   let existsSyncSpy: ReturnType<typeof vi.spyOn>;
@@ -61,5 +63,26 @@ describe('git-bash mcp-server findBashPath', () => {
       process.env.PATH = originalPath;
       fs.rmSync(tmpBin, { recursive: true, force: true });
     }
+  });
+});
+
+describe('git-bash mcp-server entry', () => {
+  it('initializes and lists the git_bash tool', () => {
+    const result = spawnSync('node', [SERVER], {
+      input: [
+        JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize' }),
+        JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'tools/list' }),
+      ].join('\n') + '\n',
+      encoding: 'utf-8',
+    });
+    expect(result.status).toBe(0);
+    const lines = result.stdout.trim().split('\n');
+    expect(lines).toHaveLength(2);
+    const init = JSON.parse(lines[0]);
+    expect(init.id).toBe(1);
+    expect(init.result.protocolVersion).toBe('2024-11-05');
+    const list = JSON.parse(lines[1]);
+    expect(list.id).toBe(2);
+    expect(list.result.tools.map((t: { name: string }) => t.name)).toContain('git_bash');
   });
 });

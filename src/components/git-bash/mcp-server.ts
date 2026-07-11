@@ -2,6 +2,7 @@ import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { VERSION } from '../../shared/version.js';
 
 export interface McpRequest {
@@ -238,4 +239,10 @@ export async function runServer(options: ServerOptions = {}): Promise<void> {
     }
   });
   await new Promise<void>((resolve) => stdin.on('end', resolve));
+}
+
+const modulePath = path.resolve(fileURLToPath(import.meta.url));
+const entryPath = path.resolve(process.argv[1] ?? '');
+if (modulePath === entryPath) {
+  runServer();
 }
