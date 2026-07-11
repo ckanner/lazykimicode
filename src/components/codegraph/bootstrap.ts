@@ -19,7 +19,29 @@ export function runBootstrap(_payload: HookPayload): HookOutput {
   };
 }
 
-export function runPostToolUse(_payload: HookPayload): HookOutput {
+export function runPostToolUse(payload: HookPayload): HookOutput {
+  const isCodegraphTool =
+    payload.toolName &&
+    /^(codegraph[._].*|mcp__codegraph__.*)$/.test(payload.toolName);
+
+  const failed =
+    isCodegraphTool &&
+    payload.toolResult &&
+    (payload.toolResult.error != null ||
+      (typeof payload.toolResult === 'object' &&
+        'isError' in payload.toolResult &&
+        payload.toolResult.isError === true));
+
+  if (failed) {
+    return {
+      hookSpecificOutput: {
+        hookEventName: 'PostToolUse',
+        additionalContext:
+          'CodeGraph tool failed. Try running `codegraph_reindex` to rebuild the index, then retry the query.',
+      },
+    };
+  }
+
   return {
     hookSpecificOutput: {
       hookEventName: 'PostToolUse',

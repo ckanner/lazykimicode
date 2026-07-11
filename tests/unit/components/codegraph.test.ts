@@ -5,7 +5,7 @@ import os from 'node:os';
 import { parseFile, inferLanguageId } from '../../../src/components/codegraph/symbols.js';
 import { buildIndex, loadIndex, saveIndex, indexPath, listProjectFiles } from '../../../src/components/codegraph/indexer.js';
 import { search, relate, explore, files, callers, callees, impact } from '../../../src/components/codegraph/search.js';
-import { runBootstrap } from '../../../src/components/codegraph/bootstrap.js';
+import { runBootstrap, runPostToolUse } from '../../../src/components/codegraph/bootstrap.js';
 
 describe('codegraph', () => {
   let tmpDir: string;
@@ -218,6 +218,28 @@ impl Point {}
       } finally {
         process.chdir(originalCwd);
       }
+    });
+
+    it('returns guidance when codegraph tool failed', () => {
+      const payload: HookPayload = {
+        hookEventName: 'PostToolUse',
+        toolName: 'mcp__codegraph__search',
+        toolResult: { error: 'index missing' },
+      };
+      const out = runPostToolUse(payload);
+      expect(out.hookSpecificOutput?.hookEventName).toBe('PostToolUse');
+      expect(out.hookSpecificOutput?.additionalContext).toContain('CodeGraph');
+      expect(out.hookSpecificOutput?.additionalContext).toContain('reindex');
+    });
+
+    it('returns empty context on success', () => {
+      const payload: HookPayload = {
+        hookEventName: 'PostToolUse',
+        toolName: 'mcp__codegraph__search',
+        toolResult: { result: 'ok' },
+      };
+      const out = runPostToolUse(payload);
+      expect(out.hookSpecificOutput?.additionalContext).toBe('');
     });
   });
 });
