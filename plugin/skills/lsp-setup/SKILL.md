@@ -1,6 +1,6 @@
 ---
 name: lsp-setup
-description: "Configure a Language Server (LSP) for a specific language so oh-my-kimicode diagnostics, go-to-definition, find-references, and rename work. Use when you need to: configure LSP, lsp setup, set up or install a language server, fix 'no LSP server configured' / 'server not installed', choose between servers (basedpyright vs pyright vs ty vs ruff), or wire OMO_KIMI_LSP_COMMAND / OMO_KIMI_LSP_ARGS. Routes by file extension to references/<language>/README.md for the exact builtin server, per-OS install commands (macOS/Linux/Windows), config snippets, initialization options, alternatives, and troubleshooting. Covers typescript, python, go, rust, c/c++, java, kotlin, c#/razor, swift, ruby, php, dart, elixir, zig, lua, bash, yaml, terraform, haskell, julia."
+description: "Configure a Language Server (LSP) for a specific language so lazykimicode diagnostics, go-to-definition, find-references, and rename work. Use when you need to: configure LSP, lsp setup, set up or install a language server, fix 'no LSP server configured' / 'server not installed', choose between servers (basedpyright vs pyright vs ty vs ruff), or wire OMO_KIMI_LSP_COMMAND / OMO_KIMI_LSP_ARGS. Routes by file extension to references/<language>/README.md for the exact builtin server, per-OS install commands (macOS/Linux/Windows), config snippets, initialization options, alternatives, and troubleshooting. Covers typescript, python, go, rust, c/c++, java, kotlin, c#/razor, swift, ruby, php, dart, elixir, zig, lua, bash, yaml, terraform, haskell, julia."
 type: prompt
 whenToUse: When setting up or troubleshooting LSP diagnostics for a project.
 ---
@@ -10,7 +10,7 @@ whenToUse: When setting up or troubleshooting LSP diagnostics for a project.
 Configure the right Language Server for a project so the LSP MCP tools
 (`lsp_diagnostics`, `lsp_goto_definition`, `lsp_find_references`) actually
 work. This skill is an index: detect what a project needs, install the server,
-wire the oh-my-kimicode harness, then verify with a real roundtrip.
+wire the lazykimicode harness, then verify with a real roundtrip.
 
 The list of servers we ship as **builtin** is the source of truth in the
 reference table below and in `src/components/lsp/`. The per-language references
@@ -90,7 +90,7 @@ command -v <server-executable>   # e.g. typescript-language-server, gopls, rust-
 
 ### 3. Configure
 
-oh-my-kimicode wires the LSP client through environment variables. Most builtin
+lazykimicode wires the LSP client through environment variables. Most builtin
 servers need **no config** — they are resolved automatically by file extension.
 Set these variables only to: pick between competing servers, pass custom args,
 override the project root, or point to a non-builtin server.
@@ -138,15 +138,10 @@ bun scripts/verify-lsp.ts <path/to/file.ext>
 bun scripts/verify-lsp.ts <file> --timeout=90000
 ```
 
-Otherwise, verify through the oh-my-kimicode LSP component directly:
+Otherwise, verify through the lazykimicode LSP MCP tools directly:
 
-```typescript
-// Check harness status
-lsp_status()
-
-// Request diagnostics for a file
-lsp_diagnostics(file=<path/to/file.ext>)
-```
+- Call `lsp_status` to check harness status.
+- Call `lsp_diagnostics` with `{"file": "<path/to/file.ext>"}` to request diagnostics for a file.
 
 `OK` = the server started and answered. `FAIL: language server not installed`
 = go back to step 2. Other `FAIL` text carries the server/startup error.
@@ -166,7 +161,7 @@ is set and the binary is on `PATH`, then call the LSP tool again.
 Run with [Bun](https://bun.sh): `curl -fsSL https://bun.sh/install | bash`.
 
 > These helper scripts are part of the LazyCodex original. The Kimi Code CLI
-> build of oh-my-kimicode does **not** ship them; use the equivalent `Bash` and
+> build of lazykimicode does **not** ship them; use the equivalent `Bash` and
 > LSP MCP tool commands shown above.
 
 ---

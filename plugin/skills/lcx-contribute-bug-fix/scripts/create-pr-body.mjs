@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
 
 const INPUT_FIELD_ORDER = [
   'title',
@@ -46,7 +45,7 @@ function renderPrBody(input) {
     ],
     [
       '---',
-      `This PR was debugged, implemented, and created with [Oh My KimiCode](https://github.com/ckanner/oh-my-kimicode).\nTag: oh-my-kimicode-generated`,
+      `This PR was debugged, implemented, and created with [Oh My KimiCode](https://github.com/ckanner/lazykimicode).\nTag: lazykimicode-generated`,
     ],
   ];
 
@@ -75,6 +74,4 @@ function main() {
   console.log(`Wrote PR body to ${outputPath}`);
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main();
-}
+main();

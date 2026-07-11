@@ -25,14 +25,14 @@ describe('doctor', () => {
 
   it('reports ok when cache, hooks, and bins exist', () => {
     const binDir = path.join(tmpDir, 'bin');
-    const cache = path.join(tmpDir, 'plugins', 'cache', 'oh-my-kimicode', '0.1.0');
+    const cache = path.join(tmpDir, 'plugins', 'cache', 'lazykimicode', '0.1.0');
     fs.mkdirSync(cache, { recursive: true });
     fs.mkdirSync(binDir, { recursive: true });
     fs.writeFileSync(path.join(binDir, 'codegraph-server'), '', 'utf-8');
     fs.writeFileSync(path.join(binDir, 'git-bash-mcp'), '', 'utf-8');
     fs.writeFileSync(path.join(binDir, 'lsp-tools-mcp'), '', 'utf-8');
     fs.writeFileSync(path.join(binDir, 'lsp-daemon'), '', 'utf-8');
-    fs.writeFileSync(path.join(tmpDir, 'config.toml'), '[[hooks]]\ncommand = "node oh-my-kimicode"\n', 'utf-8');
+    fs.writeFileSync(path.join(tmpDir, 'config.toml'), '[[hooks]]\ncommand = "node lazykimicode"\n', 'utf-8');
     fs.writeFileSync(path.join(tmpDir, 'AGENTS.md'), '# Rules', 'utf-8');
 
     const results = runDoctor({ kimiCodeHome: tmpDir, binDir, projectDirectory: tmpDir });

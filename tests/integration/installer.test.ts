@@ -42,7 +42,7 @@ describe('installer integration', () => {
     const configPath = path.join(tmpDir, 'config.toml');
     runKimiInstaller({ kimiCodeHome: tmpDir });
 
-    const cacheDir = path.join(tmpDir, 'plugins', 'cache', 'oh-my-kimicode', '0.1.0');
+    const cacheDir = path.join(tmpDir, 'plugins', 'cache', 'lazykimicode', '0.1.0');
     expect(fs.existsSync(cacheDir)).toBe(true);
     expect(fs.existsSync(path.join(cacheDir, 'components'))).toBe(true);
     expect(fs.existsSync(configPath)).toBe(true);
@@ -99,8 +99,8 @@ describe('installer integration', () => {
     await runKimiUninstaller({ kimiCodeHome: tmpDir, binDir: path.join(tmpDir, 'bin') });
 
     const config = fs.readFileSync(path.join(tmpDir, 'config.toml'), 'utf-8');
-    expect(config).not.toContain('oh-my-kimicode');
-    expect(fs.existsSync(path.join(tmpDir, 'plugins', 'cache', 'oh-my-kimicode'))).toBe(false);
+    expect(config).not.toContain('lazykimicode');
+    expect(fs.existsSync(path.join(tmpDir, 'plugins', 'cache', 'lazykimicode'))).toBe(false);
   });
 
   it('uninstall preserves rules with --preserve-rules', async () => {

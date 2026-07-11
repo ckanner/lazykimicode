@@ -3,7 +3,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import os from 'node:os';
 
-export const DEFAULT_STATE_DIR = path.join(os.homedir(), '.local', 'share', 'oh-my-kimicode');
+export const DEFAULT_STATE_DIR = path.join(os.homedir(), '.local', 'share', 'lazykimicode');
 export const DEFAULT_STATE_FILE = path.join(DEFAULT_STATE_DIR, 'posthog-activity.json');
 
 export function getStateFile(stateDir?: string): string {

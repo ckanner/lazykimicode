@@ -42,8 +42,8 @@ describe('create-pr-body', () => {
     expect(body).toContain('## Approach');
     expect(body).toContain('Add TTL.');
     expect(body).toContain('- test fails before');
-    expect(body).toContain('Tag: oh-my-kimicode-generated');
-    expect(body).toContain('https://github.com/ckanner/oh-my-kimicode');
+    expect(body).toContain('Tag: lazykimicode-generated');
+    expect(body).toContain('https://github.com/ckanner/lazykimicode');
   });
 
   it('errors on missing required fields', () => {

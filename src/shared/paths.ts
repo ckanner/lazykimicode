@@ -35,7 +35,7 @@ export function resolveKimiEnv(options: PathOptions = {}): {
 }
 
 export function pluginCacheDir(kimiCodeHome: string, version: string): string {
-  return path.join(kimiCodeHome, 'plugins', 'cache', 'oh-my-kimicode', version);
+  return path.join(kimiCodeHome, 'plugins', 'cache', 'lazykimicode', version);
 }
 
 export function omoConfigDir(): string {

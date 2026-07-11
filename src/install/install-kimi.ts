@@ -66,7 +66,7 @@ function writeRemoteMcpPlaceholders(kimiCodeHome: string, dryRun = false): void 
   if (!fs.existsSync(configPath) || dryRun) return;
   const raw = fs.readFileSync(configPath, 'utf-8');
   if (raw.includes('grep_app') || raw.includes('context7')) return;
-  const placeholder = `\n# Remote MCP placeholders (oh-my-kimicode)\n# Enable after obtaining API keys:\n# [mcpServers.grep_app]\n# command = "npx"\n# args = ["-y", "@grep-app/mcp"]\n# env = { GREP_APP_API_KEY = "..." }\n#\n# [mcpServers.context7]\n# command = "npx"\n# args = ["-y", "@context7/mcp"]\n# env = { CONTEXT7_API_KEY = "..." }\n`;
+  const placeholder = `\n# Remote MCP placeholders (lazykimicode)\n# Enable after obtaining API keys:\n# [mcpServers.grep_app]\n# command = "npx"\n# args = ["-y", "@grep-app/mcp"]\n# env = { GREP_APP_API_KEY = "..." }\n#\n# [mcpServers.context7]\n# command = "npx"\n# args = ["-y", "@context7/mcp"]\n# env = { CONTEXT7_API_KEY = "..." }\n`;
   fs.writeFileSync(configPath, raw.trimEnd() + placeholder, 'utf-8');
 }
 
@@ -78,14 +78,14 @@ function ensureGitBashMcp(kimiCodeHome: string, cache: string, dryRun = false): 
   if (raw.includes('[mcpServers.git_bash]')) return;
   // Use forward slashes in TOML so the path is valid on Windows without escaping.
   const gitBashPath = path.join(cache, 'components', 'git-bash', 'dist', 'mcp-server.mjs').replace(/\\/g, '/');
-  const entry = `\n# git_bash MCP (Windows only; installed by oh-my-kimicode)\n[mcpServers.git_bash]\ncommand = "node"\nargs = ["${gitBashPath}"]\n`;
+  const entry = `\n# git_bash MCP (Windows only; installed by lazykimicode)\n[mcpServers.git_bash]\ncommand = "node"\nargs = ["${gitBashPath}"]\n`;
   fs.writeFileSync(configPath, raw.trimEnd() + entry, 'utf-8');
 }
 
 function recordMigrationState(version: string, dryRun = false): void {
   if (dryRun) return;
   const stateDir = process.env.OMO_KIMI_MIGRATION_STATE_DIR
-    ?? path.join(os.homedir(), '.local', 'share', 'oh-my-kimicode');
+    ?? path.join(os.homedir(), '.local', 'share', 'lazykimicode');
   fs.mkdirSync(stateDir, { recursive: true });
   fs.writeFileSync(
     path.join(stateDir, 'config-migration-state.json'),
@@ -172,7 +172,7 @@ export async function runKimiInstaller(options: InstallOptions = {}): Promise<vo
   runFirstBootstrap(cache, env.binDir, env.kimiCodeHome, options.dryRun);
   await recordInstallTelemetry(options.dryRun);
 
-  console.log(`Installed oh-my-kimicode ${env.version} to ${cache}`);
+  console.log(`Installed lazykimicode ${env.version} to ${cache}`);
   if (result.backupPath) console.log(`Backed up config to ${result.backupPath}`);
 }
 
@@ -195,7 +195,7 @@ export async function runKimiUninstaller(options: UninstallOptions = {}): Promis
     const hooks = (parsed.hooks ?? []) as Array<Record<string, unknown>>;
     const remaining = hooks.filter((h) => {
       const cmd = String(h.command ?? '');
-      return !cmd.includes('oh-my-kimicode');
+      return !cmd.includes('lazykimicode');
     });
     if (remaining.length !== hooks.length) {
       parsed.hooks = remaining;
@@ -208,12 +208,12 @@ export async function runKimiUninstaller(options: UninstallOptions = {}): Promis
     }
     if (remaining.length !== hooks.length || mcpChanged) {
       fs.writeFileSync(configPath, toml.stringify(parsed as toml.TomlPrimitive), 'utf-8');
-      console.log(`Removed oh-my-kimicode hooks/MCP entries from ${configPath}`);
+      console.log(`Removed lazykimicode hooks/MCP entries from ${configPath}`);
     }
   }
 
   // Remove plugin cache directories.
-  const cacheParent = path.join(env.kimiCodeHome, 'plugins', 'cache', 'oh-my-kimicode');
+  const cacheParent = path.join(env.kimiCodeHome, 'plugins', 'cache', 'lazykimicode');
   if (fs.existsSync(cacheParent)) {
     fs.rmSync(cacheParent, { recursive: true, force: true });
     console.log(`Removed plugin cache ${cacheParent}`);
@@ -231,5 +231,5 @@ export async function runKimiUninstaller(options: UninstallOptions = {}): Promis
     }
   }
 
-  console.log('Uninstalled oh-my-kimicode');
+  console.log('Uninstalled lazykimicode');
 }

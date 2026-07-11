@@ -90,7 +90,7 @@ describe('telemetry', () => {
       expect(body.api_key).toBe('test-key');
       expect(body.event).toBe('daily_active');
       expect(body.distinct_id).toBe('abc123');
-      expect(body.properties.source).toBe('oh-my-kimicode');
+      expect(body.properties.source).toBe('lazykimicode');
     });
 
     it('reports failure when PostHog returns non-ok', async () => {

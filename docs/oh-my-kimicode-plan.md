@@ -1,4 +1,4 @@
-# oh-my-kimicode Design & Implementation Plan
+# lazykimicode Design & Implementation Plan
 
 > **Status:** Implemented and verified. All previously identified gaps (teammode subcommands, lsp-daemon split, MCP tool-name alignment, lcx-* repository routing, PostHog release key injection, and create-pr-body script) are closed. The current code may contain small refinements beyond this plan; where specifics differ, the source code and `AGENTS.md` are authoritative.
 >
@@ -6,7 +6,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build `oh-my-kimicode`, a Kimi Code CLI distribution of the OmO agent harness that ports LazyCodex's Codex-CLI plugin to Kimi Code CLI. The artifact is a Kimi plugin plus a small Node installer that wires Kimi-native hooks, MCP servers, Skills, and agent orchestration.
+**Goal:** Build `lazykimicode`, a Kimi Code CLI distribution of the OmO agent harness that ports LazyCodex's Codex-CLI plugin to Kimi Code CLI. The artifact is a Kimi plugin plus a small Node installer that wires Kimi-native hooks, MCP servers, Skills, and agent orchestration.
 
 **Architecture:** A Kimi plugin (`kimi.plugin.json`) provides Skills, plugin MCP servers, and a `sessionStart` skill. A companion Node installer patches `~/.kimi-code/config.toml` with `[hooks]` entries, installs component binaries, registers MCP strategy, and handles migrations/updates. Codex-specific concepts (`codex_app.*` threads, `multi_agent_v1.spawn_agent`, `.codex-plugin` hooks) are translated into Kimi-native equivalents (`Agent` / `AgentSwarm`, config.toml hooks, Kimi Skills).
 
@@ -20,8 +20,8 @@
 - Kimi Code CLI built-in subagent types are limited to `coder`/`explore`/`plan`; custom agent TOMLs are not plugin-extensible, so role instructions are carried inside Skills.
 - All plugin paths must resolve inside the plugin root after `realpath`; all installer paths must resolve inside `$KIMI_CODE_HOME` or the project directory.
 - Plugin MCP stdio commands must be `./` relative inside the plugin root or bare PATH commands.
-- Hook commands in `config.toml` are fail-open: a non-zero exit or timeout does **not** block the tool unless the hook explicitly writes a block decision to stdout and exits `2` (Kimi hook protocol). `oh-my-kimicode` components must therefore always exit `0` for advisory context and exit `2` only when they genuinely want to block.
-- The installer must be idempotent: running `npx oh-my-kimicode install` twice produces the same result without duplicating hooks.
+- Hook commands in `config.toml` are fail-open: a non-zero exit or timeout does **not** block the tool unless the hook explicitly writes a block decision to stdout and exits `2` (Kimi hook protocol). `lazykimicode` components must therefore always exit `0` for advisory context and exit `2` only when they genuinely want to block.
+- The installer must be idempotent: running `npx lazykimicode install` twice produces the same result without duplicating hooks.
 - The installer must back up `config.toml` before mutation and provide a `--dry-run` flag.
 
 ---
@@ -30,13 +30,13 @@
 
 ## 1. Product Positioning
 
-`oh-my-kimicode` is the Kimi Code CLI edition of OmO, analogous to how `lazycodex` is the Codex CLI edition.
+`lazykimicode` is the Kimi Code CLI edition of OmO, analogous to how `lazycodex` is the Codex CLI edition.
 
 | Edition | Host | Identity | Install command |
 |---------|------|----------|-----------------|
 | Ultimate | OpenCode plugin | `oh-my-openagent` | `bunx oh-my-openagent install` |
 | LazyCodex | Codex CLI plugin | `sisyphuslabs/omo` | `npx lazycodex-ai install` |
-| **oh-my-kimicode** | **Kimi Code CLI plugin** | **`oh-my-kimicode`** | **`npx oh-my-kimicode install`** |
+| **lazykimicode** | **Kimi Code CLI plugin** | **`lazykimicode`** | **`npx lazykimicode install`** |
 
 It brings LazyCodex's engineering discipline (rules injection, comment checking, LSP diagnostics, ultrawork/ulw-loop planning, telemetry, team orchestration) into Kimi Code CLI without requiring a separate Agent runtime.
 
@@ -44,7 +44,7 @@ It brings LazyCodex's engineering discipline (rules injection, comment checking,
 
 LazyCodex relies on four Codex extension mechanisms. The Kimi equivalents are:
 
-| LazyCodex mechanism | Codex artifact | Kimi equivalent | How oh-my-kimicode uses it |
+| LazyCodex mechanism | Codex artifact | Kimi equivalent | How lazykimicode uses it |
 |---------------------|----------------|-----------------|----------------------------|
 | Plugin manifest | `.codex-plugin/plugin.json` | `kimi.plugin.json` (or `.kimi-plugin/plugin.json`) | Declares `skills`, `mcpServers`, `sessionStart.skill`, `interface` |
 | Hooks | 7 Codex events + 21 `plugin/hooks/*.json` | `config.toml` `[hooks]` array | Installer writes `[hooks]` entries that invoke `plugin/components/<name>/dist/cli.mjs hook <event>` |
@@ -64,11 +64,11 @@ LazyCodex relies on four Codex extension mechanisms. The Kimi equivalents are:
 | `Stop` | `Stop` | Can prevent session stop |
 | `SubagentStop` | `SubagentStop` | Can prevent subagent stop |
 
-Kimi also supports `PostToolUseFailure`, `PermissionRequest`, `PermissionResult`, `SessionEnd`, `SubagentStart`, `StopFailure`, `Interrupt`, `PreCompact`, `Notification`; oh-my-kimicode does not need them for parity.
+Kimi also supports `PostToolUseFailure`, `PermissionRequest`, `PermissionResult`, `SessionEnd`, `SubagentStart`, `StopFailure`, `Interrupt`, `PreCompact`, `Notification`; lazykimicode does not need them for parity.
 
 ### 2.2 Tool name mapping
 
-| Codex tool / API | Kimi tool / API | Usage in oh-my-kimicode |
+| Codex tool / API | Kimi tool / API | Usage in lazykimicode |
 |------------------|-----------------|-------------------------|
 | `apply_patch` / `write` / `edit` | `Write` / `Edit` | Hook matchers use `^(Write|Edit)$` |
 | `multi_agent_v1.spawn_agent` | `Agent` | Skills instruct `Agent(prompt=..., subagent_type=coder/explore/plan)` |
@@ -124,7 +124,7 @@ Example generated hook entry in `config.toml`:
 [[hooks]]
 event = "PostToolUse"
 matcher = "^(Write|Edit)$"
-command = "node \"$KIMI_CODE_HOME/plugins/managed/oh-my-kimicode/<version>/components/comment-checker/dist/cli.mjs\" hook post-tool-use"
+command = "node \"$KIMI_CODE_HOME/plugins/managed/lazykimicode/<version>/components/comment-checker/dist/cli.mjs\" hook post-tool-use"
 timeout = 30
 ```
 
@@ -134,7 +134,7 @@ timeout = 30
 
 ```json
 {
-  "name": "@oh-my-kimicode/oh-my-kimicode",
+  "name": "@lazykimicode/lazykimicode",
   "version": "0.1.0",
   "description": "OmO agent harness for Kimi Code CLI",
   "keywords": ["omo", "agent-harness", "lsp", "rules", "ultrawork"],
@@ -142,7 +142,7 @@ timeout = 30
   "sessionStart": {
     "skill": "rules"
   },
-  "skillInstructions": "You are running with oh-my-kimicode (OmO for Kimi Code). Prefer the oh-my-kimicode MCP tools for structural search (codegraph), LSP, and Git Bash on Windows. Respect project rules from .omo/rules/ and AGENTS.md.",
+  "skillInstructions": "You are running with lazykimicode (OmO for Kimi Code). Prefer the lazykimicode MCP tools for structural search (codegraph), LSP, and Git Bash on Windows. Respect project rules from .omo/rules/ and AGENTS.md.",
   "mcpServers": {
     "codegraph": {
       "command": "node",
@@ -231,14 +231,14 @@ The installer is the moral equivalent of `packages/omo-codex/src/install/install
 
 1. Parse args (`--no-tui`, `--kimi-autonomous`, `--dry-run`, `--codex-home`, etc.).
 2. Detect Kimi Code CLI installation (`kimi --version`).
-3. Prepare plugin cache directory `<kimiCodeHome>/plugins/cache/oh-my-kimicode/<version>/`.
+3. Prepare plugin cache directory `<kimiCodeHome>/plugins/cache/lazykimicode/<version>/`.
 4. Copy plugin assets (`plugin/`) into cache.
 5. Install bundled MCP/runtime binaries (`git-bash-mcp`, `lsp-tools-mcp`, `lsp-daemon`, `codegraph-server`) into cache.
 6. Link component CLIs into `binDir` (idempotent, removes dangling managed bins).
 7. Install `sg` (ast-grep) binary for the `ast-grep` skill.
 8. Copy agent profile prompts into `<kimiCodeHome>/.omo/kimi-agents/` (used as reference by skills, not as native Kimi profiles).
 9. Patch `~/.kimi-code/config.toml`:
-   - Enable plugin via `plugins = ["oh-my-kimicode"]` (Kimi does not have a plugin list in config.toml; this is for documentation; actual enable is via `/plugins enable`).
+   - Enable plugin via `plugins = ["lazykimicode"]` (Kimi does not have a plugin list in config.toml; this is for documentation; actual enable is via `/plugins enable`).
    - Write `[[hooks]]` entries for each component-event.
    - Register MCP strategy / placeholders for `grep_app`/`context7`.
    - Set model aliases if desired (`[models.omo-ultrabrain]` etc.).
@@ -253,7 +253,7 @@ The installer is the moral equivalent of `packages/omo-codex/src/install/install
 - Avoid duplicate hook entries (match by `event` + `matcher` + normalized `command`).
 - Back up the original to `config.toml.bak.<timestamp>`.
 - Support `--dry-run` that prints diffs instead of writing.
-- Track migration state in `~/.local/share/oh-my-kimicode/config-migration-state.json`.
+- Track migration state in `~/.local/share/lazykimicode/config-migration-state.json`.
 
 ### 6.4 Autonomous mode
 
@@ -267,36 +267,36 @@ The installer is the moral equivalent of `packages/omo-codex/src/install/install
 
 ```bash
 # One-line install (recommended)
-npx oh-my-kimicode install
+npx lazykimicode install
 
 # Autonomous mode
-npx oh-my-kimicode install --no-tui --kimi-autonomous
+npx lazykimicode install --no-tui --kimi-autonomous
 
 # From local source
 node scripts/install-local.mjs install
 
 # Dry run
-npx oh-my-kimicode install --dry-run
+npx lazykimicode install --dry-run
 ```
 
 ### 7.2 Marketplace install (optional)
 
 ```bash
-/plugins install https://github.com/<org>/oh-my-kimicode/releases/download/v0.1.0/oh-my-kimicode.zip
-/plugins enable oh-my-kimicode
+/plugins install https://github.com/<org>/lazykimicode/releases/download/v0.1.0/lazykimicode.zip
+/plugins enable lazykimicode
 /new
 ```
 
-Then manually run `npx oh-my-kimicode install --hooks-only` to wire config.toml hooks (plugin manifest cannot declare hooks).
+Then manually run `npx lazykimicode install --hooks-only` to wire config.toml hooks (plugin manifest cannot declare hooks).
 
 ### 7.3 Using skills
 
 Inside Kimi Code CLI:
 
 ```text
-/skill:oh-my-kimicode:ultrawork implement OAuth login for this project
-/skill:oh-my-kimicode:init-deep
-/skill:oh-my-kimicode:ulw-plan "add OAuth login"
+/skill:lazykimicode:ultrawork implement OAuth login for this project
+/skill:lazykimicode:init-deep
+/skill:lazykimicode:ulw-plan "add OAuth login"
 ```
 
 If a skill name is unique, `/skill:<name>` also works.
@@ -314,7 +314,7 @@ export OMO_KIMI_DISABLE_POSTHOG=1
 ### 7.6 Uninstall
 
 ```bash
-npx oh-my-kimicode uninstall
+npx lazykimicode uninstall
 ```
 
 Removes managed plugin cache, hook entries from `config.toml`, bin links, and agent profile cache. Optionally preserves user rules.
@@ -354,13 +354,13 @@ Current suite covers:
 
 ### 8.3 Manual validation checklist
 
-1. `npx oh-my-kimicode install --dry-run` prints expected diff.
-2. `npx oh-my-kimicode install` succeeds; `~/.kimi-code/config.toml` has new `[[hooks]]` entries.
-3. Start Kimi in a project: `/plugins info oh-my-kimicode` shows the plugin and MCP servers.
+1. `npx lazykimicode install --dry-run` prints expected diff.
+2. `npx lazykimicode install` succeeds; `~/.kimi-code/config.toml` has new `[[hooks]]` entries.
+3. Start Kimi in a project: `/plugins info lazykimicode` shows the plugin and MCP servers.
 4. Type `ulw add a README`; verify hook status message appears.
 5. Edit a file leaving a `TODO` comment; verify `comment-checker` injects a warning.
-6. Run `/skill:oh-my-kimicode:init-deep` and verify `.omo/` rules/AGENTS.md are produced.
-7. Run `npx oh-my-kimicode doctor`; verify health report.
+6. Run `/skill:lazykimicode:init-deep` and verify `.omo/` rules/AGENTS.md are produced.
+7. Run `npx lazykimicode doctor`; verify health report.
 
 ### 8.4 CI
 
@@ -389,7 +389,7 @@ Ship only the Kimi plugin. All enforcement becomes explicit skill invocation. Th
 ## Task 0: Persist This Plan in the Project
 
 **Files:**
-- Create: `docs/oh-my-kimicode-plan.md`
+- Create: `docs/lazykimicode-plan.md`
 
 **Interfaces:**
 - Produces: project-local copy of the approved design & implementation plan
@@ -399,14 +399,14 @@ Ship only the Kimi plugin. All enforcement becomes explicit skill invocation. Th
 After plan approval, copy the session plan file to:
 
 ```bash
-cp /Users/ronan/.kimi-code/sessions/wd_oh-my-kimicode_644da876b5c7/session_2ab245d8-b211-46f8-81b4-ada0ba03c2c1/agents/main/plans/namor-pantha-white-tiger.md /Users/ronan/Documents/projects/oh-my-kimicode/docs/oh-my-kimicode-plan.md
+cp /Users/ronan/.kimi-code/sessions/wd_lazykimicode_644da876b5c7/session_2ab245d8-b211-46f8-81b4-ada0ba03c2c1/agents/main/plans/namor-pantha-white-tiger.md /Users/ronan/Documents/projects/lazykimicode/docs/lazykimicode-plan.md
 ```
 
 - [ ] **Step 2: Commit**
 
 ```bash
-git add docs/oh-my-kimicode-plan.md
-git commit -m "docs: add oh-my-kimicode design and implementation plan"
+git add docs/lazykimicode-plan.md
+git commit -m "docs: add lazykimicode design and implementation plan"
 ```
 
 ---
@@ -422,18 +422,18 @@ git commit -m "docs: add oh-my-kimicode design and implementation plan"
 - Create: `eslint.config.mjs`
 
 **Interfaces:**
-- Produces: package name `@oh-my-kimicode/oh-my-kimicode`, bin `oh-my-kimicode`
+- Produces: package name `@lazykimicode/lazykimicode`, bin `lazykimicode`
 
 - [ ] **Step 1: Write root `package.json`**
 
 ```json
 {
-  "name": "@oh-my-kimicode/oh-my-kimicode",
+  "name": "@lazykimicode/lazykimicode",
   "version": "0.1.0",
   "description": "OmO agent harness for Kimi Code CLI",
   "type": "module",
   "bin": {
-    "oh-my-kimicode": "./bin/oh-my-kimicode.mjs"
+    "lazykimicode": "./bin/lazykimicode.mjs"
   },
   "files": [
     "dist/",
@@ -613,7 +613,7 @@ export function resolveKimiEnv(options: PathOptions = {}): {
 }
 
 export function pluginCacheDir(kimiCodeHome: string, version: string): string {
-  return path.join(kimiCodeHome, 'plugins', 'cache', 'oh-my-kimicode', version);
+  return path.join(kimiCodeHome, 'plugins', 'cache', 'lazykimicode', version);
 }
 
 export function omoConfigDir(): string {
@@ -649,7 +649,7 @@ describe('paths', () => {
   });
 
   it('computes default cache dir', () => {
-    expect(pluginCacheDir('/tmp/kimi', '0.1.0')).toBe('/tmp/kimi/plugins/cache/oh-my-kimicode/0.1.0');
+    expect(pluginCacheDir('/tmp/kimi', '0.1.0')).toBe('/tmp/kimi/plugins/cache/lazykimicode/0.1.0');
   });
 });
 ```
@@ -1419,7 +1419,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import os from 'node:os';
 
-const STATE_DIR = path.join(os.homedir(), '.local', 'share', 'oh-my-kimicode');
+const STATE_DIR = path.join(os.homedir(), '.local', 'share', 'lazykimicode');
 const STATE_FILE = path.join(STATE_DIR, 'posthog-activity.json');
 
 export function shouldEmit(): boolean {
@@ -1806,7 +1806,7 @@ console.log('Hooks synced to', OUT);
 
 ```json
 {
-  "name": "@oh-my-kimicode/oh-my-kimicode",
+  "name": "@lazykimicode/lazykimicode",
   "version": "0.1.0",
   "description": "OmO agent harness for Kimi Code CLI",
   "keywords": ["omo", "agent-harness", "lsp", "rules", "ultrawork"],
@@ -1814,7 +1814,7 @@ console.log('Hooks synced to', OUT);
   "sessionStart": {
     "skill": "rules"
   },
-  "skillInstructions": "You are running with oh-my-kimicode (OmO for Kimi Code). Prefer the oh-my-kimicode MCP tools for structural search (codegraph), LSP, and Git Bash on Windows. Respect project rules from .omo/rules/ and AGENTS.md.",
+  "skillInstructions": "You are running with lazykimicode (OmO for Kimi Code). Prefer the lazykimicode MCP tools for structural search (codegraph), LSP, and Git Bash on Windows. Respect project rules from .omo/rules/ and AGENTS.md.",
   "mcpServers": {
     "codegraph": {
       "command": "node",
@@ -1868,7 +1868,7 @@ git add scripts/sync-hooks.mjs plugin/kimi.plugin.json plugin/.mcp.json package.
 **Files:**
 - Create: `src/install/install-kimi.ts`
 - Create: `src/cli/index.ts`
-- Create: `bin/oh-my-kimicode.mjs`
+- Create: `bin/lazykimicode.mjs`
 - Create: `scripts/install-local.mjs` (built entry)
 
 **Interfaces:**
@@ -1919,7 +1919,7 @@ export async function runKimiInstaller(options: InstallOptions = {}): Promise<vo
     return;
   }
 
-  console.log(`Installed oh-my-kimicode ${version} to ${cache}`);
+  console.log(`Installed lazykimicode ${version} to ${cache}`);
   if (result.backupPath) console.log(`Backed up config to ${result.backupPath}`);
 }
 ```
@@ -1955,7 +1955,7 @@ if (command === 'install' || command === 'setup') {
 }
 ```
 
-- [ ] **Step 3: Write `bin/oh-my-kimicode.mjs`**
+- [ ] **Step 3: Write `bin/lazykimicode.mjs`**
 
 ```javascript
 #!/usr/bin/env node
@@ -1977,7 +1977,7 @@ Modify `scripts/build.mjs` to bundle `src/cli/index.ts` to `scripts/install-loca
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/install/install-kimi.ts src/cli/index.ts bin/oh-my-kimicode.mjs scripts/build.mjs
+git add src/install/install-kimi.ts src/cli/index.ts bin/lazykimicode.mjs scripts/build.mjs
 -git commit -m "feat(install): CLI entry and installer orchestration"
 ```
 
@@ -2106,9 +2106,9 @@ git add scripts/build.mjs .github/workflows/ci.yml package.json
 - [ ] **Step 1: Write `README.md`**
 
 Sections:
-- What is oh-my-kimicode
-- Install (`npx oh-my-kimicode install`)
-- Usage (`ulw`, `/skill:oh-my-kimicode:init-deep`, teammode)
+- What is lazykimicode
+- Install (`npx lazykimicode install`)
+- Usage (`ulw`, `/skill:lazykimicode:init-deep`, teammode)
 - Features table
 - Uninstall
 - Telemetry opt-out
@@ -2145,10 +2145,10 @@ jobs:
       - run: pnpm run build
       - run: pnpm run sync:skills
       - run: pnpm run sync:hooks
-      - run: zip -r oh-my-kimicode.zip plugin scripts bin package.json
+      - run: zip -r lazykimicode.zip plugin scripts bin package.json
       - uses: softprops/action-gh-release@v2
         with:
-          files: oh-my-kimicode.zip
+          files: lazykimicode.zip
       - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -13,7 +13,7 @@ describe('paths', () => {
   it('computes default cache dir', () => {
     const home = path.join('/tmp', 'kimi');
     expect(pluginCacheDir(home, '0.1.0')).toBe(
-      path.join(home, 'plugins', 'cache', 'oh-my-kimicode', '0.1.0'),
+      path.join(home, 'plugins', 'cache', 'lazykimicode', '0.1.0'),
     );
   });
 });

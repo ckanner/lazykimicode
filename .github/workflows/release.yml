@@ -27,10 +27,10 @@ jobs:
       - run: pnpm run build
       - run: pnpm run sync:skills
       - run: pnpm run sync:hooks
-      - run: zip -r oh-my-kimicode.zip plugin scripts bin package.json
+      - run: zip -r lazykimicode.zip plugin scripts bin package.json
       - uses: softprops/action-gh-release@v2
         with:
-          files: oh-my-kimicode.zip
-      - run: npm publish --access public
+          files: lazykimicode.zip
+      - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

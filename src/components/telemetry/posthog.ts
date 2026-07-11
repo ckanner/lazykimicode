@@ -45,7 +45,7 @@ export async function captureEvent(
     event,
     distinct_id: distinctId,
     properties: {
-      source: 'oh-my-kimicode',
+      source: 'lazykimicode',
       version: process.env.npm_package_version ?? '0.1.0',
     },
   };

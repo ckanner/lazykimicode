@@ -1,4 +1,4 @@
-# oh-my-kimicode
+# lazykimicode
 
 OmO agent harness for [Kimi Code CLI](https://moonshotai.github.io/kimi-code/).
 
@@ -15,18 +15,18 @@ For the full capability reference, see [`docs/capabilities.md`](docs/capabilitie
 ### 1. Install
 
 ```bash
-npx oh-my-kimicode install
+npx lazykimicode install
 ```
 
 For fully autonomous mode (sets `default_permission_mode = "auto"`):
 
 ```bash
-npx oh-my-kimicode install --no-tui --kimi-autonomous
+npx lazykimicode install --no-tui --kimi-autonomous
 ```
 
 The installer will:
 
-- Copy the Kimi plugin to `~/.kimi-code/plugins/cache/oh-my-kimicode/<version>/`
+- Copy the Kimi plugin to `~/.kimi-code/plugins/cache/lazykimicode/<version>/`
 - Add `[[hooks]]` entries to `~/.kimi-code/config.toml`
 - Link managed binaries (`git-bash-mcp`, `lsp-tools-mcp`, `lsp-daemon`, `codegraph-server`) to `~/.local/bin/`
 - Seed `~/.omo/config.jsonc`
@@ -37,7 +37,7 @@ The installer will:
 Inside Kimi Code CLI:
 
 ```text
-/plugins enable oh-my-kimicode
+/plugins enable lazykimicode
 ```
 
 Then start a new session (or run `/new`). The plugin will load its MCP servers and the `rules` session-start skill automatically.
@@ -48,9 +48,9 @@ Trigger skills by name, or just type an ultrawork keyword:
 
 ```text
 ulw add OAuth login to this project
-/skill:oh-my-kimicode:init-deep
-/skill:oh-my-kimicode:ulw-plan "add OAuth login"
-/skill:oh-my-kimicode:teammode
+/skill:lazykimicode:init-deep
+/skill:lazykimicode:ulw-plan "add OAuth login"
+/skill:lazykimicode:teammode
 ```
 
 ---
@@ -59,7 +59,7 @@ ulw add OAuth login to this project
 
 ### Automatic hooks
 
-Once installed, `oh-my-kimicode` hooks run on Kimi events without any manual setup:
+Once installed, `lazykimicode` hooks run on Kimi events without any manual setup:
 
 | Event | Component | Behavior |
 |---|---|---|
@@ -119,7 +119,7 @@ All skills live under `plugin/skills/` and are loaded by the plugin. Notable one
 Invoke any skill with:
 
 ```text
-/skill:oh-my-kimicode:<skill-name>
+/skill:lazykimicode:<skill-name>
 ```
 
 If the skill name is unique, `/skill:<skill-name>` also works.
@@ -145,13 +145,13 @@ If the skill name is unique, `/skill:<skill-name>` also works.
 ## Uninstall
 
 ```bash
-npx oh-my-kimicode uninstall
+npx lazykimicode uninstall
 ```
 
 To keep your `~/.omo/` rules and config:
 
 ```bash
-npx oh-my-kimicode uninstall --preserve-rules
+npx lazykimicode uninstall --preserve-rules
 ```
 
 ---
@@ -177,8 +177,8 @@ pnpm run sync:hooks
 
 ## Troubleshooting
 
-- Run `npx oh-my-kimicode doctor` to check the local installation.
-- If a skill references a tool that seems missing, make sure the plugin is enabled (`/plugins info oh-my-kimicode`) and that `pnpm run build` produced `plugin/components/*/dist/*.mjs`.
+- Run `npx lazykimicode doctor` to check the local installation.
+- If a skill references a tool that seems missing, make sure the plugin is enabled (`/plugins info lazykimicode`) and that `pnpm run build` produced `plugin/components/*/dist/*.mjs`.
 - For LSP issues, verify `OMO_KIMI_LSP_COMMAND` points to a working stdio LSP server.
 
 ---

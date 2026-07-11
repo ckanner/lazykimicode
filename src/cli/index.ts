@@ -46,11 +46,11 @@ async function main(): Promise<void> {
     }
     process.exit(failed ? 1 : 0);
   } else if (command === 'help' || command === '--help' || command === '-h') {
-    console.log(`Usage: oh-my-kimicode <command> [options]
+    console.log(`Usage: lazykimicode <command> [options]
 
 Commands:
-  install (default)   Install oh-my-kimicode hooks and plugin cache
-  uninstall           Remove oh-my-kimicode hooks, cache, and bin links
+  install (default)   Install lazykimicode hooks and plugin cache
+  uninstall           Remove lazykimicode hooks, cache, and bin links
   doctor              Run health checks on the installation
   help                Show this help
 

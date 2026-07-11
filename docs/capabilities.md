@@ -1,16 +1,16 @@
-# oh-my-kimicode Capabilities
+# lazykimicode Capabilities
 
-This document is the complete capability reference for `oh-my-kimicode`. For installation and quick start, see [`README.md`](../README.md).
+This document is the complete capability reference for `lazykimicode`. For installation and quick start, see [`README.md`](../README.md).
 
 ---
 
 ## Overview
 
-`oh-my-kimicode` is a Kimi Code CLI plugin plus a Node installer. It layers LazyCodex-style engineering discipline on top of Kimi Code using three mechanisms:
+`lazykimicode` is a Kimi Code CLI plugin plus a Node installer. It layers LazyCodex-style engineering discipline on top of Kimi Code using three mechanisms:
 
 1. **Hooks** — installed into `~/.kimi-code/config.toml`, invoked automatically by Kimi events.
 2. **MCP servers** — declared in `plugin/kimi.plugin.json`, providing tools the model can call.
-3. **Skills** — loaded by the plugin, invoked explicitly with `/skill:oh-my-kimicode:<name>`.
+3. **Skills** — loaded by the plugin, invoked explicitly with `/skill:lazykimicode:<name>`.
 
 ---
 
@@ -87,7 +87,7 @@ A stateless fallback binary `lsp-tools-mcp` is also linked for environments that
 
 ## 3. Skills
 
-Invoke with `/skill:oh-my-kimicode:<name>` (or `/skill:<name>` if unique).
+Invoke with `/skill:lazykimicode:<name>` (or `/skill:<name>` if unique).
 
 | Skill | Purpose |
 |---|---|
@@ -148,9 +148,9 @@ ulw implement OAuth login for this project
 ### Use a skill
 
 ```text
-/skill:oh-my-kimicode:init-deep
-/skill:oh-my-kimicode:ulw-plan "add OAuth login"
-/skill:oh-my-kimicode:teammode
+/skill:lazykimicode:init-deep
+/skill:lazykimicode:ulw-plan "add OAuth login"
+/skill:lazykimicode:teammode
 ```
 
 ### Query code structure
@@ -162,7 +162,7 @@ Use codegraph_search to find all functions named "fetchUser".
 ### Run a team
 
 ```text
-/skill:oh-my-kimicode:teammode
+/skill:lazykimicode:teammode
 ```
 
 Then follow the skill instructions to `init`, `add-member`, and launch an `AgentSwarm`.
@@ -170,14 +170,14 @@ Then follow the skill instructions to `init`, `add-member`, and launch an `Agent
 ### Health check
 
 ```bash
-npx oh-my-kimicode doctor
+npx lazykimicode doctor
 ```
 
 ---
 
 ## 6. Mapping to LazyCodex
 
-| LazyCodex concept | oh-my-kimicode equivalent |
+| LazyCodex concept | lazykimicode equivalent |
 |---|---|
 | `.codex-plugin/plugin.json` | `plugin/kimi.plugin.json` |
 | Codex hooks | `config.toml` `[hooks]` entries installed by the installer |

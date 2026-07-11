@@ -1,6 +1,6 @@
 ---
 name: lcx-contribute-bug-fix
-description: "Contribute a verified bug fix for Oh My KimiCode, oh-my-kimicode, bundled Kimi skills, hooks, MCP wiring, installer, marketplace sync, docs, packaging, or upstream Kimi Code CLI bugs. Opens a fork PR only for MoonshotAI/kimi-code; Oh My KimiCode-owned defects become a verified-fix issue on ckanner/oh-my-kimicode (never a PR — that repo is a generated distribution mirror). Use when the user asks to fix a bug, contribute a bug fix, contribute to fix bug, open a PR for a bug, or debug and PR an Oh My KimiCode / Kimi Code CLI defect."
+description: "Contribute a verified bug fix for Oh My KimiCode, lazykimicode, bundled Kimi skills, hooks, MCP wiring, installer, marketplace sync, docs, packaging, or upstream Kimi Code CLI bugs. Opens a fork PR only for MoonshotAI/kimi-code; Oh My KimiCode-owned defects become a verified-fix issue on ckanner/lazykimicode (never a PR — that repo is a generated distribution mirror). Use when the user asks to fix a bug, contribute a bug fix, contribute to fix bug, open a PR for a bug, or debug and PR an Oh My KimiCode / Kimi Code CLI defect."
 type: prompt
 whenToUse: When the user asks to fix a bug, contribute a bug fix, open a PR for a bug, or debug and PR an Oh My KimiCode or Kimi Code CLI defect.
 ---
@@ -77,7 +77,7 @@ Use this skill to debug a concrete Oh My KimiCode or Kimi Code CLI defect, imple
 
 Route ownership the same way as `$lcx-report-bug`, but the deliverable differs by target:
 
-- `ckanner/oh-my-kimicode` for Oh My KimiCode, oh-my-kimicode, bundled skills, hooks, MCP wiring, installer behavior, marketplace sync, docs, or packaging. Deliverable: a verified-fix issue with the patch embedded. NEVER open a PR or push a branch against this repo — its contents are regenerated from the source tree on every release, so PRs there cannot be merged and will be closed.
+- `ckanner/lazykimicode` for Oh My KimiCode, lazykimicode, bundled skills, hooks, MCP wiring, installer behavior, marketplace sync, docs, or packaging. Deliverable: a verified-fix issue with the patch embedded. NEVER open a PR or push a branch against this repo — its contents are regenerated from the source tree on every release, so PRs there cannot be merged and will be closed.
 - `MoonshotAI/kimi-code` for upstream Kimi Code CLI bugs that reproduce without Oh My KimiCode or come from Kimi Code core behavior. Deliverable: a PR from a fork.
 
 ## Required Outcome
@@ -88,27 +88,27 @@ For `MoonshotAI/kimi-code`, create a fork PR that includes:
 - reproduction logs from before the fix
 - the smallest implementation that fixes the defect
 - verification logs from after the fix
-- apply `oh-my-kimicode-generated` when label management is available
-- the required Oh My KimiCode footer tag `Tag: oh-my-kimicode-generated`
+- apply `lazykimicode-generated` when label management is available
+- the required Oh My KimiCode footer tag `Tag: lazykimicode-generated`
 - cleanup of temporary worktrees and clones
 
-For `ckanner/oh-my-kimicode`, create an issue (never a PR) that includes:
+For `ckanner/lazykimicode`, create an issue (never a PR) that includes:
 
 - reproduction logs from before the fix
 - the root cause with source evidence
 - the verified patch as a unified diff, produced and tested in a fresh `${TMPDIR:-/tmp}` clone/worktree
 - verification logs from after the fix
-- the `oh-my-kimicode-generated` label and the footer tag `Tag: oh-my-kimicode-generated`
+- the `lazykimicode-generated` label and the footer tag `Tag: lazykimicode-generated`
 - cleanup of temporary worktrees and clones
 
 ## Required Workflow
 
 1. Read the user's bug report and identify the affected surface.
-2. Invoke the `$debugging` skill for the investigation. If the skill namespace requires qualification, invoke it as `$debugging` and state that it is the oh-my-kimicode debugging skill.
-3. Materialize the latest sources under `OH_MY_KIMICODE_SOURCE_ROOT="${OH_MY_KIMICODE_SOURCE_ROOT:-${TMPDIR:-/tmp}/oh-my-kimicode-sources}"`, then decide the target repository. Use `Agent(subagent_type="explore")` to compare the two checkouts when ownership is ambiguous. Sync both checkouts on every run and compare them before choosing. Validate cached checkouts before reuse so an incomplete `.git` directory cannot route the fix to the wrong repo:
+2. Invoke the `$debugging` skill for the investigation. If the skill namespace requires qualification, invoke it as `$debugging` and state that it is the lazykimicode debugging skill.
+3. Materialize the latest sources under `OH_MY_KIMICODE_SOURCE_ROOT="${OH_MY_KIMICODE_SOURCE_ROOT:-${TMPDIR:-/tmp}/lazykimicode-sources}"`, then decide the target repository. Use `Agent(subagent_type="explore")` to compare the two checkouts when ownership is ambiguous. Sync both checkouts on every run and compare them before choosing. Validate cached checkouts before reuse so an incomplete `.git` directory cannot route the fix to the wrong repo:
 
 ```bash
-OH_MY_KIMICODE_SOURCE_ROOT="${OH_MY_KIMICODE_SOURCE_ROOT:-${TMPDIR:-/tmp}/oh-my-kimicode-sources}"
+OH_MY_KIMICODE_SOURCE_ROOT="${OH_MY_KIMICODE_SOURCE_ROOT:-${TMPDIR:-/tmp}/lazykimicode-sources}"
 mkdir -p "$OH_MY_KIMICODE_SOURCE_ROOT"
 
 valid_source_checkout() {
@@ -149,27 +149,27 @@ sync_latest_source() {
   git -C "$DEST" fetch --depth=1 origin "$DEFAULT_BRANCH"
   git -C "$DEST" checkout -B "$DEFAULT_BRANCH" FETCH_HEAD
 }
-sync_latest_source ckanner/oh-my-kimicode "$OH_MY_KIMICODE_SOURCE_ROOT/oh-my-kimicode-source"
+sync_latest_source ckanner/lazykimicode "$OH_MY_KIMICODE_SOURCE_ROOT/lazykimicode-source"
 sync_latest_source MoonshotAI/kimi-code "$OH_MY_KIMICODE_SOURCE_ROOT/kimi-code-source"
 ```
 
 4. Create a fresh temporary clone and branch under `${TMPDIR:-/tmp}`. Do not modify the user's current repository for the target fix unless the current repository is itself the requested target and the user explicitly asked for local edits. Use `Agent(subagent_type="coder")` to carry out the implementation inside the worktree.
 
 ```bash
-TARGET_REPO="ckanner/oh-my-kimicode" # or MoonshotAI/kimi-code
-WORK_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/oh-my-kimicode-fix-XXXXXX")"
+TARGET_REPO="ckanner/lazykimicode" # or MoonshotAI/kimi-code
+WORK_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/lazykimicode-fix-XXXXXX")"
 gh repo clone "$TARGET_REPO" "$WORK_ROOT/repo" -- --depth=1
 cd "$WORK_ROOT/repo"
 BASE_BRANCH="$(git remote show origin | sed -n '/HEAD branch/s/.*: //p')"
 git fetch origin "$BASE_BRANCH" --depth=1
-BRANCH_NAME="oh-my-kimicode/bug-fix-<short-slug>"
+BRANCH_NAME="lazykimicode/bug-fix-<short-slug>"
 git worktree add "$WORK_ROOT/worktree" -b "$BRANCH_NAME" "origin/$BASE_BRANCH"
 cd "$WORK_ROOT/worktree"
 ```
 
 If `gh` cannot clone, use `git clone --depth=1 "https://github.com/$TARGET_REPO" "$WORK_ROOT/repo"` and continue with the same worktree flow.
 
-5. Reproduce the bug in the worktree through the real surface. Save exact command output to `${TMPDIR:-/tmp}/oh-my-kimicode-fix-<short-slug>-repro.log`. Use `Agent(subagent_type="explore")` to identify the reproduction surface and `Agent(subagent_type="coder")` to run it.
+5. Reproduce the bug in the worktree through the real surface. Save exact command output to `${TMPDIR:-/tmp}/lazykimicode-fix-<short-slug>-repro.log`. Use `Agent(subagent_type="explore")` to identify the reproduction surface and `Agent(subagent_type="coder")` to run it.
 6. Write or update a failing regression test before production changes. Confirm it fails for the bug, not for a missing fixture or typo.
 7. Implement the smallest correct fix with `Write` / `Edit`. Avoid refactors unless the fix cannot be made safely without one.
 8. Run the regression test, adjacent tests, and the smallest real-surface QA command that proves the user-visible behavior changed.
@@ -184,10 +184,10 @@ git log --oneline "origin/$BASE_BRANCH..HEAD"
 
 10. Build the delivery body for the target:
    - `MoonshotAI/kimi-code`: generate the PR body with `scripts/create-pr-body.mjs` if it is present in the skill directory; otherwise produce the PR body manually from the PR Body Template below.
-   - `ckanner/oh-my-kimicode`: export the verified patch and write the issue body from the Verified-Fix Issue Template below:
+   - `ckanner/lazykimicode`: export the verified patch and write the issue body from the Verified-Fix Issue Template below:
 
 ```bash
-PATCH_FILE="${TMPDIR:-/tmp}/oh-my-kimicode-fix-<short-slug>.patch"
+PATCH_FILE="${TMPDIR:-/tmp}/lazykimicode-fix-<short-slug>.patch"
 git diff "origin/$BASE_BRANCH"..HEAD > "$PATCH_FILE"
 ```
 
@@ -195,19 +195,19 @@ git diff "origin/$BASE_BRANCH"..HEAD > "$PATCH_FILE"
 
 ```bash
 LABEL_ARGS=()
-if gh label create oh-my-kimicode-generated --repo "$TARGET_REPO" --color "7C3AED" --description "Created by Oh My KimiCode" --force; then
-  LABEL_ARGS=(--label oh-my-kimicode-generated)
+if gh label create lazykimicode-generated --repo "$TARGET_REPO" --color "7C3AED" --description "Created by Oh My KimiCode" --force; then
+  LABEL_ARGS=(--label lazykimicode-generated)
 else
   echo "Label management unavailable for $TARGET_REPO; keeping the footer tag only."
 fi
 ```
 
 12. Deliver the fix.
-   - `ckanner/oh-my-kimicode`: create the verified-fix issue. Never push a branch to this repo and never run `gh pr create` against it:
+   - `ckanner/lazykimicode`: create the verified-fix issue. Never push a branch to this repo and never run `gh pr create` against it:
 
 ```bash
-ISSUE_BODY="${TMPDIR:-/tmp}/oh-my-kimicode-fix-<short-slug>-issue.md"
-gh issue create --repo ckanner/oh-my-kimicode --title "<short fix title>" "${LABEL_ARGS[@]}" --body-file "$ISSUE_BODY"
+ISSUE_BODY="${TMPDIR:-/tmp}/lazykimicode-fix-<short-slug>-issue.md"
+gh issue create --repo ckanner/lazykimicode --title "<short fix title>" "${LABEL_ARGS[@]}" --body-file "$ISSUE_BODY"
 ```
 
    - `MoonshotAI/kimi-code`: fork, push the branch to the fork, and create the PR:
@@ -230,7 +230,7 @@ rmdir "$WORK_ROOT"
 
 Return the PR or issue URL, the reproduction command, the verification command, and the cleanup receipt.
 
-## Verified-Fix Issue Template (ckanner/oh-my-kimicode)
+## Verified-Fix Issue Template (ckanner/lazykimicode)
 
 Write the issue body in English. Embed the patch verbatim so a maintainer can apply it to the source tree:
 
@@ -257,8 +257,8 @@ Write the issue body in English. Embed the patch verbatim so a maintainer can ap
 - [Manual QA command and result]
 
 ---
-This fix was debugged, implemented, and verified with [Oh My KimiCode](https://github.com/ckanner/oh-my-kimicode).
-Tag: oh-my-kimicode-generated
+This fix was debugged, implemented, and verified with [Oh My KimiCode](https://github.com/ckanner/lazykimicode).
+Tag: lazykimicode-generated
 ````
 
 ## PR Body Generator (MoonshotAI/kimi-code)
@@ -282,8 +282,8 @@ Use the bundled script to generate the PR body if it is available. Create a JSON
 Run:
 
 ```bash
-PR_INPUT="${TMPDIR:-/tmp}/oh-my-kimicode-fix-<short-slug>-pr.json"
-PR_BODY="${TMPDIR:-/tmp}/oh-my-kimicode-fix-<short-slug>-pr.md"
+PR_INPUT="${TMPDIR:-/tmp}/lazykimicode-fix-<short-slug>-pr.json"
+PR_BODY="${TMPDIR:-/tmp}/lazykimicode-fix-<short-slug>-pr.md"
 node "<skill-root>/scripts/create-pr-body.mjs" "$PR_INPUT" "$PR_BODY"
 ```
 
@@ -318,8 +318,8 @@ The generated body must follow this structure:
 - [Manual QA command and result]
 
 ---
-This PR was debugged, implemented, and created with [Oh My KimiCode](https://github.com/ckanner/oh-my-kimicode).
-Tag: oh-my-kimicode-generated
+This PR was debugged, implemented, and created with [Oh My KimiCode](https://github.com/ckanner/lazykimicode).
+Tag: lazykimicode-generated
 ```
 
 ## Kimi Code Harness Compatibility
@@ -352,10 +352,10 @@ Stop and ask one narrow question only when:
 
 Do not open:
 
-- a PR or pushed branch targeting `ckanner/oh-my-kimicode` — deliver the verified-fix issue instead, always
+- a PR or pushed branch targeting `ckanner/lazykimicode` — deliver the verified-fix issue instead, always
 - a PR or verified-fix issue without a failing-before and passing-after test
 - a PR or verified-fix issue without a real-surface QA command
-- a PR or issue without the `Tag: oh-my-kimicode-generated` footer
+- a PR or issue without the `Tag: lazykimicode-generated` footer
 - a verified-fix issue without the patch embedded in a `diff` block
 - a vague fix that does not identify the root cause
 - a broad refactor disguised as a bug fix

@@ -102,7 +102,7 @@ Use `AgentSwarm` for maximum parallelism: independent checkboxes or sub-tasks ru
 
 # start-work
 
-Execute a Prometheus work plan until every top-level checkbox is complete. This skill pairs with the oh-my-kimicode `Stop` / `SubagentStop` continuation hook (`components/start-work-continuation`), which re-injects the next turn while `.omo/boulder.json` says this `kimi:<session_id>` still has unchecked plan work.
+Execute a Prometheus work plan until every top-level checkbox is complete. This skill pairs with the lazykimicode `Stop` / `SubagentStop` continuation hook (`components/start-work-continuation`), which re-injects the next turn while `.omo/boulder.json` says this `kimi:<session_id>` still has unchecked plan work.
 
 ## Usage
 

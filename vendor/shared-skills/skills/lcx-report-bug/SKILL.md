@@ -1,8 +1,8 @@
 ---
 name: lcx-report-bug
-description: "Create a high-signal bug issue or PR in the repo that owns the defect. Use this whenever the user asks to report, file, open, or triage an oh-my-kimicode, Oh My KimiCode, OmO, Kimi plugin, or upstream Kimi Code CLI bug, especially when they need source-backed root cause, reproduction steps, fix guidance, and GitHub routing."
+description: "Create a high-signal bug issue or PR in the repo that owns the defect. Use this whenever the user asks to report, file, open, or triage an lazykimicode, Oh My KimiCode, OmO, Kimi plugin, or upstream Kimi Code CLI bug, especially when they need source-backed root cause, reproduction steps, fix guidance, and GitHub routing."
 type: prompt
-whenToUse: When the user wants to report a bug in oh-my-kimicode or upstream Kimi Code CLI.
+whenToUse: When the user wants to report a bug in lazykimicode or upstream Kimi Code CLI.
 ---
 
 ## OMO Kimi K2.7 Orchestration Calibration
@@ -73,10 +73,10 @@ Never ask the user "should I continue", "proceed to the next task", or any appro
 
 # lcx-report-bug
 
-You are an oh-my-kimicode bug router and reporter. Produce one useful GitHub issue or PR in English, backed by runtime evidence and source evidence rather than guesses. Route it to the repository that owns the defect:
+You are an lazykimicode bug router and reporter. Produce one useful GitHub issue or PR in English, backed by runtime evidence and source evidence rather than guesses. Route it to the repository that owns the defect:
 
-- `ckanner/oh-my-kimicode` for oh-my-kimicode, Oh My KimiCode, OmO, marketplace, bundled skill, hook, MCP, installer, packaging, docs, or plugin behavior bugs. The artifact for this repo is always an issue — never a PR, because its contents are regenerated from the source tree on every release, so PRs there cannot be merged.
-- `MoonshotAI/kimi-code` for upstream Kimi Code CLI bugs that reproduce without oh-my-kimicode or are caused by Kimi core behavior. This is the only repo where this skill may create a PR.
+- `ckanner/lazykimicode` for lazykimicode, Oh My KimiCode, OmO, marketplace, bundled skill, hook, MCP, installer, packaging, docs, or plugin behavior bugs. The artifact for this repo is always an issue — never a PR, because its contents are regenerated from the source tree on every release, so PRs there cannot be merged.
+- `MoonshotAI/kimi-code` for upstream Kimi Code CLI bugs that reproduce without lazykimicode or are caused by Kimi core behavior. This is the only repo where this skill may create a PR.
 
 Use concise, evidence-bound style: outcome first. Keep the workflow moving, but do not file an issue until the root cause and reproduction path are concrete enough for a maintainer to act.
 
@@ -93,13 +93,13 @@ Create or prepare a GitHub issue or PR that includes:
 - confirmed or strongly evidenced root cause
 - fix approach, including files or components likely involved
 - verification plan
-- `oh-my-kimicode-generated` label and footer tag
+- `lazykimicode-generated` label and footer tag
 
 ## Required Workflow
 
-1. Read the user's bug report and identify the affected surface: oh-my-kimicode installer, Kimi plugin, skill, hook, MCP, CLI alias, GitHub marketplace sync, or web/docs.
-2. Invoke `/skill:oh-my-kimicode:debugging` for the investigation. If Kimi Code exposes only unqualified skill names, invoke `debugging` and state that it is the oh-my-kimicode debugging skill.
-3. Materialize the latest oh-my-kimicode and upstream Kimi Code sources under `OMO_SOURCE_ROOT="${OMO_SOURCE_ROOT:-${TMPDIR:-/tmp}/omo-sources}"` before deciding ownership. Re-sync on every run so a cached checkout cannot go stale, and validate cached checkouts before reuse so an incomplete `.git` directory cannot produce wrong routing and dead line references:
+1. Read the user's bug report and identify the affected surface: lazykimicode installer, Kimi plugin, skill, hook, MCP, CLI alias, GitHub marketplace sync, or web/docs.
+2. Invoke `/skill:lazykimicode:debugging` for the investigation. If Kimi Code exposes only unqualified skill names, invoke `debugging` and state that it is the lazykimicode debugging skill.
+3. Materialize the latest lazykimicode and upstream Kimi Code sources under `OMO_SOURCE_ROOT="${OMO_SOURCE_ROOT:-${TMPDIR:-/tmp}/omo-sources}"` before deciding ownership. Re-sync on every run so a cached checkout cannot go stale, and validate cached checkouts before reuse so an incomplete `.git` directory cannot produce wrong routing and dead line references:
 
 ```bash
 OMO_SOURCE_ROOT="${OMO_SOURCE_ROOT:-${TMPDIR:-/tmp}/omo-sources}"
@@ -143,7 +143,7 @@ sync_latest_source() {
   git -C "$DEST" fetch --depth=1 origin "$DEFAULT_BRANCH"
   git -C "$DEST" checkout -B "$DEFAULT_BRANCH" FETCH_HEAD
 }
-sync_latest_source ckanner/oh-my-kimicode "$OMO_SOURCE_ROOT/oh-my-kimicode-source"
+sync_latest_source ckanner/lazykimicode "$OMO_SOURCE_ROOT/lazykimicode-source"
 sync_latest_source MoonshotAI/kimi-code "$OMO_SOURCE_ROOT/kimi-code-source"
 ```
 
@@ -152,15 +152,15 @@ sync_latest_source MoonshotAI/kimi-code "$OMO_SOURCE_ROOT/kimi-code-source"
    - run the smallest reproduction that exercises the real surface
    - confirm the root cause by observing the failing state
    - identify the minimal fix path or maintainer action
-5. Compare runtime evidence with both `$OMO_SOURCE_ROOT/oh-my-kimicode-source` and `$OMO_SOURCE_ROOT/kimi-code-source` before choosing the target repo. Cite exact files, commands, logs, or source paths that support the routing decision.
+5. Compare runtime evidence with both `$OMO_SOURCE_ROOT/lazykimicode-source` and `$OMO_SOURCE_ROOT/kimi-code-source` before choosing the target repo. Cite exact files, commands, logs, or source paths that support the routing decision.
 6. Choose the target repo:
-   - Use `ckanner/oh-my-kimicode` when the bug is in oh-my-kimicode integration, distribution, bundled plugin code, skills, hooks, MCP wiring, installer behavior, aliases, marketplace sync, docs, or any behavior that disappears in clean upstream Kimi Code.
-   - Use `MoonshotAI/kimi-code` when the bug reproduces in clean upstream Kimi Code without oh-my-kimicode, or the failing behavior comes from Kimi Code CLI core, plugin API contracts, sandboxing, approvals, config loading, or built-in tool behavior.
+   - Use `ckanner/lazykimicode` when the bug is in lazykimicode integration, distribution, bundled plugin code, skills, hooks, MCP wiring, installer behavior, aliases, marketplace sync, docs, or any behavior that disappears in clean upstream Kimi Code.
+   - Use `MoonshotAI/kimi-code` when the bug reproduces in clean upstream Kimi Code without lazykimicode, or the failing behavior comes from Kimi Code CLI core, plugin API contracts, sandboxing, approvals, config loading, or built-in tool behavior.
    - If ownership remains ambiguous after evidence gathering, do not guess. Prepare the issue body with the uncertainty and ask one narrow routing question.
 7. Search for an existing issue in the selected repo before creating a new one. Search the other repo too when the ownership boundary is close:
 
 ```bash
-TARGET_REPO="ckanner/oh-my-kimicode" # or MoonshotAI/kimi-code
+TARGET_REPO="ckanner/lazykimicode" # or MoonshotAI/kimi-code
 gh issue list --repo "$TARGET_REPO" --search "<short error or symptom>" --state open
 ```
 
@@ -169,25 +169,25 @@ gh issue list --repo "$TARGET_REPO" --search "<short error or symptom>" --state 
 
 ```bash
 LABEL_ARGS=()
-if gh label create oh-my-kimicode-generated --repo "$TARGET_REPO" --color "7C3AED" --description "Created by oh-my-kimicode" --force; then
-  LABEL_ARGS=(--label oh-my-kimicode-generated)
+if gh label create lazykimicode-generated --repo "$TARGET_REPO" --color "7C3AED" --description "Created by lazykimicode" --force; then
+  LABEL_ARGS=(--label lazykimicode-generated)
 else
   echo "Label management unavailable for $TARGET_REPO; keeping the footer tag only."
 fi
 ```
 
 If the selected repo is `MoonshotAI/kimi-code` and label management is not available, still include the footer tag in the body and continue without claiming label creation succeeded.
-10. If no matching issue exists, create the issue with `gh` and apply the `oh-my-kimicode-generated` label.
-11. Create a PR only when the target repo is `MoonshotAI/kimi-code` AND the user asked for a PR, the fix is already implemented on a branch, or the smallest correct fix can be safely made there. Never create a PR or push a branch against `ckanner/oh-my-kimicode` — always file an issue there, embedding the verified patch in the Proposed Fix section when one exists. Apply the `oh-my-kimicode-generated` label to every PR created by this skill. Otherwise create an issue with fix guidance.
+10. If no matching issue exists, create the issue with `gh` and apply the `lazykimicode-generated` label.
+11. Create a PR only when the target repo is `MoonshotAI/kimi-code` AND the user asked for a PR, the fix is already implemented on a branch, or the smallest correct fix can be safely made there. Never create a PR or push a branch against `ckanner/lazykimicode` — always file an issue there, embedding the verified patch in the Proposed Fix section when one exists. Apply the `lazykimicode-generated` label to every PR created by this skill. Otherwise create an issue with fix guidance.
 
 ## Required Label And Footer
 
-Every issue body, evidence comment, and PR body created by this skill must use the GitHub label `oh-my-kimicode-generated` when the artifact supports labels. It must also end with this footer. Do not put content after it.
+Every issue body, evidence comment, and PR body created by this skill must use the GitHub label `lazykimicode-generated` when the artifact supports labels. It must also end with this footer. Do not put content after it.
 
 ```markdown
 ---
-This issue or PR was generated by oh-my-kimicode.
-Tag: oh-my-kimicode-generated
+This issue or PR was generated by lazykimicode.
+Tag: lazykimicode-generated
 ```
 
 ## Issue Body Template
@@ -199,7 +199,7 @@ Write the issue body in English and keep it direct:
 [One or two sentences describing the user-visible failure.]
 
 ## Environment
-- oh-my-kimicode version:
+- lazykimicode version:
 - Kimi Code version:
 - OS:
 - Install method:
@@ -208,7 +208,7 @@ Write the issue body in English and keep it direct:
 ## Repository Decision
 - Target repository:
 - Why this belongs there:
-- oh-my-kimicode evidence (runtime + `$OMO_SOURCE_ROOT/oh-my-kimicode-source`):
+- lazykimicode evidence (runtime + `$OMO_SOURCE_ROOT/lazykimicode-source`):
 - Upstream Kimi Code source evidence from `$OMO_SOURCE_ROOT/kimi-code-source`:
 
 ## Reproduction
@@ -234,11 +234,11 @@ Write the issue body in English and keep it direct:
 ## Verification Plan
 - [Check that reproduces the original failure]
 - [Check that proves the fix]
-- [Regression check for adjacent oh-my-kimicode/Kimi plugin behavior]
+- [Regression check for adjacent lazykimicode/Kimi plugin behavior]
 
 ---
-This issue or PR was generated by oh-my-kimicode.
-Tag: oh-my-kimicode-generated
+This issue or PR was generated by lazykimicode.
+Tag: lazykimicode-generated
 ```
 
 ## PR Body Template
@@ -252,7 +252,7 @@ Use this only when a PR is the right artifact, which is only ever for `MoonshotA
 ## Repository Decision
 - Target repository:
 - Why this belongs there:
-- oh-my-kimicode evidence (runtime + `$OMO_SOURCE_ROOT/oh-my-kimicode-source`):
+- lazykimicode evidence (runtime + `$OMO_SOURCE_ROOT/lazykimicode-source`):
 - Upstream Kimi Code source evidence from `$OMO_SOURCE_ROOT/kimi-code-source`:
 
 ## Root Cause
@@ -267,8 +267,8 @@ Use this only when a PR is the right artifact, which is only ever for `MoonshotA
 - [Regression check for adjacent behavior]
 
 ---
-This issue or PR was generated by oh-my-kimicode.
-Tag: oh-my-kimicode-generated
+This issue or PR was generated by lazykimicode.
+Tag: lazykimicode-generated
 ```
 
 ## GitHub Creation Path
@@ -289,11 +289,11 @@ For an existing issue:
 COMMENT_BODY="${TMPDIR:-/tmp}/lcx-report-bug-comment-$(date +%Y%m%d-%H%M%S).md"
 gh issue comment "<issue-number>" --repo "$TARGET_REPO" --body-file "$COMMENT_BODY"
 if [ "${#LABEL_ARGS[@]}" -gt 0 ]; then
-  gh issue edit "<issue-number>" --repo "$TARGET_REPO" --add-label oh-my-kimicode-generated
+  gh issue edit "<issue-number>" --repo "$TARGET_REPO" --add-label lazykimicode-generated
 fi
 ```
 
-For a PR from a branch pushed to a fork — `MoonshotAI/kimi-code` only, never `ckanner/oh-my-kimicode`:
+For a PR from a branch pushed to a fork — `MoonshotAI/kimi-code` only, never `ckanner/lazykimicode`:
 
 ```bash
 PR_BODY="${TMPDIR:-/tmp}/lcx-report-bug-pr-$(date +%Y%m%d-%H%M%S).md"
@@ -306,7 +306,7 @@ After creating or commenting, return the issue or PR URL and a short summary of 
 
 If `gh` is unavailable, unauthenticated, or blocked, use the `kimi-webbridge` skill against the real GitHub page:
 
-1. Open the new issue page for the selected repo: `https://github.com/ckanner/oh-my-kimicode/issues/new` or `https://github.com/MoonshotAI/kimi-code/issues/new`.
+1. Open the new issue page for the selected repo: `https://github.com/ckanner/lazykimicode/issues/new` or `https://github.com/MoonshotAI/kimi-code/issues/new`.
 2. Fill the title and body from the template.
 3. Submit the issue only after visually confirming the repo, title, and body.
 4. Capture the resulting issue URL.
@@ -317,7 +317,7 @@ If `kimi-webbridge` is unavailable, use `FetchURL` to read and search existing i
 
 If neither `gh` nor `kimi-webbridge` is available, ask the user to use an authenticated desktop browser:
 
-1. Navigate to the new issue page for the selected repo: `https://github.com/ckanner/oh-my-kimicode/issues/new` or `https://github.com/MoonshotAI/kimi-code/issues/new`.
+1. Navigate to the new issue page for the selected repo: `https://github.com/ckanner/lazykimicode/issues/new` or `https://github.com/MoonshotAI/kimi-code/issues/new`.
 2. Paste the title and body you prepared.
 3. Verify the target repository and final text before submission.
 4. Submit and capture the issue URL.
@@ -328,12 +328,12 @@ Stop and ask one narrow question only when the missing fact changes the issue ma
 
 Do not file:
 
-- a PR or pushed branch targeting `ckanner/oh-my-kimicode` — file the issue instead, always
+- a PR or pushed branch targeting `ckanner/lazykimicode` — file the issue instead, always
 - a vague issue without reproduction steps
 - an issue that claims a root cause not supported by runtime evidence
 - a duplicate when commenting on an existing issue is enough
-- an issue without checking the latest `$OMO_SOURCE_ROOT/oh-my-kimicode-source` and `$OMO_SOURCE_ROOT/kimi-code-source` checkouts
-- an oh-my-kimicode issue when the bug is proven to reproduce in clean upstream Kimi Code
+- an issue without checking the latest `$OMO_SOURCE_ROOT/lazykimicode-source` and `$OMO_SOURCE_ROOT/kimi-code-source` checkouts
+- an lazykimicode issue when the bug is proven to reproduce in clean upstream Kimi Code
 - a fix PR without a concrete branch, implemented fix, and verification result
 
 ## Kimi Code Harness Compatibility

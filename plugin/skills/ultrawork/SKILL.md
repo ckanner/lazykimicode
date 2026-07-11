@@ -1,6 +1,6 @@
 ---
 name: ultrawork
-description: "Binding ultrawork mode directive for oh-my-kimicode on Kimi Code CLI. When a prompt contains ultrawork or ulw, the omo UserPromptSubmit hook injects a short bootstrap that points at this file. Read the whole file and follow every rule in it for the rest of the task."
+description: "Binding ultrawork mode directive for lazykimicode on Kimi Code CLI. When a prompt contains ultrawork or ulw, the omo UserPromptSubmit hook injects a short bootstrap that points at this file. Read the whole file and follow every rule in it for the rest of the task."
 type: prompt
 whenToUse: When the user wants the agent to complete a task end-to-end without asking for confirmation, or when the prompt contains ultrawork or ulw.
 ---

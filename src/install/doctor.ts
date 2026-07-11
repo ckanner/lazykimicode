@@ -50,10 +50,10 @@ export function runDoctor(options: DoctorOptions = {}): HealthCheck[] {
   if (fs.existsSync(configPath)) {
     const raw = fs.readFileSync(configPath, 'utf-8');
     const omoHooks = (raw.match(/\[\[hooks\]\]/g) ?? []).length;
-    if (raw.includes('oh-my-kimicode')) {
+    if (raw.includes('lazykimicode')) {
       results.push({ name: 'config-hooks', ok: true, message: `${omoHooks} hook block(s) found in config.toml` });
     } else {
-      results.push({ name: 'config-hooks', ok: false, message: 'No oh-my-kimicode hooks found in config.toml' });
+      results.push({ name: 'config-hooks', ok: false, message: 'No lazykimicode hooks found in config.toml' });
     }
   } else {
     results.push({ name: 'config-hooks', ok: false, message: `config.toml not found: ${configPath}` });

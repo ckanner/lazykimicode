@@ -1,4 +1,4 @@
-# AGENTS.md — oh-my-kimicode
+# AGENTS.md — lazykimicode
 
 ## Architecture
 

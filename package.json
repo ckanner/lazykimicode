@@ -1,10 +1,10 @@
 {
-  "name": "@oh-my-kimicode/oh-my-kimicode",
-  "version": "0.1.2",
+  "name": "lazykimicode",
+  "version": "0.1.0",
   "description": "OmO agent harness for Kimi Code CLI",
   "type": "module",
   "bin": {
-    "oh-my-kimicode": "./bin/oh-my-kimicode.mjs"
+    "lazykimicode": "./bin/lazykimicode.mjs"
   },
   "files": [
     "dist/",
