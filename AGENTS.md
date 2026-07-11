@@ -25,7 +25,7 @@ pnpm run build
 | Component | Hook events | Purpose |
 |---|---|---|
 | `bootstrap` | `SessionStart` | Link managed binaries, seed agent profiles, install `sg` if missing |
-| `codegraph` | `SessionStart`, `PostToolUse` | Structural code search MCP (TS/JS/Python/Go/Rust indexer). Exposes `codegraph_search`, `codegraph_relate`, `codegraph_reindex`, `codegraph_status`, `codegraph_explore`, `codegraph_files`, `codegraph_callers`, `codegraph_callees`, `codegraph_impact` |
+| `codegraph` | `SessionStart`, `PostToolUse` | Structural code search MCP (TS/JS/Python/Go/Rust indexer). **Note:** the MCP server and hooks exist and are registered by the installer (`src/install/hook-defs.ts`); remote MCP defaults (`grep_app`, `context7`) are not yet provided. |
 | `comment-checker` | `PostToolUse` | Block commits/edits that leave unresolved `TODO/FIXME/HACK/XXX/BUG` markers |
 | `executor-verify` | `SubagentStop` | Require `EVIDENCE_RECORDED:` before a coder subagent can stop |
 | `git-bash` | `PreToolUse`, `PostCompact` | Recommend Git Bash on Windows; hand-rolled JSON-RPC MCP |
