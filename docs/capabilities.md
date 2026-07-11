@@ -83,6 +83,14 @@ export OMO_KIMI_LSP_ARGS="--stdio"
 
 A stateless fallback binary `lsp-tools-mcp` is also linked for environments that do not use the daemon.
 
+### `git_bash`
+
+On Windows, the `git_bash` MCP runs shell commands through a Git Bash installation. On Linux and macOS it returns guidance to use the native Bash tool instead, since the MCP is optimized for Windows paths and shells.
+
+| Tool | Input | Output | Purpose |
+|---|---|---|---|
+| `git_bash` | `command: string`, `cwd?: string` | `{ content: { type, text }[], isError?: boolean }` | Execute a command via Git Bash on Windows |
+
 ---
 
 ## 3. Skills

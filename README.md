@@ -72,7 +72,7 @@ Once installed, `lazykimicode` hooks run on Kimi events without any manual setup
 
 ### MCP servers
 
-The plugin exposes two built-in MCP servers:
+The plugin exposes three built-in MCP servers:
 
 - **`codegraph`** — structural code search and impact analysis
   - `codegraph_search`
@@ -93,6 +93,9 @@ The plugin exposes two built-in MCP servers:
   - `lsp_symbols`
   - `lsp_prepare_rename`
   - `lsp_rename`
+
+- **`git_bash`** — Git Bash shell execution on Windows; native Bash guidance on other platforms
+  - `git_bash`
 
 Configure your LSP server via environment variables:
 

@@ -2148,7 +2148,7 @@ jobs:
       - run: pnpm run build
       - run: pnpm run sync:skills
       - run: pnpm run sync:hooks
-      - run: zip -r lazykimicode.zip plugin scripts bin package.json
+      - run: zip -r lazykimicode.zip plugin scripts bin dist package.json
       - uses: softprops/action-gh-release@v2
         with:
           files: lazykimicode.zip
