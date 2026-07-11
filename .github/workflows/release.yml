@@ -29,7 +29,7 @@ jobs:
       - run: pnpm run sync:skills
       - run: pnpm run sync:hooks
       - run: zip -r lazykimicode.zip plugin scripts bin package.json
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: lazykimicode.zip
       - run: npm publish --provenance
