@@ -306,6 +306,8 @@ After creating or commenting, return the issue or PR URL and a short summary of 
 
 If `gh` is unavailable, unauthenticated, or blocked, use the `kimi-webbridge` skill against the real GitHub page:
 
+> **Fallback if `kimi-webbridge` is not available:** Use `FetchURL` to read the page, or ask the user to perform the browser step manually and paste the result.
+
 1. Open the new issue page for the selected repo: `https://github.com/ckanner/lazykimicode/issues/new` or `https://github.com/MoonshotAI/kimi-code/issues/new`.
 2. Fill the title and body from the template.
 3. Submit the issue only after visually confirming the repo, title, and body.

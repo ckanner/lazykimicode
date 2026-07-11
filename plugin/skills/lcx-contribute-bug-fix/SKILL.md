@@ -339,6 +339,8 @@ This skill is designed for the Kimi Code CLI plugin harness. Map its workflow an
 | OpenCode `task(...)` helper | `Agent(...)` |
 | `team_*(...)` / `teammode` | `AgentSwarm` |
 
+> **Fallback if `kimi-webbridge` is not available:** Use `FetchURL` to read the page, or ask the user to perform the browser step manually and paste the result.
+
 When translating `load_skills=[...]`, name the skills inside the agent prompt. Kimi Code invokes skills by prompt context and skill name. If a code block below conflicts with this section, this section wins.
 
 ## Stop Conditions
