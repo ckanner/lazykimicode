@@ -106,6 +106,25 @@ const greet = () => {};
       expect(names).toContain('greet');
     });
 
+    it('does not treat control-flow keywords as method names', () => {
+      const content = `
+if (x) { y(); }
+while (x) { y(); }
+for (let i = 0; i < 1; i++) { y(); }
+switch (x) { case 1: break; }
+try { y(); } catch (e) { y(); } finally { y(); }
+`;
+      const symbols = parseFile('sample.ts', content);
+      const names = symbols.map((s) => s.name);
+      expect(names).not.toContain('if');
+      expect(names).not.toContain('while');
+      expect(names).not.toContain('for');
+      expect(names).not.toContain('switch');
+      expect(names).not.toContain('catch');
+      expect(names).not.toContain('finally');
+      expect(names).not.toContain('case');
+    });
+
     it('returns empty array for unsupported language', () => {
       expect(parseFile('file.rb', 'def foo; end')).toEqual([]);
     });

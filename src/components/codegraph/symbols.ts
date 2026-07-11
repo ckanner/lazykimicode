@@ -59,7 +59,11 @@ const PARSERS: Record<string, ParserPattern[]> = {
 
 // Reserved words that should not be treated as method names by the generic
 // "word(args) {" heuristic.
-const RESERVED_METHOD_NAMES = new Set(['if', 'while', 'for', 'switch', 'catch', 'with', 'using']);
+const RESERVED_METHOD_NAMES = new Set([
+  'if', 'while', 'for', 'switch', 'catch', 'with', 'using',
+  'else', 'try', 'finally', 'do', 'return', 'throw', 'yield', 'await',
+  'case', 'default', 'new', 'typeof', 'instanceof', 'delete', 'void', 'in', 'of',
+]);
 
 // When two patterns match the same symbol position, prefer the richer kind.
 const KIND_PRIORITY: Record<Symbol['kind'], number> = {
