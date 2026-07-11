@@ -6,6 +6,7 @@ import { parseFile, inferLanguageId } from '../../../src/components/codegraph/sy
 import { buildIndex, loadIndex, saveIndex, indexPath, listProjectFiles } from '../../../src/components/codegraph/indexer.js';
 import { search, relate, explore, files, callers, callees, impact } from '../../../src/components/codegraph/search.js';
 import { runBootstrap, runPostToolUse } from '../../../src/components/codegraph/bootstrap.js';
+import type { HookPayload } from '../../../src/shared/types.js';
 
 describe('codegraph', () => {
   let tmpDir: string;
@@ -224,7 +225,7 @@ impl Point {}
       const payload: HookPayload = {
         hookEventName: 'PostToolUse',
         toolName: 'mcp__codegraph__search',
-        toolResult: { error: 'index missing' },
+        toolOutput: { error: 'index missing' },
       };
       const out = runPostToolUse(payload);
       expect(out.hookSpecificOutput?.hookEventName).toBe('PostToolUse');
@@ -232,11 +233,21 @@ impl Point {}
       expect(out.hookSpecificOutput?.additionalContext).toContain('reindex');
     });
 
+    it('returns guidance when toolOutput string contains error', () => {
+      const payload: HookPayload = {
+        hookEventName: 'PostToolUse',
+        toolName: 'mcp__codegraph__search',
+        toolOutput: 'The query failed with an ERROR',
+      };
+      const out = runPostToolUse(payload);
+      expect(out.hookSpecificOutput?.additionalContext).toContain('reindex');
+    });
+
     it('returns empty context on success', () => {
       const payload: HookPayload = {
         hookEventName: 'PostToolUse',
         toolName: 'mcp__codegraph__search',
-        toolResult: { result: 'ok' },
+        toolOutput: { result: 'ok' },
       };
       const out = runPostToolUse(payload);
       expect(out.hookSpecificOutput?.additionalContext).toBe('');

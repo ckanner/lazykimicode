@@ -19,20 +19,22 @@ export function runBootstrap(_payload: HookPayload): HookOutput {
   };
 }
 
+function isToolFailure(toolOutput: unknown): boolean {
+  if (typeof toolOutput === 'string') {
+    return /error|failed/i.test(toolOutput);
+  }
+  if (typeof toolOutput === 'object' && toolOutput !== null) {
+    return 'error' in toolOutput && (toolOutput as { error: unknown }).error != null;
+  }
+  return false;
+}
+
 export function runPostToolUse(payload: HookPayload): HookOutput {
   const isCodegraphTool =
     payload.toolName &&
     /^(codegraph[._].*|mcp__codegraph__.*)$/.test(payload.toolName);
 
-  const failed =
-    isCodegraphTool &&
-    payload.toolResult &&
-    (payload.toolResult.error != null ||
-      (typeof payload.toolResult === 'object' &&
-        'isError' in payload.toolResult &&
-        payload.toolResult.isError === true));
-
-  if (failed) {
+  if (isCodegraphTool && isToolFailure(payload.toolOutput)) {
     return {
       hookSpecificOutput: {
         hookEventName: 'PostToolUse',
