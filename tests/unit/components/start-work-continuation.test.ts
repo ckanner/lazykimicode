@@ -132,6 +132,7 @@ describe('start-work-continuation resume guidance', () => {
         works: {
           'feat-auth': {
             work_id: 'feat-auth',
+            title: 'Add auth',
             active_plan: '.omo/plans/auth.md',
             plan_name: 'auth',
             session_ids: ['kimi:session-1'],
@@ -150,5 +151,6 @@ describe('start-work-continuation resume guidance', () => {
     expect(out.decision).toBe('block');
     expect(out.hookSpecificOutput?.additionalContext).toContain('Session handling');
     expect(out.hookSpecificOutput?.additionalContext).toContain('Unchecked tasks');
+    expect(out.hookSpecificOutput?.additionalContext).toContain('Active work: Add auth');
   });
 });

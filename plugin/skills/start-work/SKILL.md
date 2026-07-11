@@ -144,6 +144,7 @@ Write `.omo/boulder.json` before implementation starts. Prefix session ids with 
   "works": {
     "<work-id>": {
       "work_id": "<work-id>",
+      "title": "<short human-readable work title>",
       "active_plan": ".omo/plans/<plan-name>.md",
       "plan_name": "<plan-name>",
       "session_ids": ["kimi:<session_id>"],

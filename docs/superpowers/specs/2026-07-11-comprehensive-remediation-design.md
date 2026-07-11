@@ -213,7 +213,7 @@
 - `codegraph` 行：把 “remote MCP defaults not yet provided” 改为 “remote MCP defaults are provided as disabled placeholders in `.mcp.json` and `plugin/.mcp.json`; user must enable after adding API keys”。
 - `git-bash` 行：说明 plugin manifest 已声明 `git_bash` MCP，Windows 安装器也会写入 `config.toml`。
 - 组件表中的 `start-work-continuation`：把 “Resume work” 改为 “Block stop and prompt to resume when Boulder has unchecked tasks”。
-- 更新 test count 为 38/211。
+- 更新 test count 为 38/220。
 
 ### 5.2 `docs/capabilities.md`
 

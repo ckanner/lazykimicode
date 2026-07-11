@@ -352,7 +352,7 @@ Current suite covers:
 - `tests/integration/install.test.ts` — run installer with `KIMI_CODE_HOME=<temp>`, assert plugin cache exists, hooks written, no duplicate hooks on second run.
 - `tests/integration/hooks.test.ts` — pipe synthetic Kimi hook payloads to component CLIs and assert JSON stdout.
 
-**Latest result:** 38 test files, 211 tests passing.
+**Latest result:** 38 test files, 220 tests passing.
 
 ### 8.3 Manual validation checklist
 
