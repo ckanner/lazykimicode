@@ -1,5 +1,6 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import os from 'node:os';
+import { VERSION } from '../../shared/version.js';
 
 export interface McpRequest {
   jsonrpc: '2.0';
@@ -91,7 +92,7 @@ export async function handleRequest(request: McpRequest, options: ServerOptions 
         result: {
           protocolVersion: '2024-11-05',
           capabilities: { tools: {} },
-          serverInfo: { name: 'lazykimicode-git-bash', version: '0.1.0' },
+          serverInfo: { name: 'lazykimicode-git-bash', version: VERSION },
         },
       };
     }

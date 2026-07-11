@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { runDoctor } from '../../../src/install/doctor.js';
+import pkg from '../../../package.json' with { type: 'json' };
 
 describe('doctor', () => {
   let tmpDir: string;
@@ -25,7 +26,7 @@ describe('doctor', () => {
 
   it('reports ok when cache, hooks, and bins exist', () => {
     const binDir = path.join(tmpDir, 'bin');
-    const cache = path.join(tmpDir, 'plugins', 'cache', 'lazykimicode', '0.1.0');
+    const cache = path.join(tmpDir, 'plugins', 'cache', 'lazykimicode', pkg.version);
     fs.mkdirSync(cache, { recursive: true });
     fs.mkdirSync(binDir, { recursive: true });
     fs.writeFileSync(path.join(binDir, 'codegraph-server'), '', 'utf-8');

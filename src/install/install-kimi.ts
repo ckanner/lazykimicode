@@ -9,6 +9,7 @@ import { getHookDefs } from './hook-defs.js';
 import { patchConfigToml } from './config-patcher.js';
 import { linkManagedBins, unlinkManagedBins } from './bin-links.js';
 import { captureEvent } from '../components/telemetry/posthog.js';
+import { VERSION } from '../shared/version.js';
 
 export interface InstallOptions {
   kimiCodeHome?: string;
@@ -184,7 +185,7 @@ export interface UninstallOptions {
 
 export async function runKimiUninstaller(options: UninstallOptions = {}): Promise<void> {
   const env = resolveKimiEnv(options);
-  const version = process.env.OMO_KIMI_VERSION ?? '0.1.0';
+  const version = process.env.OMO_KIMI_VERSION ?? VERSION;
   const cache = pluginCacheDir(env.kimiCodeHome, version);
   const configPath = path.join(env.kimiCodeHome, 'config.toml');
 

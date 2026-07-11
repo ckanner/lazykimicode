@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { runKimiInstaller, runKimiUninstaller } from '../../src/install/install-kimi.js';
+import pkg from '../../package.json' with { type: 'json' };
 
 describe('installer integration', () => {
   let tmpDir: string;
@@ -42,7 +43,7 @@ describe('installer integration', () => {
     const configPath = path.join(tmpDir, 'config.toml');
     runKimiInstaller({ kimiCodeHome: tmpDir });
 
-    const cacheDir = path.join(tmpDir, 'plugins', 'cache', 'lazykimicode', '0.1.0');
+    const cacheDir = path.join(tmpDir, 'plugins', 'cache', 'lazykimicode', pkg.version);
     expect(fs.existsSync(cacheDir)).toBe(true);
     expect(fs.existsSync(path.join(cacheDir, 'components'))).toBe(true);
     expect(fs.existsSync(configPath)).toBe(true);
@@ -85,7 +86,7 @@ describe('installer integration', () => {
     const statePath = path.join(stateDir, 'config-migration-state.json');
     expect(fs.existsSync(statePath)).toBe(true);
     const state = JSON.parse(fs.readFileSync(statePath, 'utf-8'));
-    expect(state.lastInstalledVersion).toBe('0.1.0');
+    expect(state.lastInstalledVersion).toBe(pkg.version);
     delete process.env.OMO_KIMI_MIGRATION_STATE_DIR;
 
     const config = fs.readFileSync(path.join(tmpDir, 'config.toml'), 'utf-8');

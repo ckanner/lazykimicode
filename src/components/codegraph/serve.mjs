@@ -3,6 +3,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import { buildIndex, loadIndex, saveIndex } from './indexer.js';
 import { search, relate, explore, files, callers, callees, impact } from './search.js';
+import { VERSION } from '../../shared/version.mjs';
 
 const projectDir = process.env.OMO_KIMI_PROJECT ?? process.cwd();
 
@@ -16,7 +17,7 @@ function ensureIndex() {
 }
 
 function startCodegraphServer() {
-  const server = new Server({ name: 'codegraph', version: '0.1.0' }, { capabilities: { tools: {} } });
+  const server = new Server({ name: 'codegraph', version: VERSION }, { capabilities: { tools: {} } });
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: [

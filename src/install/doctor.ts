@@ -3,6 +3,7 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { resolveKimiEnv, pluginCacheDir } from '../shared/paths.js';
 import { MANAGED_BINS } from './bin-links.js';
+import { VERSION } from '../shared/version.js';
 
 export interface DoctorOptions {
   kimiCodeHome?: string;
@@ -18,7 +19,7 @@ export interface HealthCheck {
 
 export function runDoctor(options: DoctorOptions = {}): HealthCheck[] {
   const env = resolveKimiEnv(options);
-  const version = process.env.OMO_KIMI_VERSION ?? '0.1.0';
+  const version = process.env.OMO_KIMI_VERSION ?? VERSION;
   const cache = pluginCacheDir(env.kimiCodeHome, version);
   const results: HealthCheck[] = [];
 

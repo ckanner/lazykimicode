@@ -6,9 +6,10 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { runDiagnostics, createTransport } from './diagnostics.js';
 import { LspClient } from './lsp-client.js';
+import { VERSION } from '../../shared/version.js';
 
 export function startLspServer() {
-  const server = new Server({ name: 'lsp', version: '0.1.0' }, { capabilities: { tools: {} } });
+  const server = new Server({ name: 'lsp', version: VERSION }, { capabilities: { tools: {} } });
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: [

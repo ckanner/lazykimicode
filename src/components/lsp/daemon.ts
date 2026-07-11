@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { LspClient } from './lsp-client.js';
+import { VERSION } from '../../shared/version.js';
 import { StdioLspTransport, type LspTransport } from './transport.js';
 
 const projectDir = process.env.OMO_KIMI_PROJECT ?? process.cwd();
@@ -112,7 +113,7 @@ function readFileText(file: string): string {
 export function startLspDaemon() {
   const daemon = new LspDaemon({ command: lspCommand, args: lspArgs, cwd: projectDir });
 
-  const server = new Server({ name: 'lsp-daemon', version: '0.1.0' }, { capabilities: { tools: {} } });
+  const server = new Server({ name: 'lsp-daemon', version: VERSION }, { capabilities: { tools: {} } });
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: [

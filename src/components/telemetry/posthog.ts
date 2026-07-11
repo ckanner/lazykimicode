@@ -1,3 +1,5 @@
+import { VERSION } from '../../shared/version.js';
+
 export const DEFAULT_POSTHOG_HOST = 'https://us.i.posthog.com';
 
 // Public project API key; safe to ship in client-side code.
@@ -46,7 +48,7 @@ export async function captureEvent(
     distinct_id: distinctId,
     properties: {
       source: 'lazykimicode',
-      version: process.env.npm_package_version ?? '0.1.0',
+      version: process.env.OMO_KIMI_VERSION ?? process.env.npm_package_version ?? VERSION,
     },
   };
 
