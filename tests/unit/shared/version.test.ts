@@ -13,15 +13,33 @@ describe('VERSION', () => {
 
   it('build stamps version.ts and plugin manifest', () => {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'build-version-'));
-    const srcDir = path.resolve('.');
-    execFileSync('node', ['scripts/build.mjs'], { cwd: srcDir, env: { ...process.env, OMO_KIMI_POSTHOG_API_KEY: 'test-key' } });
+    try {
+      const projectRoot = path.resolve('.');
+      fs.cpSync(projectRoot, tmpDir, {
+        recursive: true,
+        filter: (src) => {
+          const rel = path.relative(projectRoot, src);
+          if (!rel) return true;
+          const top = rel.split(path.sep)[0];
+          if (['.git', 'node_modules', 'dist'].includes(top)) return false;
+          if (rel.startsWith('plugin/components')) return false;
+          return true;
+        },
+      });
+      fs.symlinkSync(path.join(projectRoot, 'node_modules'), path.join(tmpDir, 'node_modules'), 'dir');
 
-    const versionTs = fs.readFileSync(path.join(srcDir, 'src', 'shared', 'version.ts'), 'utf-8');
-    expect(versionTs).toContain(pkg.version);
+      execFileSync('node', ['scripts/build.mjs'], {
+        cwd: tmpDir,
+        env: { ...process.env, OMO_KIMI_POSTHOG_API_KEY: 'test-key' },
+      });
 
-    const manifest = JSON.parse(fs.readFileSync(path.join(srcDir, 'plugin', 'kimi.plugin.json'), 'utf-8'));
-    expect(manifest.version).toBe(pkg.version);
+      const versionTs = fs.readFileSync(path.join(tmpDir, 'src', 'shared', 'version.ts'), 'utf-8');
+      expect(versionTs).toContain(pkg.version);
 
-    fs.rmSync(tmpDir, { recursive: true, force: true });
+      const manifest = JSON.parse(fs.readFileSync(path.join(tmpDir, 'plugin', 'kimi.plugin.json'), 'utf-8'));
+      expect(manifest.version).toBe(pkg.version);
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
   });
 });
