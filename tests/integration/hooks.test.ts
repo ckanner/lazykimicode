@@ -15,18 +15,22 @@ describe('hook execution integration', () => {
     }
   });
 
-  function runHook(component: string, event: string, payload?: Record<string, unknown>): { output: HookOutput; exitCode: number } {
+  function runHook(component: string, event: string, payload?: Record<string, unknown>, projectDir?: string): { output: HookOutput; exitCode: number } {
     const cli = path.join(PLUGIN_DIR, 'components', component, 'dist', 'cli.mjs');
     const input = payload ? JSON.stringify(payload) : '';
+    const env: NodeJS.ProcessEnv = {
+      ...process.env,
+      OMO_KIMI_DISABLE_POSTHOG: '1',
+      OMO_KIMI_STATE_DIR: fs.mkdtempSync(path.join(os.tmpdir(), 'omo-hooks-')),
+    };
+    if (projectDir) {
+      env.OMO_KIMI_PROJECT = projectDir;
+    }
     const result = spawnSync('node', [cli, 'hook', event], {
       cwd: PROJECT_ROOT,
       input,
       encoding: 'utf-8',
-      env: {
-        ...process.env,
-        OMO_KIMI_DISABLE_POSTHOG: '1',
-        OMO_KIMI_STATE_DIR: fs.mkdtempSync(path.join(os.tmpdir(), 'omo-hooks-')),
-      },
+      env,
     });
     const stdout = result.stdout ?? '';
     const lines = stdout.trim().split('\n');
@@ -87,5 +91,34 @@ describe('hook execution integration', () => {
     });
     expect(output.hookSpecificOutput?.permissionDecision).toBe('deny');
     expect(exitCode).toBe(2);
+  });
+
+  it('start-work-continuation stop returns resume guidance with task titles', () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'omo-boulder-'));
+    fs.mkdirSync(path.join(tmp, '.omo'), { recursive: true });
+    fs.writeFileSync(
+      path.join(tmp, '.omo', 'boulder.json'),
+      JSON.stringify({
+        active_work_id: 'feat-auth',
+        works: {
+          'feat-auth': {
+            title: 'Add auth',
+            status: 'active',
+            tasks: [
+              { id: 't1', title: 'Login form', status: 'done' },
+              { id: 't2', title: 'Session handling', status: 'unchecked' },
+            ],
+          },
+        },
+      }),
+    );
+    const { output, exitCode } = runHook('start-work-continuation', 'stop', {
+      hookEventName: 'Stop',
+    }, tmp);
+    expect(output.decision).toBe('block');
+    expect(output.hookSpecificOutput?.additionalContext).toContain('Add auth');
+    expect(output.hookSpecificOutput?.additionalContext).toContain('Session handling');
+    expect(exitCode).toBe(2);
+    fs.rmSync(tmp, { recursive: true, force: true });
   });
 });
