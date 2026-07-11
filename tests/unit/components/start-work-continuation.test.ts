@@ -49,6 +49,36 @@ describe('start-work-continuation', () => {
     expect(hasUncheckedTasks(readBoulder(tmp))).toBe(false);
   });
 
+  it('detects legacy boulder schema without tasks (completed=false)', () => {
+    fs.mkdirSync(path.join(tmp, '.omo'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, '.omo', 'boulder.json'), JSON.stringify({
+      active_work_id: 'x',
+      works: {
+        x: {
+          title: 'Legacy work',
+          status: 'active',
+          completed: false,
+        },
+      },
+    }));
+    expect(hasUncheckedTasks(readBoulder(tmp))).toBe(true);
+  });
+
+  it('passes legacy boulder schema when work is completed', () => {
+    fs.mkdirSync(path.join(tmp, '.omo'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, '.omo', 'boulder.json'), JSON.stringify({
+      active_work_id: 'x',
+      works: {
+        x: {
+          title: 'Legacy work',
+          status: 'done',
+          completed: true,
+        },
+      },
+    }));
+    expect(hasUncheckedTasks(readBoulder(tmp))).toBe(false);
+  });
+
   it('passes when file is malformed', () => {
     fs.mkdirSync(path.join(tmp, '.omo'), { recursive: true });
     fs.writeFileSync(path.join(tmp, '.omo', 'boulder.json'), 'not json');

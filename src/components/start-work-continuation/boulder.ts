@@ -10,7 +10,8 @@ export interface Task {
 export interface Work {
   title: string;
   status: string;
-  tasks: Task[];
+  tasks?: Task[];
+  completed?: boolean;
 }
 
 export interface Boulder {
@@ -28,7 +29,11 @@ export function hasUncheckedTasks(boulder: Boulder | null): boolean {
   if (!boulder?.active_work_id) return false;
   const work = boulder.works?.[boulder.active_work_id];
   if (!work) return false;
-  return Array.isArray(work.tasks) && work.tasks.some((t) => t.status === 'unchecked');
+  if (Array.isArray(work.tasks)) {
+    return work.tasks.some((t) => t.status === 'unchecked');
+  }
+  // Legacy schema: work.completed flag; treat incomplete work as unchecked.
+  return !work.completed;
 }
 
 export function formatResumeContext(boulder: Boulder): string {
