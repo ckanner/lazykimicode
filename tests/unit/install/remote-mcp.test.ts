@@ -17,7 +17,7 @@ describe('remote MCP defaults', () => {
   it('keeps remote MCPs disabled by default', () => {
     const rootMcp = path.join(ROOT, '.mcp.json');
     const root = JSON.parse(fs.readFileSync(rootMcp, 'utf-8'));
-    for (const [name, cfg] of Object.entries(root)) {
+    for (const [, cfg] of Object.entries(root)) {
       expect((cfg as { enabled?: boolean }).enabled).toBe(false);
     }
   });
