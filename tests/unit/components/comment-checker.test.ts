@@ -129,4 +129,21 @@ describe('comment-checker', () => {
     expect(markers).toHaveLength(1);
     expect(markers[0].marker).toBe('TODO');
   });
+
+  it('detects hash comment after a hash inside a string literal', () => {
+    const markers = findStaleMarkers('const s = " # "; # FIXME after string\n');
+    expect(markers).toHaveLength(1);
+    expect(markers[0].marker).toBe('FIXME');
+  });
+
+  it('ignores HTML comments inside string literals', () => {
+    const markers = findStaleMarkers('const s = "<!-- TODO in string -->";\n');
+    expect(markers).toHaveLength(0);
+  });
+
+  it('detects HTML comment after an HTML comment inside a string literal', () => {
+    const markers = findStaleMarkers('const s = "<!-- not a comment -->"; <!-- FIXME real -->\n');
+    expect(markers).toHaveLength(1);
+    expect(markers[0].marker).toBe('FIXME');
+  });
 });

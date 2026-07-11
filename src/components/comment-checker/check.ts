@@ -52,12 +52,19 @@ function findLineCommentStart(line: string): number {
 
   // Find the earliest '#' that is at the start of the line or preceded by
   // whitespace, and is not inside a string literal.
-  const hashMatch = line.match(/(?:^|\s)#/);
-  if (hashMatch) {
-    const hashStart = hashMatch.index! + hashMatch[0].length - 1;
-    if (!isInsideString(line, hashStart) && (start === -1 || hashStart < start)) {
-      start = hashStart;
+  let hashIdx = -1;
+  while (true) {
+    const next = line.indexOf('#', hashIdx + 1);
+    if (next === -1) break;
+    const prev = next - 1;
+    const precededByBoundary = prev < 0 || /\s/.test(line.charAt(prev));
+    if (precededByBoundary && !isInsideString(line, next)) {
+      if (start === -1 || next < start) {
+        start = next;
+      }
+      break;
     }
+    hashIdx = next;
   }
 
   return start;
@@ -88,9 +95,10 @@ function extractComments(content: string): Array<{ text: string; line: number }>
     }
 
     // HTML block comment start/end on same line
-    const htmlMatch = line.match(/<!--(.*?)-->/);
-    if (htmlMatch) {
-      comments.push({ text: htmlMatch[1], line: i + 1 });
+    for (const htmlMatch of line.matchAll(/<!--(.*?)-->/g)) {
+      if (!isInsideString(line, htmlMatch.index!)) {
+        comments.push({ text: htmlMatch[1], line: i + 1 });
+      }
     }
 
     // C-style block comment start. Ignore a `/*` that is inside a line comment
