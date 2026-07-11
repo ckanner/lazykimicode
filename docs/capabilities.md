@@ -27,7 +27,7 @@ Hooks are fail-open advisory components. They exit `0` when they only want to ad
 | `UserPromptSubmit` | `rules` | `.*` | Re-inject project rules for the current prompt |
 | `UserPromptSubmit` | `ultrawork` | `.*` | Detect `ultrawork`/`ulw` keywords and inject autonomous-mode instructions |
 | `UserPromptSubmit` | `ulw-loop` | `.*` | Parse `OMO_ULW_LOOP_STEER:` steering markers |
-| `PreToolUse` | `git-bash` | `^Bash$` | On Windows, recommend the `git_bash` MCP over raw `Bash` |
+| `PreToolUse` | `git-bash` | `^Bash$` | Recommend the `git_bash` MCP over raw `Bash` (advises native Bash on non-Windows) |
 | `PreToolUse` | `ulw-loop` | `^CreateGoal$` | Deny budgeted `CreateGoal` calls in ulw-loop mode |
 | `PostToolUse` | `comment-checker` | `^(Write\|Edit)$` | Block if unresolved TODO/FIXME/HACK/XXX/BUG markers are left in the file |
 | `PostToolUse` | `lsp` | `^(Write\|Edit)$` | Run LSP diagnostics on edited files and report results |
@@ -197,4 +197,4 @@ The full verification command used in CI and development:
 pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build
 ```
 
-Latest result: **39 test files, 223 tests passing**.
+Latest result: **39 test files, 233 tests passing**.

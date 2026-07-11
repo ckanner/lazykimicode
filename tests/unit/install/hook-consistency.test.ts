@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
+import pkg from '../../../package.json' with { type: 'json' };
 import { getHookDefs } from '../../../src/install/hook-defs.js';
 
 const ROOT = path.resolve(import.meta.dirname, '../../..');
@@ -12,7 +13,7 @@ describe('hook consistency', () => {
       return fs.existsSync(path.join(componentsDir, name, 'hooks.json'));
     });
 
-    const defs = getHookDefs('0.1.3', '/tmp/cache');
+    const defs = getHookDefs(pkg.version, '/tmp/cache');
 
     for (const component of components) {
       const hooksPath = path.join(componentsDir, component, 'hooks.json');

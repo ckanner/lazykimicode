@@ -124,7 +124,7 @@ export async function handleRequest(request: McpRequest, options: ServerOptions 
           tools: [
             {
               name: 'git_bash',
-              description: 'Execute a shell command through Git Bash (Windows) or POSIX sh (Unix).',
+              description: 'On Windows, execute a shell command through Git Bash; on other platforms, advise using the native Bash tool.',
               inputSchema: {
                 type: 'object',
                 properties: {

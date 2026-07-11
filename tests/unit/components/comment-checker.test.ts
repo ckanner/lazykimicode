@@ -40,6 +40,13 @@ describe('comment-checker', () => {
     expect(r.hasIssue).toBe(false);
   });
 
+  it('ignores // TODO inside string literals', () => {
+    const p = path.join(tmp, 'line-in-string.ts');
+    fs.writeFileSync(p, 'const s = " // TODO in string";\n');
+    const r = checkFile(p);
+    expect(r.hasIssue).toBe(false);
+  });
+
   it('ignores markers inside URLs', () => {
     const p = path.join(tmp, 'url.ts');
     fs.writeFileSync(p, 'const url = "https://example.com/TODO#FIXME";\n');

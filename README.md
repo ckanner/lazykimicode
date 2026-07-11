@@ -101,7 +101,7 @@ export OMO_KIMI_LSP_COMMAND=typescript-language-server
 export OMO_KIMI_LSP_ARGS="--stdio"
 ```
 
-On Windows, the installer registers a `git_bash` MCP (declared in `plugin/kimi.plugin.json`) for shell operations.
+The `git_bash` MCP is declared globally in `plugin/kimi.plugin.json`; on Windows it executes commands through Git Bash, and on other platforms it advises using the native Bash tool.
 
 ### Skills
 
@@ -176,7 +176,7 @@ pnpm run sync:skills
 pnpm run sync:hooks
 ```
 
-Latest full-suite result: **39 test files, 223 tests passing**.
+Latest full-suite result: **39 test files, 233 tests passing**.
 
 ---
 

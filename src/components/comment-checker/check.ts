@@ -76,7 +76,12 @@ function extractComments(content: string): Array<{ text: string; line: number }>
     // are not treated as comments.
     const lineMatch = line.match(/(?:^|\s)(?:\/\/|#)(.*)/);
     if (lineMatch) {
-      comments.push({ text: lineMatch[1], line: i + 1 });
+      const idx = lineMatch.index!;
+      const markerStart =
+        line.indexOf('//', idx) !== -1 ? line.indexOf('//', idx) : line.indexOf('#', idx);
+      if (markerStart !== -1 && !isInsideString(line, markerStart)) {
+        comments.push({ text: lineMatch[1], line: i + 1 });
+      }
     }
   }
   return comments;
