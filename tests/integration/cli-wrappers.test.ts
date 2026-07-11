@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
@@ -7,6 +7,12 @@ import type { HookOutput } from '../../src/shared/types.js';
 
 const PROJECT_ROOT = path.resolve(process.cwd());
 const PLUGIN_DIR = path.join(PROJECT_ROOT, 'plugin');
+
+const tmpDirsToClean: string[] = [];
+
+function registerTmpDir(...dirs: string[]) {
+  tmpDirsToClean.push(...dirs);
+}
 
 function cliPath(name: string): string {
   return path.join(PLUGIN_DIR, 'components', name, 'dist', 'cli.mjs');
@@ -20,10 +26,12 @@ function runCli(
 ): { output: HookOutput; exitCode: number; stderr: string } {
   const cli = cliPath(name);
   const input = payload ? JSON.stringify(payload) : '';
+  const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), 'omo-cli-wrappers-'));
+  registerTmpDir(stateDir);
   const env: NodeJS.ProcessEnv = {
     ...process.env,
     OMO_KIMI_DISABLE_POSTHOG: '1',
-    OMO_KIMI_STATE_DIR: fs.mkdtempSync(path.join(os.tmpdir(), 'omo-cli-wrappers-')),
+    OMO_KIMI_STATE_DIR: stateDir,
   };
   if (projectDir) {
     env.OMO_KIMI_PROJECT = projectDir;
@@ -49,6 +57,17 @@ describe('component CLI wrappers', () => {
     if (!fs.existsSync(cliPath('bootstrap'))) {
       execFileSync('node', ['scripts/build.mjs'], { cwd: PROJECT_ROOT, stdio: 'inherit' });
     }
+  });
+
+  afterEach(() => {
+    for (const dir of tmpDirsToClean) {
+      try {
+        fs.rmSync(dir, { recursive: true, force: true });
+      } catch {
+        // ignore cleanup errors
+      }
+    }
+    tmpDirsToClean.length = 0;
   });
 
   it('bootstrap session-start emits SessionStart context', () => {
@@ -97,13 +116,13 @@ describe('component CLI wrappers', () => {
 
   it('start-work-continuation stop allows when no active boulder', () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'omo-swc-empty-'));
+    registerTmpDir(tmp);
     fs.mkdirSync(path.join(tmp, '.omo'), { recursive: true });
     fs.writeFileSync(path.join(tmp, '.omo', 'boulder.json'), JSON.stringify({}));
     const { output, exitCode } = runCli('start-work-continuation', 'stop', { hookEventName: 'Stop' }, tmp);
     expect(exitCode).toBe(0);
     expect(output.hookSpecificOutput?.hookEventName).toBe('Stop');
     expect(output.decision).toBeUndefined();
-    fs.rmSync(tmp, { recursive: true, force: true });
   });
 
   it('executor-verify blocks when evidence is missing', () => {
@@ -149,6 +168,7 @@ describe('component CLI wrappers', () => {
 
   it('lsp post-compact clears cache and returns PostCompact', () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'omo-lsp-cli-'));
+    registerTmpDir(tmp);
     const cacheFile = path.join(tmp, '.omo', 'lsp-cache.json');
     fs.mkdirSync(path.dirname(cacheFile), { recursive: true });
     fs.writeFileSync(cacheFile, JSON.stringify(['/some/file.ts']));
@@ -156,6 +176,6 @@ describe('component CLI wrappers', () => {
     expect(exitCode).toBe(0);
     expect(output.hookSpecificOutput?.hookEventName).toBe('PostCompact');
     expect(output.hookSpecificOutput?.additionalContext).toBe('');
-    fs.rmSync(tmp, { recursive: true, force: true });
+    expect(JSON.parse(fs.readFileSync(cacheFile, 'utf-8'))).toEqual([]);
   });
 });
