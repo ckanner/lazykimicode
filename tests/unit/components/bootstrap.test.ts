@@ -63,12 +63,21 @@ describe('bootstrap', () => {
     it('provisions bins, agents, and reports sg status', () => {
       const cacheDir = path.join(tmpDir, 'cache');
       const binDir = path.join(tmpDir, 'bin');
-      fs.mkdirSync(path.join(cacheDir, 'components', 'codegraph', 'dist'), { recursive: true });
-      fs.writeFileSync(path.join(cacheDir, 'components', 'codegraph', 'dist', 'serve.mjs'), '', 'utf-8');
+      const bins = [
+        path.join(cacheDir, 'components', 'git-bash', 'dist', 'mcp-server.mjs'),
+        path.join(cacheDir, 'components', 'lsp', 'dist', 'mcp-server.mjs'),
+        path.join(cacheDir, 'components', 'lsp', 'dist', 'daemon.mjs'),
+        path.join(cacheDir, 'components', 'codegraph', 'dist', 'serve.mjs'),
+      ];
+      for (const bin of bins) {
+        fs.mkdirSync(path.dirname(bin), { recursive: true });
+        fs.writeFileSync(bin, '', 'utf-8');
+      }
       const result = runBootstrapProvisioning(cacheDir, binDir, tmpDir);
       expect(result.binLinksOk).toBe(true);
       expect(fs.existsSync(result.agentCacheDir)).toBe(true);
-      expect(result.warnings.length).toBeGreaterThanOrEqual(0);
+      expect(Array.isArray(result.warnings)).toBe(true);
+      expect(result.warnings).toEqual([]);
     });
   });
 });

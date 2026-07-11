@@ -67,6 +67,9 @@ describe('hook execution integration', () => {
   it('rules discovers rules files', () => {
     const { output } = runHook('rules', 'session-start', { hookEventName: 'SessionStart' });
     expect(output.hookSpecificOutput?.hookEventName).toBe('SessionStart');
+    const context = output.hookSpecificOutput?.additionalContext ?? '';
+    expect(context).toContain('# AGENTS.md');
+    expect(context).toContain('Architecture');
   });
 
   it('comment-checker blocks on TODO and exits 2', () => {
