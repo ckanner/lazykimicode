@@ -6,6 +6,20 @@
   "bin": {
     "lazykimicode": "./bin/lazykimicode.mjs"
   },
+  "keywords": [
+    "kimi-code",
+    "kimi",
+    "kimi-code-cli",
+    "agent-harness",
+    "mcp",
+    "lsp",
+    "ai-agent",
+    "multi-agent",
+    "swarm",
+    "ultrawork",
+    "omo",
+    "lazykimi"
+  ],
   "files": [
     "dist/",
     "plugin/",
