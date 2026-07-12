@@ -153,7 +153,8 @@ describe('lsp daemon entry', () => {
   });
 
   it('initializes and dispatches lsp_diagnostics for a non-TS/JS file', async () => {
-    const languageIdCapture = path.join(tmp, 'captured-language-id.txt');
+    const captureDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lsp-daemon-capture-'));
+    const languageIdCapture = path.join(captureDir, 'captured-language-id.txt');
     const mockServer = createMockLspServer(tmp);
     const projectDir = fs.mkdtempSync(path.join(tmp, 'project-'));
     const file = path.join(projectDir, 'main.go');
@@ -181,5 +182,14 @@ describe('lsp daemon entry', () => {
     expect(text).toContain('"diagnostics":[]');
     expect(fs.existsSync(languageIdCapture)).toBe(true);
     expect(fs.readFileSync(languageIdCapture, 'utf-8')).toBe('go');
+
+    // Clean up the capture directory explicitly; it is not part of `tmp` so
+    // `afterEach` will not remove it. On Windows the mock LSP server may still
+    // hold a handle to the capture file briefly after the daemon is killed.
+    try {
+      fs.rmSync(captureDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
+    } catch {
+      // Best-effort cleanup; the OS will reclaim the temp directory.
+    }
   });
 });
