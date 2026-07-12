@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { runDiagnostics, createTransport } from './diagnostics.js';
+import { parseLspArgs } from './args.js';
 import { languageIdFromExtension } from './language-id.js';
 import { LspClient } from './lsp-client.js';
 import { VERSION } from '../../shared/version.js';
@@ -31,7 +32,7 @@ export async function handleToolRequest(
 ): Promise<{ content: Array<{ type: string; text: string }>; isError?: boolean }> {
   const createTransportImpl = options.createTransport ?? createTransport;
   const lspCommand = process.env.OMO_KIMI_LSP_COMMAND;
-  const lspArgs = process.env.OMO_KIMI_LSP_ARGS?.split(' ') ?? [];
+  const lspArgs = process.env.OMO_KIMI_LSP_ARGS ? parseLspArgs(process.env.OMO_KIMI_LSP_ARGS) : [];
 
   switch (req.params.name) {
     case 'lsp_status': {

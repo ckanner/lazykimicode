@@ -8,10 +8,11 @@ import { LspClient } from './lsp-client.js';
 import { VERSION } from '../../shared/version.js';
 import { StdioLspTransport, type LspTransport } from './transport.js';
 import { languageIdFromExtension } from './language-id.js';
+import { parseLspArgs } from './args.js';
 
 const projectDir = process.env.OMO_KIMI_PROJECT ?? process.cwd();
 const lspCommand = process.env.OMO_KIMI_LSP_COMMAND;
-const lspArgs = process.env.OMO_KIMI_LSP_ARGS?.split(' ') ?? [];
+const lspArgs = process.env.OMO_KIMI_LSP_ARGS ? parseLspArgs(process.env.OMO_KIMI_LSP_ARGS) : [];
 
 interface LspDaemonOptions {
   command?: string;

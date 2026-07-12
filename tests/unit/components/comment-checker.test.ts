@@ -146,4 +146,29 @@ describe('comment-checker', () => {
     expect(markers).toHaveLength(1);
     expect(markers[0].marker).toBe('FIXME');
   });
+
+  it('ignores TODO inside multi-line template literals', () => {
+    const content = 'const msg = `first line\nTODO: not a marker\nthird line`;\n';
+    const markers = findStaleMarkers(content);
+    expect(markers).toHaveLength(0);
+  });
+
+  it('ignores TODO inside template literal interpolation', () => {
+    const content = 'const x = `${foo ? "TODO: not a marker" : "ok"}`;\n';
+    const markers = findStaleMarkers(content);
+    expect(markers).toHaveLength(0);
+  });
+
+  it('ignores escaped backticks and TODO inside template literals', () => {
+    const content = 'const msg = `escaped \\` TODO: not a marker`;\n';
+    const markers = findStaleMarkers(content);
+    expect(markers).toHaveLength(0);
+  });
+
+  it('detects TODO after a multi-line template literal ends', () => {
+    const content = 'const msg = `multi\nline`; // TODO: real marker\n';
+    const markers = findStaleMarkers(content);
+    expect(markers).toHaveLength(1);
+    expect(markers[0].marker).toBe('TODO');
+  });
 });

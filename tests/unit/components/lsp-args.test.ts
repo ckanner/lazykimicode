@@ -1,0 +1,31 @@
+import { describe, it, expect } from 'vitest';
+import { parseLspArgs } from '../../../src/components/lsp/args.js';
+
+describe('parseLspArgs', () => {
+  it('splits on whitespace', () => {
+    expect(parseLspArgs('--stdio --log-level=verbose')).toEqual(['--stdio', '--log-level=verbose']);
+  });
+
+  it('preserves quoted arguments with spaces', () => {
+    expect(parseLspArgs('--node-ipc "--project=/path with spaces/tsconfig.json"')).toEqual([
+      '--node-ipc',
+      '--project=/path with spaces/tsconfig.json',
+    ]);
+  });
+
+  it('supports single quotes', () => {
+    expect(parseLspArgs("--foo 'bar baz'")).toEqual(['--foo', 'bar baz']);
+  });
+
+  it('handles escaped quotes', () => {
+    expect(parseLspArgs('foo "bar baz"')).toEqual(['foo', 'bar baz']);
+  });
+
+  it('returns empty array for empty string', () => {
+    expect(parseLspArgs('')).toEqual([]);
+  });
+
+  it('returns empty array for whitespace-only string', () => {
+    expect(parseLspArgs('   \t\n  ')).toEqual([]);
+  });
+});

@@ -66,10 +66,15 @@ function sleepSync(ms: number): void {
   Atomics.wait(view, 0, 0, ms);
 }
 
+function lockDir(sessionId: string): string {
+  // Keep locks outside the team directory so archive/delete can remove the team dir safely.
+  return path.join(getTeamsDir(), '.locks', sessionId);
+}
+
 function withLock<T>(sessionId: string, fn: () => T): T {
-  const lockDir = path.join(teamDir(sessionId), '.team.lock');
-  const ownerPath = path.join(lockDir, 'owner.json');
-  fs.mkdirSync(lockDir, { recursive: true });
+  const dir = lockDir(sessionId);
+  const ownerPath = path.join(dir, 'owner.json');
+  fs.mkdirSync(dir, { recursive: true });
 
   const owner = { pid: process.pid, command: process.argv.slice(2).join(' ') };
 
@@ -496,16 +501,19 @@ export function archiveTeam(sessionId: string, memberId?: string, note?: string)
 }
 
 export function archive(sessionId: string): void {
-  const dir = teamDir(sessionId);
-  if (!fs.existsSync(dir)) {
-    console.log('Team not found');
-    return;
-  }
-  const archiveDir = path.join(getTeamsDir(), 'archive');
-  fs.mkdirSync(archiveDir, { recursive: true });
-  const target = path.join(archiveDir, `${sessionId}-${Date.now()}`);
-  fs.renameSync(dir, target);
-  console.log(`Team archived to ${target}`);
+  withLock(sessionId, () => {
+    const dir = teamDir(sessionId);
+    if (!fs.existsSync(dir)) {
+      console.log('Team not found');
+      return;
+    }
+    const archiveDir = path.join(getTeamsDir(), 'archive');
+    fs.mkdirSync(archiveDir, { recursive: true });
+    const target = path.join(archiveDir, `${sessionId}-${Date.now()}`);
+    fs.cpSync(dir, target, { recursive: true });
+    fs.rmSync(dir, { recursive: true, force: true });
+    console.log(`Team archived to ${target}`);
+  });
 }
 
 export function deleteTeamSafe(sessionId: string, force = false): void {
@@ -525,13 +533,15 @@ export function deleteTeamSafe(sessionId: string, force = false): void {
 }
 
 export function deleteTeam(sessionId: string): void {
-  const dir = teamDir(sessionId);
-  if (!fs.existsSync(dir)) {
-    console.log('Team not found');
-    return;
-  }
-  fs.rmSync(dir, { recursive: true, force: true });
-  console.log(`Team ${sessionId} deleted`);
+  withLock(sessionId, () => {
+    const dir = teamDir(sessionId);
+    if (!fs.existsSync(dir)) {
+      console.log('Team not found');
+      return;
+    }
+    fs.rmSync(dir, { recursive: true, force: true });
+    console.log(`Team ${sessionId} deleted`);
+  });
 }
 
 export function status(sessionId: string): void {

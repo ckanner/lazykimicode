@@ -1,6 +1,7 @@
 import { readCache, writeCache, runDiagnostics, createTransport } from './diagnostics.js';
 import { writeHookOutput } from '../../shared/serialize.js';
 import { pathToFileURL } from 'node:url';
+import { parseLspArgs } from './args.js';
 
 async function main() {
   const event = process.argv[3];
@@ -21,7 +22,7 @@ async function main() {
   writeCache(projectDir, [...cached]);
 
   const lspCommand = process.env.OMO_KIMI_LSP_COMMAND;
-  const lspArgs = process.env.OMO_KIMI_LSP_ARGS?.split(' ') ?? [];
+  const lspArgs = process.env.OMO_KIMI_LSP_ARGS ? parseLspArgs(process.env.OMO_KIMI_LSP_ARGS) : [];
   const transport = lspCommand ? createTransport(lspCommand, lspArgs, projectDir) : undefined;
 
   const all: string[] = [];

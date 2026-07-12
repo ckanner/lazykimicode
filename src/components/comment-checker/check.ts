@@ -8,33 +8,103 @@ export interface CheckResult {
   matches: string[];
 }
 
-// Returns true if `index` in `line` falls inside a single- or double-quoted
-// string literal on that line. This is a cheap heuristic; it does not track
-// multi-line template literals or interpolated strings.
-function isInsideString(line: string, index: number): boolean {
-  let inSingle = false;
-  let inDouble = false;
-  let escaped = false;
-  for (let i = 0; i < index && i < line.length; i++) {
-    const ch = line[i];
-    if (escaped) {
-      escaped = false;
-      continue;
-    }
-    if (ch === '\\') {
-      escaped = true;
-      continue;
-    }
-    if (ch === "'" && !inDouble) {
-      inSingle = !inSingle;
-    } else if (ch === '"' && !inSingle) {
-      inDouble = !inDouble;
-    }
-  }
-  return inSingle || inDouble;
+interface StringRange {
+  start: number;
+  end: number;
 }
 
-function findLineCommentStart(line: string): number {
+// Finds all single-quoted, double-quoted, and template literal ranges in the
+// content, handling escape sequences and `${...}` template interpolation.
+export function findStringRanges(content: string): StringRange[] {
+  const ranges: StringRange[] = [];
+  let i = 0;
+  while (i < content.length) {
+    const quote = content[i];
+    if (quote !== "'" && quote !== '"' && quote !== '`') {
+      i++;
+      continue;
+    }
+    const start = i;
+    i++;
+    let escaped = false;
+    while (i < content.length) {
+      const ch = content[i];
+      if (escaped) {
+        escaped = false;
+        i++;
+        continue;
+      }
+      if (ch === '\\') {
+        escaped = true;
+        i++;
+        continue;
+      }
+      if (ch === quote) {
+        ranges.push({ start, end: i });
+        i++;
+        break;
+      }
+      if (quote === '`' && ch === '$' && i + 1 < content.length && content[i + 1] === '{') {
+        // Skip template interpolation, counting braces and handling nested strings.
+        i += 2;
+        let depth = 1;
+        while (i < content.length && depth > 0) {
+          const c = content[i];
+          if (c === '{') {
+            depth++;
+            i++;
+          } else if (c === '}') {
+            depth--;
+            i++;
+          } else if (c === "'" || c === '"' || c === '`') {
+            // Nested string literal inside interpolation.
+            const nestedQuote = c;
+            i++;
+            let nestedEscaped = false;
+            while (i < content.length) {
+              const nc = content[i];
+              if (nestedEscaped) {
+                nestedEscaped = false;
+                i++;
+                continue;
+              }
+              if (nc === '\\') {
+                nestedEscaped = true;
+                i++;
+                continue;
+              }
+              if (nc === nestedQuote) {
+                i++;
+                break;
+              }
+              i++;
+            }
+          } else {
+            i++;
+          }
+        }
+        continue;
+      }
+      i++;
+    }
+  }
+  return ranges;
+}
+
+function isInsideString(ranges: StringRange[], offset: number): boolean {
+  let lo = 0;
+  let hi = ranges.length - 1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    const r = ranges[mid];
+    if (offset < r.start) hi = mid - 1;
+    else if (offset > r.end) lo = mid + 1;
+    else return true;
+  }
+  return false;
+}
+
+function findLineCommentStart(line: string, ranges: StringRange[], lineStartOffset: number): number {
   let start = -1;
 
   // Find the earliest '//' that is not preceded by ':' (avoids '://' in URLs)
@@ -43,7 +113,8 @@ function findLineCommentStart(line: string): number {
   while (true) {
     const next = line.indexOf('//', idx + 1);
     if (next === -1) break;
-    if (line.charAt(next - 1) !== ':' && !isInsideString(line, next)) {
+    const globalOffset = lineStartOffset + next;
+    if (line.charAt(next - 1) !== ':' && !isInsideString(ranges, globalOffset)) {
       start = next;
       break;
     }
@@ -58,7 +129,8 @@ function findLineCommentStart(line: string): number {
     if (next === -1) break;
     const prev = next - 1;
     const precededByBoundary = prev < 0 || /\s/.test(line.charAt(prev));
-    if (precededByBoundary && !isInsideString(line, next)) {
+    const globalOffset = lineStartOffset + next;
+    if (precededByBoundary && !isInsideString(ranges, globalOffset)) {
       if (start === -1 || next < start) {
         start = next;
       }
@@ -72,18 +144,21 @@ function findLineCommentStart(line: string): number {
 
 function extractComments(content: string): Array<{ text: string; line: number }> {
   const comments: Array<{ text: string; line: number }> = [];
+  const ranges = findStringRanges(content);
   const lines = content.split('\n');
   let inBlock = false;
   let blockStartLine = 0;
   let blockText = '';
+  let offset = 0;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    const lineCommentStart = findLineCommentStart(line);
+    const lineStartOffset = offset;
+    const lineCommentStart = findLineCommentStart(line, ranges, lineStartOffset);
 
     if (inBlock) {
       const end = line.indexOf('*/');
-      if (end !== -1 && !isInsideString(line, end)) {
+      if (end !== -1 && !isInsideString(ranges, lineStartOffset + end)) {
         blockText += '\n' + line.slice(0, end);
         comments.push({ text: blockText, line: blockStartLine + 1 });
         blockText = '';
@@ -91,12 +166,13 @@ function extractComments(content: string): Array<{ text: string; line: number }>
       } else {
         blockText += '\n' + line;
       }
+      offset += line.length + 1;
       continue;
     }
 
     // HTML block comment start/end on same line
     for (const htmlMatch of line.matchAll(/<!--(.*?)-->/g)) {
-      if (!isInsideString(line, htmlMatch.index!)) {
+      if (!isInsideString(ranges, lineStartOffset + htmlMatch.index!)) {
         comments.push({ text: htmlMatch[1], line: i + 1 });
       }
     }
@@ -106,9 +182,13 @@ function extractComments(content: string): Array<{ text: string; line: number }>
     const start = line.indexOf('/*');
     let blockStart = -1;
     let blockEnd = -1;
-    if (start !== -1 && !isInsideString(line, start) && (lineCommentStart === -1 || start < lineCommentStart)) {
+    if (
+      start !== -1 &&
+      !isInsideString(ranges, lineStartOffset + start) &&
+      (lineCommentStart === -1 || start < lineCommentStart)
+    ) {
       const end = line.indexOf('*/', start + 2);
-      if (end !== -1 && !isInsideString(line, end)) {
+      if (end !== -1 && !isInsideString(ranges, lineStartOffset + end)) {
         comments.push({ text: line.slice(start + 2, end), line: i + 1 });
         blockStart = start;
         blockEnd = end;
@@ -116,6 +196,7 @@ function extractComments(content: string): Array<{ text: string; line: number }>
         inBlock = true;
         blockStartLine = i;
         blockText = line.slice(start + 2);
+        offset += line.length + 1;
         continue;
       }
     }
@@ -127,11 +208,13 @@ function extractComments(content: string): Array<{ text: string; line: number }>
       // Ignore a line-comment marker that is actually inside a same-line block
       // comment (e.g. `/* block // comment */`).
       if (blockStart !== -1 && blockEnd !== -1 && lineCommentStart > blockStart && lineCommentStart < blockEnd) {
+        offset += line.length + 1;
         continue;
       }
       const markerLen = line.charAt(lineCommentStart) === '/' ? 2 : 1;
       comments.push({ text: line.slice(lineCommentStart + markerLen), line: i + 1 });
     }
+    offset += line.length + 1;
   }
   return comments;
 }
