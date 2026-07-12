@@ -26,7 +26,8 @@ const RAW_CODEX_MARKERS = [
 ];
 
 function parseFrontmatter(content: string): Record<string, string> | null {
-  const lines = content.split('\n');
+  const normalized = content.replace(/\r\n/g, '\n');
+  const lines = normalized.split('\n');
   if (lines[0] !== '---') return null;
   const end = lines.indexOf('---', 1);
   if (end === -1) return null;
