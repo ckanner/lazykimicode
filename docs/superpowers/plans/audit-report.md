@@ -160,6 +160,6 @@
 - **修复轮次：** Tasks 1–4 修复轮次（含 Task 4 Fix Round 2）
 - **修复提交范围：** `ae83a7d` ... `59c202c`
 - **Windows CI 修复轮次：** `834836d` ... `b293140`（doctor 跨平台、release-zip 改用 tar、bootstrap 测试允许 npm/sg 环境警告、skill frontmatter CRLF 归一化）
-- **最终修复轮次：** `bca4563`（teammode 测试 cwd 处理、skill fallback 文档、跨平台 sg 查找、空 config 分支测试、CI 工作流加固）
-- **CI 全绿：** run `29194088560`（ubuntu-latest / macos-latest / windows-latest 全部通过）
+- **最终修复轮次：** `64c1739`（teammode 测试 cwd 处理、skill fallback 文档、跨平台 sg 查找、空 config 分支测试、CI 工作流加固、Windows lsp-daemon 测试清理）
+- **CI 全绿：** run `29194457141`（ubuntu-latest / macos-latest / windows-latest 全部通过）
 - **记录日期：** 2026-07-12

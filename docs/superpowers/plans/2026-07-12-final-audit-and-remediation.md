@@ -24,7 +24,7 @@
 ## Current State Snapshot
 
 - **Local (macOS):** `39 test files / 244 tests` passing; lint, typecheck, build passing.
-- **CI:** Run `29194088560` is green on ubuntu-latest, macos-latest, and windows-latest.
+- **CI:** Run `29194457141` is green on ubuntu-latest, macos-latest, and windows-latest.
 - **Windows-specific fixes delivered in this plan:** doctor cross-platform checks, release-zip via `tar`, bootstrap test tolerance for npm/sg warnings, skill frontmatter CRLF normalization, teammode `integrate` `--no-edit`, installer `OMO_KIMI_SKIP_BOOTSTRAP` for hermetic integration tests.
 - **Previously declared gaps** (teammode subcommands, lsp-daemon split, skill MCP tool-name alignment, `create-pr-body.mjs`) are implemented and tested.
 
@@ -568,8 +568,8 @@ Summarize to the user: what was fixed, what was verified, CI status, and any rem
 **Plan complete and saved to `docs/superpowers/plans/2026-07-12-final-audit-and-remediation.md`.**
 
 - Execution mode: inline in the active goal session.
-- Final commit: `bca4563`.
-- Final CI run: `29194088560` green on all three platforms.
+- Final commit: `64c1739`.
+- Final CI run: `29194457141` green on all three platforms.
 - Additional fixes discovered during execution:
   - `teammode` `integrate` now uses `git merge --no-edit --no-ff` to avoid editor hang on Windows.
   - Installer integration tests set `OMO_KIMI_SKIP_BOOTSTRAP=1` to skip the non-hermetic ast-grep npm install step.
