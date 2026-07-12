@@ -171,4 +171,11 @@ describe('comment-checker', () => {
     expect(markers).toHaveLength(1);
     expect(markers[0].marker).toBe('TODO');
   });
+
+  it('detects TODO inside a block comment after a multi-line template literal', () => {
+    const content = 'const msg = `multi\nline`; /* TODO: real marker */\n';
+    const markers = findStaleMarkers(content);
+    expect(markers).toHaveLength(1);
+    expect(markers[0].marker).toBe('TODO');
+  });
 });
