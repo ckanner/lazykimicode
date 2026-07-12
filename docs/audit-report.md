@@ -4,7 +4,7 @@
 >
 > **Date:** 2026-07-13
 >
-> **Status:** Remediation in progress — see [`docs/lazykimicode-audit-remediation-plan.md`](lazykimicode-audit-remediation-plan.md) for the complete task list.
+> **Status:** Complete — all remediation tasks in [`docs/lazykimicode-audit-remediation-plan.md`](lazykimicode-audit-remediation-plan.md) are finished and CI is green.
 >
 > **Verification baseline:** `pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build` — green.
 
@@ -61,8 +61,12 @@ All harness configuration uses the `LAZYKIMICODE_*` namespace. Legacy `OMO_KIMI_
 
 ---
 
-## 5. Remaining work: remove the `.omo` directory name
+## 5. `.omo` directory rename to `.lazykimicode` (complete)
 
-The only `OMO` footprint that remains is the **`.omo` directory name** used for configuration and state. The user has directed that the project use its own brand everywhere, including configuration, so `.omo` must become `.lazykimicode`.
+The only remaining `OMO` footprint was the **`.omo` directory name** used for configuration and state. `.omo` has been renamed `.lazykimicode` across source code, tests, skills, plugin manifest, docs, and `.gitignore`.
 
-Remaining `.omo` references are tracked and remediated in [`docs/lazykimicode-audit-remediation-plan.md`](lazykimicode-audit-remediation-plan.md). After that plan is complete, this audit report should be re-run and updated to "complete".
+- `src/shared/env.ts` defaults to `~/.lazykimicode` and `~/.lazykimicode/teams`.
+- All hardcoded project paths (`boulder.json`, `rules/`, `lsp-cache.json`, `codegraph-index.json`, `kimi-agents`, `sg-npm`) use `.lazykimicode`.
+- `scripts/sync-skills.mjs` renames `.omo` to `.lazykimicode` in all copied text files, including helper `.mjs` scripts.
+- `plugin/skills/` is clean of `OMO`, `OmO`, `Oh My KimiCode`, and `.omo`.
+- CI run `29201532164` passed on `ubuntu-latest`, `macos-latest`, and `windows-latest`.
