@@ -11,7 +11,7 @@ describe('lsp diagnostics', () => {
   beforeEach(() => { tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'lsp-')); });
   afterEach(() => {
     fs.rmSync(tmp, { recursive: true, force: true });
-    delete process.env.OMO_KIMI_PROJECT;
+    delete process.env.LAZYKIMICODE_PROJECT;
     vi.restoreAllMocks();
   });
 
@@ -62,9 +62,9 @@ describe('lsp diagnostics', () => {
     expect(diagnostics[0].message).toBe('Type mismatch');
   });
 
-  it('initializes with rootUri from OMO_KIMI_PROJECT', async () => {
+  it('initializes with rootUri from LAZYKIMICODE_PROJECT', async () => {
     const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lsp-project-'));
-    process.env.OMO_KIMI_PROJECT = projectDir;
+    process.env.LAZYKIMICODE_PROJECT = projectDir;
     const file = path.join(projectDir, 'x.ts');
     fs.writeFileSync(file, 'const x = 1;\n');
 
@@ -92,10 +92,10 @@ describe('lsp diagnostics', () => {
     fs.rmSync(projectDir, { recursive: true, force: true });
   });
 
-  it('prefers explicit rootUri over OMO_KIMI_PROJECT', async () => {
+  it('prefers explicit rootUri over LAZYKIMICODE_PROJECT', async () => {
     const envProjectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lsp-env-'));
     const explicitProjectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lsp-explicit-'));
-    process.env.OMO_KIMI_PROJECT = envProjectDir;
+    process.env.LAZYKIMICODE_PROJECT = envProjectDir;
     const file = path.join(explicitProjectDir, 'x.ts');
     fs.writeFileSync(file, 'const x = 1;\n');
 
@@ -124,9 +124,9 @@ describe('lsp diagnostics', () => {
     fs.rmSync(explicitProjectDir, { recursive: true, force: true });
   });
 
-  it('resolves relative file paths against OMO_KIMI_PROJECT', async () => {
+  it('resolves relative file paths against LAZYKIMICODE_PROJECT', async () => {
     const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lsp-rel-'));
-    process.env.OMO_KIMI_PROJECT = projectDir;
+    process.env.LAZYKIMICODE_PROJECT = projectDir;
     const file = path.join(projectDir, 'src', 'x.ts');
     fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(file, 'const x = 1;\n');

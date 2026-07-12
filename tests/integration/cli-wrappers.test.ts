@@ -30,11 +30,11 @@ function runCli(
   registerTmpDir(stateDir);
   const env: NodeJS.ProcessEnv = {
     ...process.env,
-    OMO_KIMI_DISABLE_POSTHOG: '1',
-    OMO_KIMI_STATE_DIR: stateDir,
+    LAZYKIMICODE_DISABLE_POSTHOG: '1',
+    LAZYKIMICODE_STATE_DIR: stateDir,
   };
   if (projectDir) {
-    env.OMO_KIMI_PROJECT = projectDir;
+    env.LAZYKIMICODE_PROJECT = projectDir;
   }
   const result = spawnSync('node', [cli, 'hook', event], {
     cwd: PROJECT_ROOT,
@@ -74,7 +74,7 @@ describe('component CLI wrappers', () => {
     const { output, exitCode } = runCli('bootstrap', 'session-start', { hookEventName: 'SessionStart' });
     expect(exitCode).toBe(0);
     expect(output.hookSpecificOutput?.hookEventName).toBe('SessionStart');
-    expect(output.message).toContain('OmO');
+    expect(output.message).toContain('LazyKimiCode');
   });
 
   it('rules session-start emits context', () => {
@@ -97,7 +97,7 @@ describe('component CLI wrappers', () => {
   it('ulw-loop parses steering prompt', () => {
     const { output, exitCode } = runCli('ulw-loop', 'user-prompt-submit', {
       hookEventName: 'UserPromptSubmit',
-      prompt: 'OMO_ULW_LOOP_STEER: focus on tests',
+      prompt: 'LAZYKIMICODE_ULW_LOOP_STEER: focus on tests',
     });
     expect(exitCode).toBe(0);
     expect(output.hookSpecificOutput?.hookEventName).toBe('UserPromptSubmit');

@@ -39,11 +39,11 @@ describe('hook execution integration', () => {
     registerTmpDir(stateDir);
     const env: NodeJS.ProcessEnv = {
       ...process.env,
-      OMO_KIMI_DISABLE_POSTHOG: '1',
-      OMO_KIMI_STATE_DIR: stateDir,
+      LAZYKIMICODE_DISABLE_POSTHOG: '1',
+      LAZYKIMICODE_STATE_DIR: stateDir,
     };
     if (projectDir) {
-      env.OMO_KIMI_PROJECT = projectDir;
+      env.LAZYKIMICODE_PROJECT = projectDir;
     }
     const result = spawnSync('node', [cli, 'hook', event], {
       cwd: PROJECT_ROOT,
@@ -60,7 +60,7 @@ describe('hook execution integration', () => {
   it('bootstrap session-start returns SessionStart context', () => {
     const { output } = runHook('bootstrap', 'session-start', { hookEventName: 'SessionStart' });
     expect(output.hookSpecificOutput?.hookEventName).toBe('SessionStart');
-    expect(output.message).toContain('OmO');
+    expect(output.message).toContain('LazyKimiCode');
   });
 
   it('normalizes snake_case Kimi payload fields', () => {

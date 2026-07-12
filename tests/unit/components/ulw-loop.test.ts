@@ -3,7 +3,7 @@ import { parseSteer, enforceGoalBudget } from '../../../src/components/ulw-loop/
 
 describe('ulw-loop', () => {
   it('parses steering instruction', () => {
-    const out = parseSteer({ hookEventName: 'UserPromptSubmit', prompt: 'do it OMO_ULW_LOOP_STEER: skip tests' });
+    const out = parseSteer({ hookEventName: 'UserPromptSubmit', prompt: 'do it LAZYKIMICODE_ULW_LOOP_STEER: skip tests' });
     expect(out.message).toContain('STEERING');
     expect(out.message).toContain('skip tests');
   });

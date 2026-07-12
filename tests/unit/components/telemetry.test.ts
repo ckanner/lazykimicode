@@ -16,10 +16,10 @@ describe('telemetry', () => {
 
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'telemetry-test-'));
-    process.env.OMO_KIMI_STATE_DIR = tmpDir;
-    delete process.env.OMO_KIMI_DISABLE_POSTHOG;
-    delete process.env.OMO_KIMI_POSTHOG_API_KEY;
-    delete process.env.OMO_KIMI_POSTHOG_HOST;
+    process.env.LAZYKIMICODE_STATE_DIR = tmpDir;
+    delete process.env.LAZYKIMICODE_DISABLE_POSTHOG;
+    delete process.env.LAZYKIMICODE_POSTHOG_API_KEY;
+    delete process.env.LAZYKIMICODE_POSTHOG_HOST;
   });
 
   afterEach(() => {
@@ -34,7 +34,7 @@ describe('telemetry', () => {
     });
 
     it('disables telemetry via env var', () => {
-      process.env.OMO_KIMI_DISABLE_POSTHOG = '1';
+      process.env.LAZYKIMICODE_DISABLE_POSTHOG = '1';
       expect(isTelemetryDisabled()).toBe(true);
       expect(shouldEmitDailyActive(tmpDir)).toBe(false);
     });
@@ -63,7 +63,7 @@ describe('telemetry', () => {
     });
 
     it('skips when telemetry is disabled', async () => {
-      process.env.OMO_KIMI_DISABLE_POSTHOG = '1';
+      process.env.LAZYKIMICODE_DISABLE_POSTHOG = '1';
       const fetchMock = vi.fn();
       const result = await captureDailyActive('abc123', {
         apiKey: 'real-key',
@@ -118,7 +118,7 @@ describe('telemetry', () => {
     });
 
     it('sends when real API key is provided via env', async () => {
-      process.env.OMO_KIMI_POSTHOG_API_KEY = 'env-key';
+      process.env.LAZYKIMICODE_POSTHOG_API_KEY = 'env-key';
       const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 200, statusText: 'OK' });
       const result = await captureDailyActive('abc123', {
         fetchImpl: fetchMock as unknown as typeof fetch,

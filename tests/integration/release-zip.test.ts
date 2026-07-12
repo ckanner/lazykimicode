@@ -25,7 +25,7 @@ describe('release zip', () => {
 
       execFileSync('node', ['scripts/build.mjs'], {
         cwd: tmpDir,
-        env: { ...process.env, OMO_KIMI_POSTHOG_API_KEY: 'test-key' },
+        env: { ...process.env, LAZYKIMICODE_POSTHOG_API_KEY: 'test-key' },
       });
 
       const extractDir = path.join(tmpDir, 'extracted');

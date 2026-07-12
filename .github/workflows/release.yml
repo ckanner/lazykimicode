@@ -32,12 +32,12 @@ jobs:
       - run: pnpm run sync:skills
       - name: Inject PostHog API key
         env:
-          OMO_KIMI_POSTHOG_API_KEY: ${{ secrets.OMO_KIMI_POSTHOG_API_KEY }}
+          LAZYKIMICODE_POSTHOG_API_KEY: ${{ secrets.LAZYKIMICODE_POSTHOG_API_KEY || secrets.OMO_KIMI_POSTHOG_API_KEY }}
         run: |
-          if [ -z "$OMO_KIMI_POSTHOG_API_KEY" ]; then
-            echo "::warning::OMO_KIMI_POSTHOG_API_KEY secret is not set. Telemetry will be skipped in the release build."
+          if [ -z "$LAZYKIMICODE_POSTHOG_API_KEY" ]; then
+            echo "::warning::LAZYKIMICODE_POSTHOG_API_KEY secret is not set. Telemetry will be skipped in the release build."
           else
-            sed -i "s/phc_placeholder_replace_in_build/$OMO_KIMI_POSTHOG_API_KEY/g" src/components/telemetry/posthog.ts
+            sed -i "s/phc_placeholder_replace_in_build/$LAZYKIMICODE_POSTHOG_API_KEY/g" src/components/telemetry/posthog.ts
           fi
       - run: pnpm run build
       - run: zip -r lazykimicode.zip plugin scripts bin dist package.json

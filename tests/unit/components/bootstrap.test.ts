@@ -23,8 +23,8 @@ describe('bootstrap', () => {
   });
 
   it('returns provisioning details when env vars are set', () => {
-    process.env.OMO_KIMI_PLUGIN_CACHE = tmpDir;
-    process.env.OMO_KIMI_BIN_DIR = path.join(tmpDir, 'bin');
+    process.env.LAZYKIMICODE_PLUGIN_CACHE = tmpDir;
+    process.env.LAZYKIMICODE_BIN_DIR = path.join(tmpDir, 'bin');
     process.env.KIMI_CODE_HOME = tmpDir;
 
     // Provide a fake sg binary on PATH so the test does not invoke npm install.
@@ -44,8 +44,8 @@ describe('bootstrap', () => {
       expect(out.message).toContain('agents=');
       expect(out.message).toContain('sg=');
     } finally {
-      delete process.env.OMO_KIMI_PLUGIN_CACHE;
-      delete process.env.OMO_KIMI_BIN_DIR;
+      delete process.env.LAZYKIMICODE_PLUGIN_CACHE;
+      delete process.env.LAZYKIMICODE_BIN_DIR;
       delete process.env.KIMI_CODE_HOME;
       process.env.PATH = originalPath;
     }
@@ -70,14 +70,14 @@ describe('bootstrap', () => {
       }),
       'utf-8',
     );
-    process.env.OMO_KIMI_PROJECT = tmpDir;
+    process.env.LAZYKIMICODE_PROJECT = tmpDir;
     try {
       const out = runSessionStart({ hookEventName: 'SessionStart' });
       expect(out.message).toContain('Active work: Add auth');
       expect(out.message).toContain('Session handling');
       expect(out.message).toContain('Unchecked tasks');
     } finally {
-      delete process.env.OMO_KIMI_PROJECT;
+      delete process.env.LAZYKIMICODE_PROJECT;
     }
   });
 
@@ -97,24 +97,24 @@ describe('bootstrap', () => {
       }),
       'utf-8',
     );
-    process.env.OMO_KIMI_PROJECT = tmpDir;
+    process.env.LAZYKIMICODE_PROJECT = tmpDir;
     try {
       const out = runSessionStart({ hookEventName: 'SessionStart' });
       expect(out.message).not.toContain('Active work: Add auth');
     } finally {
-      delete process.env.OMO_KIMI_PROJECT;
+      delete process.env.LAZYKIMICODE_PROJECT;
     }
   });
 
   it('does not crash when boulder.json is malformed', () => {
     fs.mkdirSync(path.join(tmpDir, '.omo'), { recursive: true });
     fs.writeFileSync(path.join(tmpDir, '.omo', 'boulder.json'), 'not json', 'utf-8');
-    process.env.OMO_KIMI_PROJECT = tmpDir;
+    process.env.LAZYKIMICODE_PROJECT = tmpDir;
     try {
       const out = runSessionStart({ hookEventName: 'SessionStart' });
       expect(out.message).toContain('Boulder resume check failed');
     } finally {
-      delete process.env.OMO_KIMI_PROJECT;
+      delete process.env.LAZYKIMICODE_PROJECT;
     }
   });
 

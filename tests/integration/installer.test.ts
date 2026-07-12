@@ -13,28 +13,28 @@ describe('installer integration', () => {
 
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'omo-installer-'));
-    originalConfigDir = process.env.OMO_KIMI_CONFIG_DIR;
-    process.env.OMO_KIMI_CONFIG_DIR = path.join(tmpDir, '.omo');
-    originalSkipBootstrap = process.env.OMO_KIMI_SKIP_BOOTSTRAP;
-    process.env.OMO_KIMI_SKIP_BOOTSTRAP = '1';
-    originalMigrationStateDir = process.env.OMO_KIMI_MIGRATION_STATE_DIR;
+    originalConfigDir = process.env.LAZYKIMICODE_CONFIG_DIR;
+    process.env.LAZYKIMICODE_CONFIG_DIR = path.join(tmpDir, '.omo');
+    originalSkipBootstrap = process.env.LAZYKIMICODE_SKIP_BOOTSTRAP;
+    process.env.LAZYKIMICODE_SKIP_BOOTSTRAP = '1';
+    originalMigrationStateDir = process.env.LAZYKIMICODE_MIGRATION_STATE_DIR;
   });
 
   afterEach(() => {
     if (originalConfigDir === undefined) {
-      delete process.env.OMO_KIMI_CONFIG_DIR;
+      delete process.env.LAZYKIMICODE_CONFIG_DIR;
     } else {
-      process.env.OMO_KIMI_CONFIG_DIR = originalConfigDir;
+      process.env.LAZYKIMICODE_CONFIG_DIR = originalConfigDir;
     }
     if (originalSkipBootstrap === undefined) {
-      delete process.env.OMO_KIMI_SKIP_BOOTSTRAP;
+      delete process.env.LAZYKIMICODE_SKIP_BOOTSTRAP;
     } else {
-      process.env.OMO_KIMI_SKIP_BOOTSTRAP = originalSkipBootstrap;
+      process.env.LAZYKIMICODE_SKIP_BOOTSTRAP = originalSkipBootstrap;
     }
     if (originalMigrationStateDir === undefined) {
-      delete process.env.OMO_KIMI_MIGRATION_STATE_DIR;
+      delete process.env.LAZYKIMICODE_MIGRATION_STATE_DIR;
     } else {
-      process.env.OMO_KIMI_MIGRATION_STATE_DIR = originalMigrationStateDir;
+      process.env.LAZYKIMICODE_MIGRATION_STATE_DIR = originalMigrationStateDir;
     }
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
@@ -96,7 +96,7 @@ describe('installer integration', () => {
 
   it('writes migration state and remote MCP placeholders', async () => {
     const stateDir = path.join(tmpDir, 'migration-state');
-    process.env.OMO_KIMI_MIGRATION_STATE_DIR = stateDir;
+    process.env.LAZYKIMICODE_MIGRATION_STATE_DIR = stateDir;
     await runKimiInstaller({ kimiCodeHome: tmpDir });
     const statePath = path.join(stateDir, 'config-migration-state.json');
     expect(fs.existsSync(statePath)).toBe(true);

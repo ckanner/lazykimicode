@@ -11,15 +11,15 @@ describe('uninstall integration', () => {
 
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'omo-uninstall-'));
-    originalConfigDir = process.env.OMO_KIMI_CONFIG_DIR;
-    process.env.OMO_KIMI_CONFIG_DIR = path.join(tmpDir, '.omo');
+    originalConfigDir = process.env.LAZYKIMICODE_CONFIG_DIR;
+    process.env.LAZYKIMICODE_CONFIG_DIR = path.join(tmpDir, '.omo');
   });
 
   afterEach(() => {
     if (originalConfigDir === undefined) {
-      delete process.env.OMO_KIMI_CONFIG_DIR;
+      delete process.env.LAZYKIMICODE_CONFIG_DIR;
     } else {
-      process.env.OMO_KIMI_CONFIG_DIR = originalConfigDir;
+      process.env.LAZYKIMICODE_CONFIG_DIR = originalConfigDir;
     }
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });

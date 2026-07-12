@@ -27,13 +27,13 @@ describe('teammode', () => {
   beforeEach(() => {
     originalCwd = process.cwd();
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'teammode-test-'));
-    process.env.OMO_TEAMS_DIR = tmpDir;
+    process.env.LAZYKIMICODE_TEAMS_DIR = tmpDir;
     sessionId = 'session-1';
   });
 
   afterEach(() => {
     process.chdir(originalCwd);
-    delete process.env.OMO_TEAMS_DIR;
+    delete process.env.LAZYKIMICODE_TEAMS_DIR;
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 

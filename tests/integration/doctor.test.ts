@@ -46,24 +46,24 @@ describe('doctor integration', () => {
     originalPath = process.env.PATH ?? '';
     process.env.PATH = `${binDir}${path.delimiter}${originalPath}`;
 
-    originalDisablePosthog = process.env.OMO_KIMI_DISABLE_POSTHOG;
-    process.env.OMO_KIMI_DISABLE_POSTHOG = '1';
+    originalDisablePosthog = process.env.LAZYKIMICODE_DISABLE_POSTHOG;
+    process.env.LAZYKIMICODE_DISABLE_POSTHOG = '1';
 
-    originalSkipBootstrap = process.env.OMO_KIMI_SKIP_BOOTSTRAP;
-    process.env.OMO_KIMI_SKIP_BOOTSTRAP = '1';
+    originalSkipBootstrap = process.env.LAZYKIMICODE_SKIP_BOOTSTRAP;
+    process.env.LAZYKIMICODE_SKIP_BOOTSTRAP = '1';
   });
 
   afterEach(() => {
     process.env.PATH = originalPath;
     if (originalDisablePosthog === undefined) {
-      delete process.env.OMO_KIMI_DISABLE_POSTHOG;
+      delete process.env.LAZYKIMICODE_DISABLE_POSTHOG;
     } else {
-      process.env.OMO_KIMI_DISABLE_POSTHOG = originalDisablePosthog;
+      process.env.LAZYKIMICODE_DISABLE_POSTHOG = originalDisablePosthog;
     }
     if (originalSkipBootstrap === undefined) {
-      delete process.env.OMO_KIMI_SKIP_BOOTSTRAP;
+      delete process.env.LAZYKIMICODE_SKIP_BOOTSTRAP;
     } else {
-      process.env.OMO_KIMI_SKIP_BOOTSTRAP = originalSkipBootstrap;
+      process.env.LAZYKIMICODE_SKIP_BOOTSTRAP = originalSkipBootstrap;
     }
     fs.rmSync(tmpDir, { recursive: true, force: true });
     fs.rmSync(projectDir, { recursive: true, force: true });
@@ -85,7 +85,7 @@ describe('doctor integration', () => {
       {
         cwd: projectDir,
         encoding: 'utf-8',
-        env: { ...process.env, OMO_KIMI_DISABLE_POSTHOG: '1' },
+        env: { ...process.env, LAZYKIMICODE_DISABLE_POSTHOG: '1' },
       },
     );
 

@@ -130,7 +130,7 @@ describe('start-work-continuation resume guidance', () => {
   beforeEach(() => {
     originalCwd = process.cwd();
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'boulder-'));
-    process.env.OMO_KIMI_PROJECT = tmpDir;
+    process.env.LAZYKIMICODE_PROJECT = tmpDir;
     fs.mkdirSync(path.join(tmpDir, '.omo'), { recursive: true });
     fs.writeFileSync(
       path.join(tmpDir, '.omo', 'boulder.json'),
@@ -153,7 +153,7 @@ describe('start-work-continuation resume guidance', () => {
 
   afterEach(() => {
     process.chdir(originalCwd);
-    delete process.env.OMO_KIMI_PROJECT;
+    delete process.env.LAZYKIMICODE_PROJECT;
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 

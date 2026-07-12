@@ -113,8 +113,8 @@ describe(
 
   beforeEach(() => {
     tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'lsp-daemon-'));
-    delete process.env.OMO_KIMI_LSP_COMMAND;
-    delete process.env.OMO_KIMI_LSP_ARGS;
+    delete process.env.LAZYKIMICODE_LSP_COMMAND;
+    delete process.env.LAZYKIMICODE_LSP_ARGS;
   });
 
   afterEach(async () => {
@@ -172,9 +172,9 @@ describe(
     proc = spawn(process.execPath, [DAEMON], {
       env: {
         ...process.env,
-        OMO_KIMI_LSP_COMMAND: process.execPath,
-        OMO_KIMI_LSP_ARGS: `${mockServer} ${languageIdCapture}`,
-        OMO_KIMI_PROJECT: projectDir,
+        LAZYKIMICODE_LSP_COMMAND: process.execPath,
+        LAZYKIMICODE_LSP_ARGS: `${mockServer} ${languageIdCapture}`,
+        LAZYKIMICODE_PROJECT: projectDir,
       },
     });
     const pending = readMessages(proc, [3]);

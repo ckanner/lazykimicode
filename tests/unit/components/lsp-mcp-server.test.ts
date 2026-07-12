@@ -14,14 +14,14 @@ describe('lsp mcp-server', () => {
   beforeEach(() => { tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'lsp-mcp-')); });
   afterEach(() => {
     fs.rmSync(tmp, { recursive: true, force: true });
-    delete process.env.OMO_KIMI_PROJECT;
-    delete process.env.OMO_KIMI_LSP_COMMAND;
+    delete process.env.LAZYKIMICODE_PROJECT;
+    delete process.env.LAZYKIMICODE_LSP_COMMAND;
     vi.restoreAllMocks();
   });
 
-  it('derives rootUri from OMO_KIMI_PROJECT', async () => {
+  it('derives rootUri from LAZYKIMICODE_PROJECT', async () => {
     const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lsp-root-'));
-    process.env.OMO_KIMI_PROJECT = projectDir;
+    process.env.LAZYKIMICODE_PROJECT = projectDir;
     vi.resetModules();
     const { getRootUri } = await import(modulePath);
     expect(getRootUri()).toBe(pathToFileURL(projectDir).href + '/');
@@ -53,7 +53,7 @@ describe('lsp mcp-server', () => {
     });
 
     const { handleToolRequest } = await import(modulePath);
-    process.env.OMO_KIMI_LSP_COMMAND = 'mock-lsp';
+    process.env.LAZYKIMICODE_LSP_COMMAND = 'mock-lsp';
     await handleToolRequest(
       { params: { name: 'lsp_diagnostics', arguments: { file } } },
       expectedRootUri,
@@ -65,13 +65,13 @@ describe('lsp mcp-server', () => {
     fs.rmSync(projectDir, { recursive: true, force: true });
   });
 
-  it('resolves relative file paths against OMO_KIMI_PROJECT', async () => {
+  it('resolves relative file paths against LAZYKIMICODE_PROJECT', async () => {
     const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lsp-project-'));
     const expectedRootUri = pathToFileURL(projectDir).href + '/';
     const file = path.join(projectDir, 'src', 'x.ts');
     fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(file, 'const x = 1;\n');
-    process.env.OMO_KIMI_PROJECT = projectDir;
+    process.env.LAZYKIMICODE_PROJECT = projectDir;
 
     let capturedUri: string | undefined;
     const transport = new MockLspTransport([
@@ -92,7 +92,7 @@ describe('lsp mcp-server', () => {
     });
 
     const { handleToolRequest } = await import(modulePath);
-    process.env.OMO_KIMI_LSP_COMMAND = 'mock-lsp';
+    process.env.LAZYKIMICODE_LSP_COMMAND = 'mock-lsp';
     await handleToolRequest(
       { params: { name: 'lsp_diagnostics', arguments: { file: 'src/x.ts' } } },
       expectedRootUri,

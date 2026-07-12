@@ -6,7 +6,7 @@ import os from 'node:os';
 import pkg from '../../../package.json' with { type: 'json' };
 
 describe('build script', () => {
-  it('warns when OMO_KIMI_POSTHOG_API_KEY is missing and stamps version in a temp copy', () => {
+  it('warns when LAZYKIMICODE_POSTHOG_API_KEY is missing and stamps version in a temp copy', () => {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'build-script-'));
     try {
       const projectRoot = path.resolve('.');
@@ -24,7 +24,7 @@ describe('build script', () => {
       fs.symlinkSync(path.join(projectRoot, 'node_modules'), path.join(tmpDir, 'node_modules'), 'dir');
 
       const env = { ...process.env };
-      delete env.OMO_KIMI_POSTHOG_API_KEY;
+      delete env.LAZYKIMICODE_POSTHOG_API_KEY;
 
       const result = spawnSync(
         process.execPath,
@@ -34,7 +34,7 @@ describe('build script', () => {
 
       const output = `${result.stdout}\n${result.stderr}`;
       expect(output).toContain(
-        'Warning: OMO_KIMI_POSTHOG_API_KEY not set. Telemetry will be skipped in this build.',
+        'Warning: LAZYKIMICODE_POSTHOG_API_KEY not set. Telemetry will be skipped in this build.',
       );
       expect(result.status).toBe(0);
 
