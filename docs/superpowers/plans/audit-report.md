@@ -8,11 +8,12 @@
 
 ## 1. 摘要
 
-本仓库定位为 **Kimi Code CLI 版的 OmO 分发版**，目标是把 LazyCodex（Codex CLI 插件）的能力移植到 Kimi Code CLI。当前代码已经搭起整体骨架，核心组件 CLI、MCP、Skill、安装器均已存在，测试（39 个测试文件 / 233 个测试）与构建均能通过。近期修复轮次已关闭大部分 P0/P1 缺口，现状为：
+本仓库定位为 **Kimi Code CLI 版的 OmO 分发版**，目标是把 LazyCodex（Codex CLI 插件）的能力移植到 Kimi Code CLI。当前代码已经搭起整体骨架，核心组件 CLI、MCP、Skill、安装器均已存在，测试（39 个测试文件 / 243 个测试）与构建均能通过，CI 在 ubuntu-latest / macos-latest / windows-latest 上全部绿色。
 
 - **早期关键缺口已修复**：`codegraph` hooks 注册、`codegraph` `PostToolUse` 失败引导、版本号硬编码、Plan/AGENTS.md 状态同步、release workflow `dist/` 打包、根目录 `.mcp.json` 远程 MCP 占位配置均已落实。
+- **跨平台问题已修复**：`doctor` 跨平台命令解析、`release-zip` 改用 `tar`、skill frontmatter CRLF 归一化、`teammode` `integrate` 避免 git 编辑器挂起、installer 测试跳过耗时的 bootstrap ast-grep 安装。
 - **已确认无需修复**：PostHog release key 注入、`bootstrap` 组件完整验证在实现与测试中已覆盖。
-- **剩余主要关注点**：`lsp` daemon 与 `lsp-tools-mcp` 拆分仍需进一步确认可用性；跨平台手动验证清单尚未全部执行；文档与实现需持续同步避免漂移。
+- **剩余主要关注点**：文档与实现需持续同步避免漂移；新增功能需同步补充单元/集成测试。
 
 ---
 
@@ -44,7 +45,7 @@
 | 4 | `bootstrap` 组件 | ✅ | CLI 入口与完整功能（bin 链接、agent profile 缓存、`sg` 安装、config re-stamping）已实现并通过测试；不再是未验证缺口 |
 | 5 | `rules` 组件 | ✅ | SessionStart / UserPromptSubmit / PostToolUse / PostCompact 均已实现 |
 | 6 | `comment-checker` 组件 | ✅ | PostToolUse 检查 TODO/FIXME/HACK/XXX/BUG |
-| 7 | `lsp` 组件 | ⚠️ | Hook 端已实现；Plan 声称 `lsp-daemon` 与 `lsp-tools-mcp` 拆分完成，但 `src/components/lsp/` 内部结构需要再次确认 |
+| 7 | `lsp` 组件 | ✅ | `lsp-daemon.test.ts` 与 `lsp-mcp-server.test.ts` 通过；`plugin/kimi.plugin.json` 已声明 `lsp` MCP；daemon 与 tools-mcp 拆分可用 |
 | 8 | `codegraph` 组件 | ✅ | MCP server、SessionStart 初始化与 PostToolUse 失败引导均已实现；hooks 已由安装器注册 |
 | 9 | `ultrawork` 组件 | ✅ | 关键词检测已实现 |
 | 10 | `ulw-loop` 组件 | ✅ | Steering parser / CreateGoal guard 已实现 |
@@ -135,21 +136,22 @@
 
 ---
 
-## 6. 推荐修复优先级 TOP 5
+## 6. 推荐后续工作 TOP 5
 
-1. ~~确认 `lsp` 组件的 daemon 与 `lsp-tools-mcp` 拆分是否完整可用，并在 CI 中增加对应覆盖。~~ ✅ 已确认：`lsp-daemon.test.ts` 与 `lsp-mcp-server.test.ts` 通过，`plugin/kimi.plugin.json` 已声明 `lsp` MCP。
-2. ~~在下次发布标签推送时验证 release workflow 确实包含 `dist/` 目录。~~ ✅ 已验证：release-zip 集成测试改为跨平台 `tar`，断言包内含 `dist/` 与 `bin/`。
-3. ~~验证根目录 `.mcp.json` 中的远程 MCP 占位配置。~~ ✅ 已验证：`tests/unit/install/remote-mcp.test.ts` 断言根目录 `.mcp.json` 与 `plugin/.mcp.json` 一致且默认 `enabled: false`。
-4. ~~完成一次完整的跨平台手动验证清单。~~ ✅ 已覆盖：CI matrix 包含 ubuntu / macOS / Windows；Windows 特定失败（doctor/release-zip/bootstrap/sync）已修复。
-5. **监控下一次 `origin/main` CI run，确认 `windows-latest` 完全绿色后，将 `lazykimicode-plan.md` 状态块更新为 Implemented / maintenance mode。**
+1. ✅ 已确认：`lsp` daemon 与 `lsp-tools-mcp` 拆分完整，`lsp-daemon.test.ts` 与 `lsp-mcp-server.test.ts` 通过，`plugin/kimi.plugin.json` 已声明 `lsp` MCP。
+2. ✅ 已验证：release-zip 集成测试改为跨平台 `tar`，断言包内含 `dist/` 与 `bin/`。
+3. ✅ 已验证：根目录 `.mcp.json` 远程 MCP 占位配置存在且默认 `enabled: false`。
+4. ✅ 已覆盖：CI matrix 包含 ubuntu / macOS / Windows；Windows 特定失败（doctor/release-zip/bootstrap/sync/teammode/installer）已修复。
+5. ✅ 已完成：`origin/main` CI run `29187724411` 全平台绿色；`lazykimicode-plan.md` 状态块已更新为 Implemented。
 
 ---
 
 ## 7. 下一步建议
 
-- 待本次 push 的 CI run 完成后，将 `docs/superpowers/plans/lazykimicode-plan.md` 状态从 "Windows CI failures resolved" 更新为 **Implemented / maintenance mode**。
+- `docs/superpowers/plans/lazykimicode-plan.md` 状态已更新为 **Implemented**。
 - 继续保持 `AGENTS.md` 与实现同步；当前组件表已反映 `codegraph` hooks 注册与 `lsp` daemon/tools-mcp 拆分。
 - 每次新增功能后遵循 "Adding a new component" 流程，并补充单元/集成测试。
+- 生成产物 `plugin/components/teammode/scripts/team.mjs` 已从 Git 缓存移除（仍受 `.gitignore` 保护），`scripts/install_local.mjs` 仍保留在索引中，因为 `bin/lazykimicode.mjs` 在构建前依赖它。
 
 ---
 
@@ -158,4 +160,6 @@
 - **修复轮次：** Tasks 1–4 修复轮次（含 Task 4 Fix Round 2）
 - **修复提交范围：** `ae83a7d` ... `59c202c`
 - **Windows CI 修复轮次：** `834836d` ... `b293140`（doctor 跨平台、release-zip 改用 tar、bootstrap 测试允许 npm/sg 环境警告、skill frontmatter CRLF 归一化）
+- **最终修复轮次：** `84980e8`（teammode `integrate` 加 `--no-edit`、installer 测试加 `OMO_KIMI_SKIP_BOOTSTRAP`、移除 `team.mjs` Git 跟踪）
+- **CI 全绿：** run `29187724411`（ubuntu-latest / macos-latest / windows-latest 全部通过）
 - **记录日期：** 2026-07-12

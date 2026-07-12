@@ -1,8 +1,8 @@
 # lazykimicode Design & Implementation Plan
 
-> **Status:** Windows CI failures resolved; all plan tasks implemented and verified locally. CI is being monitored on `origin/main` after the latest push.
+> **Status:** Implemented. CI is green on `origin/main` for ubuntu-latest, macos-latest, and windows-latest.
 >
-> **Verification:** `pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build` passes (39 test files / 243 tests) on macOS and Linux. Cross-platform fixes for `doctor`, `release-zip`, `bootstrap`, and skill frontmatter parsing resolve the previously failing `windows-latest` CI tests.
+> **Verification:** `pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build` passes (39 test files / 243 tests) on macOS, Linux, and Windows. Cross-platform fixes cover `doctor`, `release-zip`, `bootstrap`, skill frontmatter parsing, teammode `integrate`, and installer bootstrap behavior.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 

@@ -1,6 +1,6 @@
 # lazykimicode Final Audit & Remediation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Close every known gap in lazykimicode so that code, documentation, unit tests, and end-to-end tests are internally consistent, cross-platform, and fully aligned with `docs/superpowers/plans/lazykimicode-plan.md`, `.omo` analysis documents, and the LazyCodex/OMO capability map.
 
@@ -24,12 +24,9 @@
 ## Current State Snapshot
 
 - **Local (macOS):** `39 test files / 243 tests` passing; lint, typecheck, build passing.
-- **CI:** Latest run `29183958391` failed on `windows-latest` only with 4 failing tests:
-  1. `tests/integration/doctor.test.ts` — `doctor` exits `1` because the test creates POSIX shell stubs (`#!/bin/sh`) and `doctor.ts` uses `which`/`execFileSync('kimi')`, neither of which work on Windows.
-  2. `tests/integration/release-zip.test.ts` — `zip -r` / `unzip -q` not available on Windows runner.
-  3. `tests/unit/components/bootstrap.test.ts` — `runBootstrapProvisioning` emits a warning when `npm` is unavailable on Windows; test asserts `warnings` equals `[]`.
-  4. `tests/unit/skills/sync.test.ts` — `parseFrontmatter` splits on `\n` only; Windows CRLF files fail the `---` guard.
-- **Previously declared gaps** (teammode subcommands, lsp-daemon split, skill MCP tool-name alignment, `create-pr-body.mjs`) appear implemented and tested, but this plan includes explicit verification tasks because the user requested a second check.
+- **CI:** Run `29187724411` is green on ubuntu-latest, macos-latest, and windows-latest.
+- **Windows-specific fixes delivered in this plan:** doctor cross-platform checks, release-zip via `tar`, bootstrap test tolerance for npm/sg warnings, skill frontmatter CRLF normalization, teammode `integrate` `--no-edit`, installer `OMO_KIMI_SKIP_BOOTSTRAP` for hermetic integration tests.
+- **Previously declared gaps** (teammode subcommands, lsp-daemon split, skill MCP tool-name alignment, `create-pr-body.mjs`) are implemented and tested.
 
 ---
 
@@ -64,7 +61,7 @@
 - Consumes: `DoctorOptions`, `resolveKimiEnv`, `pluginCacheDir`, `MANAGED_BINS`
 - Produces: `runDoctor()` returns `HealthCheck[]`; CLI exits `0` when all checks pass
 
-- [ ] **Step 1: Add cross-platform command helpers in `src/install/doctor.ts`**
+- [x] **Step 1: Add cross-platform command helpers in `src/install/doctor.ts`**
 
 Introduce a small helper that uses `where` on Windows and `which` on POSIX, and another helper that runs a version command from an explicit path when available:
 
@@ -92,7 +89,7 @@ function runVersion(args: { command: string; fallbackPath?: string }): string {
 }
 ```
 
-- [ ] **Step 2: Update `runDoctor` to use the helpers**
+- [x] **Step 2: Update `runDoctor` to use the helpers**
 
 Replace the `kimi` and `sg` checks with:
 
@@ -119,7 +116,7 @@ Replace the `kimi` and `sg` checks with:
   }
 ```
 
-- [ ] **Step 3: Make the integration test create Windows-executable stubs**
+- [x] **Step 3: Make the integration test create Windows-executable stubs**
 
 Replace `writeExecutableScript` in `tests/integration/doctor.test.ts` with:
 
@@ -136,7 +133,7 @@ function writeExecutableScript(filePath: string, body: string): void {
 
 And pass `binDir` to `runDoctor` (it already does), so `findOnPath` resolves the stubs.
 
-- [ ] **Step 4: Run the doctor tests locally**
+- [x] **Step 4: Run the doctor tests locally**
 
 ```bash
 pnpm vitest run tests/integration/doctor.test.ts tests/unit/install/doctor.test.ts
@@ -144,7 +141,7 @@ pnpm vitest run tests/integration/doctor.test.ts tests/unit/install/doctor.test.
 
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/install/doctor.ts tests/integration/doctor.test.ts
@@ -165,7 +162,7 @@ resolve mocked binaries written by the integration test."
 - Consumes: `scripts/build.mjs` output
 - Produces: release zip structure assertion that runs on all platforms
 
-- [ ] **Step 1: Replace `zip`/`unzip` with Node `child_process` + `tar`**
+- [x] **Step 1: Replace `zip`/`unzip` with Node `child_process` + `tar`**
 
 Use the built-in `tar` module (Node >= 22 has `node:tar`? No — use `zlib` + manual or `child_process.execFile('tar', ...)`). The GitHub Actions Windows runner includes `tar` in its base image. Alternatively use a small in-process archiver with `fs` and `zlib` (no dependency). The simplest cross-platform path is `tar` because it ships on Windows Server, Ubuntu, and macOS.
 
@@ -181,7 +178,7 @@ execFileSync('tar', ['-xzf', `${tmpDir}${path.sep}lazykimicode.tar.gz`, '-C', ex
 
 Change the test description to `contains dist/ and bin/ and runs --help in a tarball` if using `tar.gz`; keep the spirit the same.
 
-- [ ] **Step 2: Verify the test passes locally**
+- [x] **Step 2: Verify the test passes locally**
 
 ```bash
 pnpm vitest run tests/integration/release-zip.test.ts
@@ -189,7 +186,7 @@ pnpm vitest run tests/integration/release-zip.test.ts
 
 Expected: PASS
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add tests/integration/release-zip.test.ts
@@ -207,7 +204,7 @@ git commit -m "test(release-zip): use tar instead of zip for cross-platform CI"
 - Consumes: `runBootstrapProvisioning`
 - Produces: test that tolerates environment-specific warnings
 
-- [ ] **Step 1: Change the assertion from empty array to allowed warnings**
+- [x] **Step 1: Change the assertion from empty array to allowed warnings**
 
 In `tests/unit/components/bootstrap.test.ts`, replace:
 
@@ -230,7 +227,7 @@ Better: assert that any warning is only about npm/sg unavailability:
 expect(result.warnings.every((w) => w.includes('ast-grep') || w.includes('npm'))).toBe(true);
 ```
 
-- [ ] **Step 2: Run the test**
+- [x] **Step 2: Run the test**
 
 ```bash
 pnpm vitest run tests/unit/components/bootstrap.test.ts
@@ -238,7 +235,7 @@ pnpm vitest run tests/unit/components/bootstrap.test.ts
 
 Expected: PASS
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add tests/unit/components/bootstrap.test.ts
@@ -256,7 +253,7 @@ git commit -m "test(bootstrap): allow npm/sg environment warnings on Windows"
 - Consumes: skill `SKILL.md` files
 - Produces: `parseFrontmatter` that normalizes line endings
 
-- [ ] **Step 1: Normalize CRLF before parsing**
+- [x] **Step 1: Normalize CRLF before parsing**
 
 Change the first line of `parseFrontmatter`:
 
@@ -269,7 +266,7 @@ function parseFrontmatter(content: string): Record<string, string> | null {
 }
 ```
 
-- [ ] **Step 2: Run the test**
+- [x] **Step 2: Run the test**
 
 ```bash
 pnpm vitest run tests/unit/skills/sync.test.ts
@@ -277,7 +274,7 @@ pnpm vitest run tests/unit/skills/sync.test.ts
 
 Expected: PASS
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add tests/unit/skills/sync.test.ts
@@ -297,13 +294,13 @@ git commit -m "test(skills): normalize CRLF before parsing frontmatter"
 - Consumes: `team.ts` subcommands
 - Produces: confirmation that all 10 subcommands are wired and tested
 
-- [ ] **Step 1: Confirm the 10 subcommands exist and have tests**
+- [x] **Step 1: Confirm the 10 subcommands exist and have tests**
 
 Check `src/components/teammode/scripts/team.ts` exports handlers for: `init`, `add-member`, `member-prompt`, `set-status`, `worktree-add`, `worktree-remove`, `integrate`, `archive`, `delete`, `status`.
 
 Check `tests/unit/components/teammode.test.ts` covers each.
 
-- [ ] **Step 2: Run the teammode tests**
+- [x] **Step 2: Run the teammode tests**
 
 ```bash
 pnpm vitest run tests/unit/components/teammode.test.ts
@@ -311,11 +308,11 @@ pnpm vitest run tests/unit/components/teammode.test.ts
 
 Expected: PASS
 
-- [ ] **Step 3: If any subcommand is missing or untested, implement it**
+- [x] **Step 3: If any subcommand is missing or untested, implement it**
 
 Implementation details depend on the audit result; add the missing handler and matching unit test. (None expected to be missing based on current state.)
 
-- [ ] **Step 4: Commit any changes**
+- [x] **Step 4: Commit any changes**
 
 ```bash
 git add src/components/teammode tests/unit/components/teammode.test.ts
@@ -336,13 +333,13 @@ git commit -m "feat(teammode): verify/complete all 10 subcommands and tests" # o
 - Consumes: LSP client, transport, diagnostics
 - Produces: persistent daemon + stateless tools-mcp both registered and tested
 
-- [ ] **Step 1: Confirm both binaries are built and registered**
+- [x] **Step 1: Confirm both binaries are built and registered**
 
 Check `scripts/build.mjs` outputs both `plugin/components/lsp/dist/daemon.mjs` and `plugin/components/lsp/dist/mcp-server.mjs`.
 
 Check `plugin/kimi.plugin.json` declares the `lsp` MCP with `daemon.mjs`, and `tests/unit/skills/mcp-alignment.test.ts` treats `lsp_*` tool names as aligned.
 
-- [ ] **Step 2: Run LSP tests**
+- [x] **Step 2: Run LSP tests**
 
 ```bash
 pnpm vitest run tests/unit/components/lsp-daemon.test.ts tests/unit/components/lsp-mcp-server.test.ts tests/unit/components/lsp.test.ts tests/unit/components/lsp-client.test.ts tests/unit/components/lsp-language-id.test.ts
@@ -350,11 +347,11 @@ pnpm vitest run tests/unit/components/lsp-daemon.test.ts tests/unit/components/l
 
 Expected: PASS
 
-- [ ] **Step 3: If the stateless fallback is not wired or tested, add it**
+- [x] **Step 3: If the stateless fallback is not wired or tested, add it**
 
 If `mcp-server.ts` is incomplete, implement minimal `lsp_status`, `lsp_diagnostics`, `lsp_goto_definition`, `lsp_find_references`, `lsp_symbols`, `lsp_prepare_rename`, `lsp_rename` handlers that delegate to a freshly spawned LSP server or return "no LSP configured" gracefully.
 
-- [ ] **Step 4: Commit any changes**
+- [x] **Step 4: Commit any changes**
 
 ```bash
 git add src/components/lsp tests/unit/components/lsp*.test.ts
@@ -373,7 +370,7 @@ git commit -m "feat(lsp): verify daemon/tools-mcp split and add any missing cove
 - Consumes: declared MCP tool names from source files
 - Produces: no skill references a tool that is not declared
 
-- [ ] **Step 1: Run the alignment test**
+- [x] **Step 1: Run the alignment test**
 
 ```bash
 pnpm vitest run tests/unit/skills/mcp-alignment.test.ts
@@ -381,11 +378,11 @@ pnpm vitest run tests/unit/skills/mcp-alignment.test.ts
 
 Expected: PASS
 
-- [ ] **Step 2: Add a stronger test that every `codegraph_*` / `lsp_*` / `git_bash` referenced in skills is declared**
+- [x] **Step 2: Add a stronger test that every `codegraph_*` / `lsp_*` / `git_bash` referenced in skills is declared**
 
 If the current regex `/(?:codegraph|lsp)_[a-z_]+|git_bash/g` is sufficient, keep it. Otherwise extend `declaredToolNames()` to parse `src/components/codegraph/serve.mjs`, `src/components/lsp/daemon.ts`, and `src/components/lsp/mcp-server.ts` accurately and assert each skill reference is in the declared set.
 
-- [ ] **Step 3: Commit any changes**
+- [x] **Step 3: Commit any changes**
 
 ```bash
 git add tests/unit/skills/mcp-alignment.test.ts
@@ -404,7 +401,7 @@ git commit -m "test(skills): strengthen MCP tool-name alignment coverage"
 - Consumes: bug title, description, affected files, fix summary
 - Produces: markdown PR body string
 
-- [ ] **Step 1: Run the existing test**
+- [x] **Step 1: Run the existing test**
 
 ```bash
 pnpm vitest run tests/unit/skills/create-pr-body.test.ts
@@ -412,7 +409,7 @@ pnpm vitest run tests/unit/skills/create-pr-body.test.ts
 
 Expected: PASS
 
-- [ ] **Step 2: If the script is a stub, implement it**
+- [x] **Step 2: If the script is a stub, implement it**
 
 The script should read JSON from stdin and write a markdown PR body to stdout. Example implementation if missing:
 
@@ -440,7 +437,7 @@ function main() {
 main();
 ```
 
-- [ ] **Step 3: Commit any changes**
+- [x] **Step 3: Commit any changes**
 
 ```bash
 git add plugin/skills/lcx-contribute-bug-fix/scripts/create-pr-body.mjs tests/unit/skills/create-pr-body.test.ts
@@ -461,7 +458,7 @@ git commit -m "feat(skills): verify/implement create-pr-body helper"
 - Consumes: current source, tests, CI status
 - Produces: accurate, up-to-date documentation
 
-- [ ] **Step 1: Update `lazykimicode-plan.md` status block**
+- [x] **Step 1: Update `lazykimicode-plan.md` status block**
 
 After all tasks above are verified, change the status block to:
 
@@ -470,15 +467,15 @@ After all tasks above are verified, change the status block to:
 > **Verification:** `pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build` passes (39 test files / 243 tests) on macOS/Linux/Windows.
 ```
 
-- [ ] **Step 2: Update `audit-report.md`**
+- [x] **Step 2: Update `audit-report.md`**
 
 Move any remaining "⚠️" items to "✅" if verified, or add a concrete task if not. Remove references to "lsp daemon split needs confirmation" once Task 6 is done.
 
-- [ ] **Step 3: Update `AGENTS.md` component table if needed**
+- [x] **Step 3: Update `AGENTS.md` component table if needed**
 
 Ensure the `lsp` row reflects the daemon/tools-mcp split and the `codegraph` row reflects registered hooks.
 
-- [ ] **Step 4: Run full local verification**
+- [x] **Step 4: Run full local verification**
 
 ```bash
 pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build
@@ -486,7 +483,7 @@ pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build
 
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add docs/superpowers/plans/lazykimicode-plan.md docs/superpowers/plans/audit-report.md AGENTS.md README.md
@@ -503,7 +500,7 @@ git commit -m "docs: reconcile plan, audit report, and AGENTS.md with current im
 **Interfaces:**
 - Produces: green CI on `origin/main`
 
-- [ ] **Step 1: Run the full local verification one final time**
+- [x] **Step 1: Run the full local verification one final time**
 
 ```bash
 pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build
@@ -511,7 +508,7 @@ pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build
 
 Expected: PASS (39 files / 243 tests)
 
-- [ ] **Step 2: Review git status and diff**
+- [x] **Step 2: Review git status and diff**
 
 ```bash
 git status --short
@@ -520,7 +517,7 @@ git diff --stat
 
 Ensure only intended files are changed.
 
-- [ ] **Step 3: Commit any remaining changes and push**
+- [x] **Step 3: Commit any remaining changes and push**
 
 ```bash
 git add -A
@@ -528,7 +525,7 @@ git commit -m "ci: fix Windows-only test failures and finalize cross-platform su
 git push origin main
 ```
 
-- [ ] **Step 4: Monitor CI until green**
+- [x] **Step 4: Monitor CI until green**
 
 ```bash
 gh run list --branch main --limit 5
@@ -536,7 +533,7 @@ gh run list --branch main --limit 5
 
 Wait for the latest run to complete. If it fails, diagnose the failed jobs with `gh run view <id> --log-failed`, fix, and repeat.
 
-- [ ] **Step 5: Report completion**
+- [x] **Step 5: Report completion**
 
 Summarize to the user: what was fixed, what was verified, CI status, and any remaining action items.
 
@@ -570,9 +567,10 @@ Summarize to the user: what was fixed, what was verified, CI status, and any rem
 
 **Plan complete and saved to `docs/superpowers/plans/2026-07-12-final-audit-and-remediation.md`.**
 
-Two execution options:
-
-1. **Subagent-Driven (recommended)** — dispatch a fresh `coder` subagent per task, review between tasks.
-2. **Inline Execution** — execute tasks in this session using `executing-plans` with checkpoints.
-
-Proceeding with inline execution because the plan is a direct continuation of an active goal and the user requested immediate remediation.
+- Execution mode: inline in the active goal session.
+- Final commit: `84980e8`.
+- Final CI run: `29187724411` green on all three platforms.
+- Additional fixes discovered during execution:
+  - `teammode` `integrate` now uses `git merge --no-edit --no-ff` to avoid editor hang on Windows.
+  - Installer integration tests set `OMO_KIMI_SKIP_BOOTSTRAP=1` to skip the non-hermetic ast-grep npm install step.
+  - Generated `plugin/components/teammode/scripts/team.mjs` removed from Git cache (still generated by `pnpm run build`).
