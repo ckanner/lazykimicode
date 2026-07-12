@@ -21,6 +21,7 @@ function writeMessage(proc: ChildProcess, msg: JsonRpcMessage): void {
 function readMessages(proc: ChildProcess, expectedIds: number[]): Promise<JsonRpcMessage[]> {
   return new Promise((resolve, reject) => {
     const messages: JsonRpcMessage[] = [];
+    const stderrChunks: Buffer[] = [];
     const onData = (chunk: Buffer) => {
       const lines = chunk.toString('utf-8').split('\n');
       for (const line of lines) {
@@ -37,19 +38,25 @@ function readMessages(proc: ChildProcess, expectedIds: number[]): Promise<JsonRp
       }
     };
     proc.stdout!.on('data', onData);
-    proc.stderr!.on('data', () => {
-      // ignore stderr
+    proc.stderr!.on('data', (chunk: Buffer) => {
+      stderrChunks.push(chunk);
     });
     proc.on('error', reject);
-    proc.on('exit', () => {
+    proc.on('exit', (code) => {
       proc.stdout!.off('data', onData);
-      resolve(messages);
+      if (expectedIds.every((id) => messages.some((m) => m.id === id))) {
+        resolve(messages);
+      } else {
+        const stderr = Buffer.concat(stderrChunks).toString('utf-8').trim();
+        reject(new Error(`daemon exited (code ${code}) before response; stderr: ${stderr || '(empty)'}`));
+      }
     });
     // Safety timeout
     setTimeout(() => {
+      const stderr = Buffer.concat(stderrChunks).toString('utf-8').trim();
       proc.kill();
-      resolve(messages);
-    }, 10000);
+      reject(new Error(`timed out waiting for response ids [${expectedIds.join(',')}]; stderr: ${stderr || '(empty)'}`));
+    }, 15000);
   });
 }
 
@@ -98,9 +105,11 @@ process.stdin.on('data', (chunk) => {
   return script;
 }
 
-describe('lsp daemon entry', () => {
-  let tmp: string;
-  let proc: ChildProcess;
+describe(
+  'lsp daemon entry',
+  () => {
+    let tmp: string;
+    let proc: ChildProcess;
 
   beforeEach(() => {
     tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'lsp-daemon-'));
@@ -192,4 +201,4 @@ describe('lsp daemon entry', () => {
       // Best-effort cleanup; the OS will reclaim the temp directory.
     }
   });
-});
+}, 15000);
