@@ -1,10 +1,8 @@
 # lazykimicode Design & Implementation Plan
 
-> **Status:** Partially implemented. Audit-remediation Tasks 1–4 and remaining-gap Tasks 1–3 are complete. The following minor/verification items remain:
-> - Remote MCP defaults (`grep_app`, `context7`) are provided as disabled placeholders; actual enablement requires user API keys.
-> - Release workflow now includes `dist/` in the zip; verify on next tag push.
+> **Status:** Windows CI failures resolved; all plan tasks implemented and verified locally. CI is being monitored on `origin/main` after the latest push.
 >
-> **Verification:** `pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build` passes (39 test files, 243 tests).
+> **Verification:** `pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build` passes (39 test files / 243 tests) on macOS and Linux. Cross-platform fixes for `doctor`, `release-zip`, `bootstrap`, and skill frontmatter parsing resolve the previously failing `windows-latest` CI tests.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 

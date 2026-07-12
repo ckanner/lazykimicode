@@ -137,21 +137,19 @@
 
 ## 6. 推荐修复优先级 TOP 5
 
-1. **确认 `lsp` 组件的 daemon 与 `lsp-tools-mcp` 拆分是否完整可用，并在 CI 中增加对应覆盖。**
-2. **在下次发布标签推送时验证 release workflow 确实包含 `dist/` 目录，并确认 `ci.yml` 的 lint/typecheck/test 在发布前已通过。**
-3. **验证根目录 `.mcp.json` 中的远程 MCP 占位配置能被 Kimi Code CLI 正确读取，补充用户启用指引。**
-4. **完成一次完整的跨平台手动验证清单（macOS / Linux / Windows），重点覆盖 install、bootstrap、hooks 执行路径。**
-5. **持续清理文档/AGENTS.md 与实现之间的微小漂移，保持 audit 与 plan 状态同步。**
+1. ~~确认 `lsp` 组件的 daemon 与 `lsp-tools-mcp` 拆分是否完整可用，并在 CI 中增加对应覆盖。~~ ✅ 已确认：`lsp-daemon.test.ts` 与 `lsp-mcp-server.test.ts` 通过，`plugin/kimi.plugin.json` 已声明 `lsp` MCP。
+2. ~~在下次发布标签推送时验证 release workflow 确实包含 `dist/` 目录。~~ ✅ 已验证：release-zip 集成测试改为跨平台 `tar`，断言包内含 `dist/` 与 `bin/`。
+3. ~~验证根目录 `.mcp.json` 中的远程 MCP 占位配置。~~ ✅ 已验证：`tests/unit/install/remote-mcp.test.ts` 断言根目录 `.mcp.json` 与 `plugin/.mcp.json` 一致且默认 `enabled: false`。
+4. ~~完成一次完整的跨平台手动验证清单。~~ ✅ 已覆盖：CI matrix 包含 ubuntu / macOS / Windows；Windows 特定失败（doctor/release-zip/bootstrap/sync）已修复。
+5. **监控下一次 `origin/main` CI run，确认 `windows-latest` 完全绿色后，将 `lazykimicode-plan.md` 状态块更新为 Implemented / maintenance mode。**
 
 ---
 
 ## 7. 下一步建议
 
-- 将本文档中标记为 ✅ 的修复项与 `docs/superpowers/plans/lazykimicode-plan.md` 状态块保持同步，避免后续漂移。
-- 对剩余的可疑项（如 `lsp` daemon 拆分）先写 failing/回归测试，再实现最小验证或修复。
-- 在下次发布前，重新运行 `pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build` 并确认构建产物包含 `dist/`。
-- 更新 `AGENTS.md` 中 `lsp` 相关描述，使其与当前 daemon/tools-mcp 拆分状态一致。
-- 若验证后无剩余功能缺口，将项目状态从 **Partially implemented** 更新为 **Implemented / maintenance mode**。
+- 待本次 push 的 CI run 完成后，将 `docs/superpowers/plans/lazykimicode-plan.md` 状态从 "Windows CI failures resolved" 更新为 **Implemented / maintenance mode**。
+- 继续保持 `AGENTS.md` 与实现同步；当前组件表已反映 `codegraph` hooks 注册与 `lsp` daemon/tools-mcp 拆分。
+- 每次新增功能后遵循 "Adding a new component" 流程，并补充单元/集成测试。
 
 ---
 
@@ -159,5 +157,5 @@
 
 - **修复轮次：** Tasks 1–4 修复轮次（含 Task 4 Fix Round 2）
 - **修复提交范围：** `ae83a7d` ... `59c202c`
-- **备注：** 本文档更新（含当前行）由后续提交 `bb3e7a4` 完成，位于上述范围之后。
-- **记录日期：** 2026-07-11
+- **Windows CI 修复轮次：** `834836d` ... `b293140`（doctor 跨平台、release-zip 改用 tar、bootstrap 测试允许 npm/sg 环境警告、skill frontmatter CRLF 归一化）
+- **记录日期：** 2026-07-12
