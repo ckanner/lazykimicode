@@ -26,6 +26,18 @@ describe('bootstrap', () => {
     process.env.OMO_KIMI_PLUGIN_CACHE = tmpDir;
     process.env.OMO_KIMI_BIN_DIR = path.join(tmpDir, 'bin');
     process.env.KIMI_CODE_HOME = tmpDir;
+
+    // Provide a fake sg binary on PATH so the test does not invoke npm install.
+    const fakeSg = path.join(tmpDir, process.platform === 'win32' ? 'sg.cmd' : 'sg');
+    if (process.platform === 'win32') {
+      fs.writeFileSync(fakeSg, '@echo off\necho "ast-grep 0.1.0"', 'utf-8');
+    } else {
+      fs.writeFileSync(fakeSg, '#!/bin/sh\necho "ast-grep 0.1.0"', 'utf-8');
+      fs.chmodSync(fakeSg, 0o755);
+    }
+    const originalPath = process.env.PATH;
+    process.env.PATH = `${tmpDir}${path.delimiter}${originalPath}`;
+
     try {
       const out = runSessionStart({ hookEventName: 'SessionStart' });
       expect(out.hookSpecificOutput?.additionalContext).toContain('bins=');
@@ -35,6 +47,7 @@ describe('bootstrap', () => {
       delete process.env.OMO_KIMI_PLUGIN_CACHE;
       delete process.env.OMO_KIMI_BIN_DIR;
       delete process.env.KIMI_CODE_HOME;
+      process.env.PATH = originalPath;
     }
   });
 
@@ -142,9 +155,13 @@ describe('bootstrap', () => {
       }
 
       // Provide a fake sg binary on PATH so the test does not invoke npm install.
-      const fakeSg = path.join(tmpDir, 'sg');
-      fs.writeFileSync(fakeSg, '#!/bin/sh\necho "ast-grep 0.1.0"', 'utf-8');
-      fs.chmodSync(fakeSg, 0o755);
+      const fakeSg = path.join(tmpDir, process.platform === 'win32' ? 'sg.cmd' : 'sg');
+      if (process.platform === 'win32') {
+        fs.writeFileSync(fakeSg, '@echo off\necho "ast-grep 0.1.0"', 'utf-8');
+      } else {
+        fs.writeFileSync(fakeSg, '#!/bin/sh\necho "ast-grep 0.1.0"', 'utf-8');
+        fs.chmodSync(fakeSg, 0o755);
+      }
       const originalPath = process.env.PATH;
       process.env.PATH = `${tmpDir}${path.delimiter}${originalPath}`;
       try {

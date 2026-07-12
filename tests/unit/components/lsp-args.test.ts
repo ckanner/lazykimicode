@@ -21,6 +21,20 @@ describe('parseLspArgs', () => {
     expect(parseLspArgs('foo "bar baz"')).toEqual(['foo', 'bar baz']);
   });
 
+  it('keeps Windows path backslashes literal', () => {
+    expect(parseLspArgs('C:\\Users\\runner\\server.exe C:\\tmp\\out.log')).toEqual([
+      'C:\\Users\\runner\\server.exe',
+      'C:\\tmp\\out.log',
+    ]);
+  });
+
+  it('escapes quotes and backslashes inside double quotes', () => {
+    expect(parseLspArgs('"C:\\Program Files\\server.exe" "--config=C:\\dir\\file.json"')).toEqual([
+      'C:\\Program Files\\server.exe',
+      '--config=C:\\dir\\file.json',
+    ]);
+  });
+
   it('returns empty array for empty string', () => {
     expect(parseLspArgs('')).toEqual([]);
   });
