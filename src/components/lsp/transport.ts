@@ -58,7 +58,19 @@ export class StdioLspTransport implements LspTransport {
   }
 
   close(): void {
-    this.process.kill();
+    if (this.process.killed || this.process.exitCode !== null) return;
+    try {
+      this.send({ jsonrpc: '2.0', method: 'exit' });
+      // Give the server a short grace period to exit cleanly before killing it.
+      const timer = setTimeout(() => {
+        if (!this.process.killed && this.process.exitCode === null) {
+          this.process.kill('SIGTERM');
+        }
+      }, 2000);
+      this.process.once('exit', () => clearTimeout(timer));
+    } catch {
+      this.process.kill('SIGTERM');
+    }
   }
 
   private onData(chunk: string): void {

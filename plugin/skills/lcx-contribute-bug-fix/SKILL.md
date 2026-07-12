@@ -75,7 +75,7 @@ Never ask the user "should I continue", "proceed to the next task", or any appro
 
 Use this skill to debug a concrete Oh My KimiCode or Kimi Code CLI defect, implement the smallest correct fix in a fresh temporary workspace, and deliver it. Work in English, keep the body short, and support every claim with runtime or source evidence.
 
-Route ownership the same way as `/skill:lazykimicode:lcx-report-bug`, but the deliverable differs by target:
+Route ownership the same way as `$lcx-report-bug`, but the deliverable differs by target:
 
 - `ckanner/lazykimicode` for Oh My KimiCode, lazykimicode, bundled skills, hooks, MCP wiring, installer behavior, marketplace sync, docs, or packaging. Deliverable: a verified-fix issue with the patch embedded. NEVER open a PR or push a branch against this repo — its contents are regenerated from the source tree on every release, so PRs there cannot be merged and will be closed.
 - `MoonshotAI/kimi-code` for upstream Kimi Code CLI bugs that reproduce without Oh My KimiCode or come from Kimi Code core behavior. Deliverable: a PR from a fork.
@@ -104,7 +104,7 @@ For `ckanner/lazykimicode`, create an issue (never a PR) that includes:
 ## Required Workflow
 
 1. Read the user's bug report and identify the affected surface.
-2. Invoke the `/skill:lazykimicode:debugging` skill for the investigation. If the skill namespace requires qualification, invoke it as `/skill:lazykimicode:debugging` and state that it is the lazykimicode debugging skill.
+2. Invoke the `$debugging` skill for the investigation. If the skill namespace requires qualification, invoke it as `$debugging` and state that it is the lazykimicode debugging skill.
 3. Materialize the latest sources under `OH_MY_KIMICODE_SOURCE_ROOT="${OH_MY_KIMICODE_SOURCE_ROOT:-${TMPDIR:-/tmp}/lazykimicode-sources}"`, then decide the target repository. Use `Agent(subagent_type="explore")` to compare the two checkouts when ownership is ambiguous. Sync both checkouts on every run and compare them before choosing. Validate cached checkouts before reuse so an incomplete `.git` directory cannot route the fix to the wrong repo:
 
 ```bash
@@ -336,10 +336,10 @@ This skill is designed for the Kimi Code CLI plugin harness. Map its workflow an
 | `codex_app.set_thread_title` | Remove — Kimi has no thread title concept |
 | `apply_patch` / Codex write or edit | `Write` for new files, `Edit` for incremental changes |
 | `browser:control-in-app-browser` (Codex) | Use the `kimi-webbridge` skill if available, or `FetchURL` for public pages; ask the user if neither is sufficient |
-| OpenCode `task(...)` helper | `Agent(...)` |
-| `team_*(...)` / `teammode` | `AgentSwarm` |
 
 > **Fallback if `kimi-webbridge` is not available:** Use `FetchURL` to read the page, or ask the user to perform the browser step manually and paste the result.
+| OpenCode `task(...)` helper | `Agent(...)` |
+| `team_*(...)` / `teammode` | `AgentSwarm` |
 
 When translating `load_skills=[...]`, name the skills inside the agent prompt. Kimi Code invokes skills by prompt context and skill name. If a code block below conflicts with this section, this section wins.
 

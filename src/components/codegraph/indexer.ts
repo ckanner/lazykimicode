@@ -38,11 +38,15 @@ export function buildIndex(projectDir: string): CodeGraphIndex {
 
   for (const rel of files) {
     const full = path.join(projectDir, rel);
-    const content = fs.readFileSync(full, 'utf-8');
-    const symbols = parseFile(rel, content);
-    if (symbols.length) {
-      allSymbols.push(...symbols);
-      byFile[rel] = symbols;
+    try {
+      const content = fs.readFileSync(full, 'utf-8');
+      const symbols = parseFile(rel, content);
+      if (symbols.length) {
+        allSymbols.push(...symbols);
+        byFile[rel] = symbols;
+      }
+    } catch {
+      // Skip files that cannot be read or parsed; keep indexing the rest.
     }
   }
 

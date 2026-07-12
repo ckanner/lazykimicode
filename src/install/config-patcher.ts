@@ -30,7 +30,15 @@ export function patchConfigToml(
   dryRun = false,
 ): PatchResult {
   const raw = fs.existsSync(configPath) ? fs.readFileSync(configPath, 'utf-8') : '';
-  const parsed = raw ? (toml.parse(raw) as Record<string, unknown>) : {};
+  let parsed: Record<string, unknown> = {};
+  if (raw.trim()) {
+    try {
+      parsed = toml.parse(raw) as Record<string, unknown>;
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      throw new Error(`Failed to parse ${configPath}: ${message}`, { cause: e });
+    }
+  }
   const existingHooks = (parsed.hooks ?? []) as Array<Record<string, unknown>>;
   const existingKeys = new Set(existingHooks.map(existingHookKey));
 

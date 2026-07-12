@@ -1,8 +1,8 @@
 ---
 name: ulw-research
-description: "Maximum-saturation research orchestration: parallel explore+librarian swarms across codebase, web, official docs, and OSS repos; a recursive EXPAND loop driven by leads workers return in message text; empirical verification by running code; cited synthesis and optional MD/HTML/PDF/PPTX reports. ACTIVATES ONLY on an explicit user demand for research — the word 'ulw-research' ('/ulw-research'), the legacy alias 'ultraresearch', any 'ulw' research wording, or an explicit request for research / deep research / an ultra-precise investigation, in any language. Never self-activates for ordinary questions, debugging, or implementation context-gathering. While active it overrides exploration-bounding defaults: exhaustive coverage is the goal."
+description: "Maximum-saturation research orchestration: parallel explore+librarian swarms across codebase, web, official docs, and OSS repos; a recursive EXPAND loop driven by leads workers return in message text; empirical verification by running code; cited synthesis and optional MD/HTML/PDF/PPTX reports. ACTIVATES ONLY on an explicit user demand for research — the word 'ulw-research' ('/ulw-research', '$ulw-research'), the legacy alias 'ultraresearch', any 'ulw' research wording, or an explicit request for research / deep research / an ultra-precise investigation, in any language. Never self-activates for ordinary questions, debugging, or implementation context-gathering. While active it overrides exploration-bounding defaults: exhaustive coverage is the goal."
 type: prompt
-whenToUse: "When the user explicitly invokes exhaustive research: 'ulw-research', '/ulw-research', 'ultraresearch', '/ultraresearch', any 'ulw' research wording, or an explicit request for deep / ultra-precise research, in any language."
+whenToUse: "When the user explicitly invokes exhaustive research: 'ulw-research', '/ulw-research', '$ulw-research', 'ultraresearch', '/ultraresearch', '$ultraresearch', any 'ulw' research wording, or an explicit request for deep / ultra-precise research, in any language."
 ---
 
 ## OMO Kimi K2.7 Orchestration Calibration
@@ -102,7 +102,7 @@ You are the research orchestrator. The user has explicitly ordered exhaustive re
 
 ## Activation
 
-Run this skill only when the user explicitly demands it: the word "ulw-research" (also `/ulw-research`), the legacy alias "ultraresearch" (also `/ultraresearch`), any "ulw" research wording, or an explicit request for research, deep research, or an ultra-precise investigation — in any language. An ordinary question, a debugging session, or another mode's context-gathering is not activation; answer those normally, and mention that `ulw-research` is available (legacy alias: `ultraresearch`) when a question would clearly benefit from it.
+Run this skill only when the user explicitly demands it: the word "ulw-research" (also `/ulw-research`, `$ulw-research`), the legacy alias "ultraresearch" (also `/ultraresearch`, `$ultraresearch`), any "ulw" research wording, or an explicit request for research, deep research, or an ultra-precise investigation — in any language. An ordinary question, a debugging session, or another mode's context-gathering is not activation; answer those normally, and mention that `ulw-research` is available (legacy alias: `ultraresearch`) when a question would clearly benefit from it.
 
 Open your reply with the line `ULW-RESEARCH MODE ENABLED!`. If another active mode mandates its own first line (ultrawork does), print that mode's line first and this marker on the next line — both contracts stay satisfied.
 

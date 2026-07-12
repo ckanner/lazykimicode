@@ -107,7 +107,7 @@ Execute a Prometheus work plan until every top-level checkbox is complete. This 
 ## Usage
 
 ```text
-/skill:lazykimicode:start-work [plan-name] [--worktree <absolute-path>]
+$start-work [plan-name] [--worktree <absolute-path>]
 ```
 
 - `plan-name` (optional): a full or partial file stem under `.omo/plans/`.
@@ -125,7 +125,7 @@ Execute a Prometheus work plan until every top-level checkbox is complete. This 
 
 ### No-plan bootstrap
 
-When the user explicitly said `start work` / `/skill:lazykimicode:start-work` and no selectable plan exists, treat that phrase as approval: bootstrap `ulw-plan` to create the approved plan before execution and implementation, instead of stalling or asking for generic approval again. A brief or notes file without waves, checkboxes, and acceptance criteria is NOT decision-complete — enter this bootstrap too.
+When the user explicitly said `start work` / `$start-work` and no selectable plan exists, treat that phrase as approval: bootstrap `ulw-plan` to create the approved plan before execution and implementation, instead of stalling or asking for generic approval again. A brief or notes file without waves, checkboxes, and acceptance criteria is NOT decision-complete — enter this bootstrap too.
 
 1. Invoke the `ulw-plan` skill from the current request and require its dynamic adversarial workflow: collect, verify, design, adversarial plan-review, synthesize.
 2. The generated Prometheus plan must be saved under `.omo/plans/<slug>.md` before implementation or Boulder state writes that point at plan work.
@@ -144,16 +144,11 @@ Write `.omo/boulder.json` before implementation starts. Prefix session ids with 
   "works": {
     "<work-id>": {
       "work_id": "<work-id>",
-      "title": "<short human-readable work title>",
       "active_plan": ".omo/plans/<plan-name>.md",
       "plan_name": "<plan-name>",
       "session_ids": ["kimi:<session_id>"],
       "status": "active",
-      "worktree_path": null,
-      "tasks": [
-        { "id": "t1", "title": "First top-level checkbox / sub-task", "status": "unchecked" },
-        { "id": "t2", "title": "Second top-level checkbox / sub-task", "status": "unchecked" }
-      ]
+      "worktree_path": null
     }
   }
 }
@@ -181,7 +176,7 @@ Each sub-agent prompt must include:
    - Terminal / TUI: drive a real pty; `tmux send-keys` is fine for a boot/behavior smoke, but color/layout/CJK evidence goes through a real web terminal or screenshot tool, NEVER `tmux capture-pane`.
    - Browser use: in Kimi Code, use the `kimi-webbridge` skill first when available and the scenario does not need an authenticated or persistent user browser profile; otherwise drive the real page with Chrome, or agent-browser (https://github.com/vercel-labs/agent-browser) when Chrome is unavailable.
    - Computer use: OS-level GUI automation against the running desktop app when the surface is not a page.
-   - TUI visual evidence: when a TUI claim needs visual QA or PR proof, use the project's TUI visual QA script if one exists and attach `terminal.png` plus `metadata.json`. If no such script exists, capture real pty output and screenshots with the best available local tool.
+   - TUI visual evidence: when a TUI claim needs visual QA or PR proof, use the project's TUI visual QA script if one exists (e.g. `node script/qa/web-terminal-visual-qa.mjs --command "<cmd>" --input "{Enter}" --evidence-dir <dir>`) and attach `terminal.png` plus `metadata.json`. If no such script exists, capture real pty output and screenshots with the best available local tool.
 6. The adversarial classes that apply to this sub-task (from the 9 ultraqa classes) and how each is probed.
 7. Required artifact path and cleanup receipt.
 
@@ -234,10 +229,9 @@ Rules:
 Only after verification passes:
 
 1. Edit the plan checkbox from `- [ ]` to `- [x]`.
-2. Update the matching Boulder task's `status` from `unchecked` to `done` in `.omo/boulder.json`.
-3. Re-read the plan and confirm the remaining count decreased.
-4. Append a `task-completed` ledger entry.
-5. Continue with the next checkbox. Do not ask whether to continue.
+2. Re-read the plan and confirm the remaining count decreased.
+3. Append a `task-completed` ledger entry.
+4. Continue with the next checkbox. Do not ask whether to continue.
 
 ## Completion
 

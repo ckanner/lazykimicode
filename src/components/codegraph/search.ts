@@ -67,7 +67,12 @@ export function callers(index: CodeGraphIndex, projectDir: string, symbolName: s
   const infos: CallerInfo[] = [];
   for (const rel of listProjectFiles(projectDir)) {
     const full = path.join(projectDir, rel);
-    const content = fs.readFileSync(full, 'utf-8');
+    let content: string;
+    try {
+      content = fs.readFileSync(full, 'utf-8');
+    } catch {
+      continue;
+    }
     const matches = content.match(re);
     if (!matches) continue;
     infos.push({
@@ -87,7 +92,12 @@ export function callees(index: CodeGraphIndex, projectDir: string, symbolName: s
   const called = new Map<string, Symbol>();
   for (const rel of targetFiles) {
     const full = path.join(projectDir, rel);
-    const content = fs.readFileSync(full, 'utf-8');
+    let content: string;
+    try {
+      content = fs.readFileSync(full, 'utf-8');
+    } catch {
+      continue;
+    }
     for (const s of candidateSymbols) {
       if (s.file !== rel) continue;
       const word = escapeRegex(s.name);

@@ -1,15 +1,13 @@
 ---
 name: visual-qa
-description: "MUST USE after building/changing any UI or when asked whether a page, component, or TUI looks right. Rigorous visual QA across web/page and terminal UIs. Prefer the project's configured browser tooling or the kimi-webbridge skill for unauthenticated browser/page QA; use ReadMediaFile for screenshots. Capture screenshot/TUI evidence with available tooling, run design-system/functional and visual-fidelity/CJK reviewer passes, then synthesize a good/bad verdict. Triggers: visual QA, screenshot/pixel diff, UI looks wrong, reference fidelity, design system check, responsive check, CJK text clipping, TUI alignment, box-drawing drift."
+description: "MUST USE after building/changing any UI or when asked whether a page, component, or TUI looks right. Rigorous visual QA across web/page and terminal UIs. Prefer the project's configured browser tooling or the kimi-webbridge skill for unauthenticated browser/page QA; use ReadMediaFile for screenshots. Capture screenshot/TUI evidence with bundled diff scripts when available, run design-system/functional and visual-fidelity/CJK reviewer passes, then synthesize a good/bad verdict. Triggers: visual QA, screenshot/pixel diff, UI looks wrong, reference fidelity, design system check, responsive check, CJK text clipping, TUI alignment, box-drawing drift."
 type: prompt
 whenToUse: When reviewing UI screenshots, design fidelity, visual output, TUI layout, or reference-fidelity clones.
 ---
 
 # Visual QA - Dual-Oracle Web and TUI Verification
 
-Verify a rendered UI against intent using objective evidence plus two parallel
-read-only oracle passes, then synthesize one good/bad verdict. The evidence
-numbers focus the reviewers. They are not the verdict.
+Verify a rendered UI against intent using objective script evidence plus two parallel read-only oracle passes, then synthesize one good/bad verdict. The script numbers focus the reviewers. They are not the verdict.
 
 ## Purpose and when to use
 
@@ -17,20 +15,17 @@ numbers focus the reviewers. They are not the verdict.
 - Use when output must match a mock, a baseline, or a stated design intent; when you suspect a regression; when CJK (Korean/Japanese/Chinese) text may clip, misalign, or wrap awkwardly; when a claimed design system might actually be a flat image; when a terminal layout may overflow or its borders may break.
 - Skip when there is no rendered surface (pure backend or library logic with no visual or terminal output). For broad post-implementation review use review-work; this skill is the visual specialist.
 
-In the commands below, `$SKILL_DIR` is this skill's own directory (the folder
-containing this SKILL.md). This distribution does **not** include bundled
-`scripts/visual-qa.mjs` or `script/qa/web-terminal-visual-qa.mjs` CLIs. Use the
-alternative tooling described below (project browser tooling, `ReadMediaFile`,
-`kimi-webbridge`, or manual capture) to produce equivalent evidence.
-
-> **Fallback if `kimi-webbridge` is not available:** Use `FetchURL` to read the page, or ask the user to perform the browser step manually and paste the result.
+In the commands below, `$SKILL_DIR` is this skill's own directory (the folder containing this SKILL.md). The bundled Node evidence CLI is expected at `scripts/visual-qa.mjs` inside it. If that CLI is not present, use an equivalent image-diff/TUI-check tool or ask the user to provide it.
 
 ## Kimi Code Harness Compatibility
 
 - Run the read-only reviewer passes through `AgentSwarm` with `subagent_type="explore"` (or `"coder"` for code-level fidelity reviews). Include `visual-qa` in each subagent prompt so the skill context is loaded.
 - `Agent` runs to completion; there is no `wait_agent`, `background_output(task_id=...)`, or thread polling. For sequential fallback, call `Agent` one at a time.
 - Use `ReadMediaFile` to inspect screenshot images. Kimi Code CLI has no built-in browser tool or `view_image`/`look_at` viewer.
-- For unauthenticated browser/page QA, prefer the project's configured browser tooling (playwright, agent-browser, dev-browser skill) or the `kimi-webbridge` skill if available. If neither is available, ask the user how to capture the page. Do not silently install global tools.
+- For unauthenticated browser/page QA, prefer the project's configured browser tooling (playwright, agent-browser, dev-browser skill) or the `kimi-webbridge` skill if available.
+
+  > **Fallback if `kimi-webbridge` is not available:** Use `FetchURL` to read the page, or ask the user to perform the browser step manually and paste the result.
+
 - Apply fixes with `Write` / `Edit`. Kimi Code CLI has no thread title API, so drop any `codex_app.set_thread_title` step.
 
 ## Step 1 - Detect the surface
@@ -63,20 +58,38 @@ Every gate runs on captures produced AFTER the last edit to the rendered source.
 
 1. Capture a REFERENCE image: the user's mock/target, generated page snapshot, Figma export, source-site capture, or known-good baseline. Save as PNG. If the user provided overview text or annotations, save them next to the image and treat them as part of the reference packet.
 2. Capture the ACTUAL rendered screenshot at the same viewport size. In Kimi Code CLI, prefer the project's configured browser tooling (playwright, agent-browser, or dev-browser skill). If no project browser tool is available, try the `kimi-webbridge` skill for unauthenticated pages. Save as PNG. If neither option is available, ask the user how to capture the page; do not install global tools on your own.
-3. Produce image-diff evidence. If the project has a suitable image-diff tool, run it and keep the JSON. Otherwise, use `ReadMediaFile` to inspect both images side by side and note dimensions, visible differences, and hotspot regions manually.
+3. Run the diff and keep the JSON:
 
-Key fields to record when available: `dimensionsMatch`, `diffRatio` (0..1), `similarityScore` (0..100), `alphaChannelIntact`, `hotspots[]` (grid regions ranked by `diffRatio`).
+```
+node "$SKILL_DIR/scripts/visual-qa.mjs" image-diff <reference.png> <actual.png>
+```
+
+Key fields: `dimensionsMatch`, `diffRatio` (0..1), `similarityScore` (0..100), `alphaChannelIntact`, `hotspots[]` (grid regions ranked by `diffRatio`).
 
 For reference-fidelity work, repeat the capture and diff for every referenced viewport, page, and state. The actual capture must use the same viewport, scroll position, color mode, density, and state as the matching reference. If the reference packet includes only one viewport, still capture the required responsive breakpoints and record which ones are extrapolated from the `DESIGN.md` contract rather than directly pixel-compared.
 
 ### TUI
 
-1. Render the TUI through a real pty and capture it. Prefer a project web-terminal script (e.g. xterm.js in a browser) that produces `terminal.png` (the true-color artifact), `terminal.txt`, `terminal-ansi.txt`, and `metadata.json`. If the repo does not include such a script, reproduce the pattern yourself with the best available local tool: real pty -> screenshot/PNG + plain-text capture + metadata with cleanup receipt. Avoid `tmux capture-pane` for color/layout/CJK evidence, which degrades truecolor and misaligns wide glyphs.
-2. Run a width check on the produced text and keep the measurements. If the project has a TUI-check script, use it; otherwise measure with standard tools (`awk`, `wc`) and inspect for overflow and wide-character drift.
+1. Render the TUI through the REAL xterm.js web terminal and screenshot it - NEVER `tmux capture-pane`, which degrades truecolor and misaligns wide (CJK) glyphs. Run the command in a real pty and capture the browser render from the repository root:
 
-Key fields to record when available: `maxWidth`, `overflowLines[]`, `borderMisaligned`, `wideCharColumns[]`, `hasAnsi`.
+```
+node script/qa/web-terminal-visual-qa.mjs --title "TUI Visual QA" \
+  --command "<tui-command>" \
+  --input "{ArrowDown}" --input "{Enter}" \
+  --evidence-dir .omo/evidence/<slug>/tui-web-terminal
+```
 
-This JSON/diff data (diff ratio, similarity score, hotspots or overflow lines, border alignment, wide-char columns, alpha) is REFERENCE evidence to aim the reviewers. It is not the verdict by itself.
+   Replay a saved raw stream with `--from-file <capture.ansi>` instead of `--command`. This produces `terminal.png` (the true-color artifact), `terminal.txt`, `terminal-ansi.txt`, and `metadata.json`. Treat this as the standard TUI visual artifact pattern. If the repo does not include this script, reproduce the pattern yourself: real pty -> xterm.js in a browser -> PNG + metadata with cleanup receipt.
+
+2. Run the width check on the produced text and keep the JSON:
+
+```
+node "$SKILL_DIR/scripts/visual-qa.mjs" tui-check .omo/evidence/<slug>/tui-web-terminal/terminal.txt --cols <N>
+```
+
+Key fields: `maxWidth`, `overflowLines[]`, `borderMisaligned`, `wideCharColumns[]`, `hasAnsi`.
+
+This JSON (diff ratio, similarity score, hotspots or overflow lines, border alignment, wide-char columns, alpha) is REFERENCE evidence to aim the reviewers. It is not the verdict by itself.
 
 ### Motion and interaction capture
 
@@ -94,7 +107,7 @@ This independent review is REQUIRED before any "done" claim. Do not self-review 
 
 In Kimi Code CLI, run both passes concurrently through `AgentSwarm`. Each oracle is read-only: it reviews and reports, it cannot modify files. Each returns PASS, REVISE, or FAIL with concrete, located findings. Pass A proves the surface is a real design-system implementation, not a mock-only or faked-image substitute. Pass B directly reads the screenshots with `ReadMediaFile` and inspects source/content for visual and CJK defects.
 
-Paste evidence directly into each prompt: source code, the plain-text TUI captures, the diff/width measurements, and the screenshot paths plus your described observations for web. The two passes differ in depth by charter, not by any model or effort setting, which cannot be pinned per call.
+Paste evidence directly into each prompt: source code, the plain-text TUI captures, the script JSON, and the screenshot paths plus your described observations for web. The two passes differ in depth by charter, not by any model or effort setting, which cannot be pinned per call.
 
 Combine the two prompts below into one `AgentSwarm` call with two `subagent_type="explore"` entries. Include the word `visual-qa` in each prompt so the skill context is loaded.
 
@@ -121,7 +134,7 @@ CAPTURES:
 {Web: actual screenshot path(s) plus your described observations. TUI: paste capture.txt and capture-ansi.txt inline.}
 
 SHARED SCRIPT EVIDENCE (reference, not verdict):
-{Paste image-diff or tui-check measurements. Use alphaChannelIntact for the transparency check.}
+{Paste the image-diff or tui-check JSON. Use alphaChannelIntact for the transparency check.}
 
 CHECK EACH:
 1. Real design system vs ad-hoc/mock-only: are styles driven by coherent design tokens and reused primitives, or one-off hardcoded values scattered per element? When a reference packet exists, the implementation must encode the reference's colors, type, spacing, radii, shadows, component anatomy, and states as reusable tokens/primitives that can extend to new pages. Treat mock-only screens, static compositions, or one-page hardcoded styling with no reusable system as BLOCKING unless the user explicitly requested a throwaway mock.
@@ -148,7 +161,7 @@ Prompt for the second `explore` subagent:
 
 ```
 REVIEW TYPE: VISUAL FIDELITY AND CJK PRECISION (read-only)
-TIER INTENT: Treat this as the focused visual pass. Read every screenshot with ReadMediaFile before judging. Anchor every claim to the evidence, source code, and captures.
+TIER INTENT: Treat this as the focused visual pass. Read every screenshot with ReadMediaFile before judging. Anchor every claim to the script evidence, source code, and captures.
 
 INTENT:
 {What the user requested and the mock or baseline to match.}
@@ -165,7 +178,7 @@ SOURCE CODE:
 {For web: include the rendered text/content, components, typography, layout, and style code. For TUI: include render code that controls wrapping, width, and wide-character handling.}
 
 SCRIPT EVIDENCE (required, consume every field):
-{Paste image-diff or tui-check measurements.}
+{Paste the image-diff or tui-check JSON.}
 
 USE THE EVIDENCE:
 - Web (image-diff): start from diffRatio and similarityScore, then read every screenshot with ReadMediaFile and inspect every hotspots[] entry (gridX, gridY, x, y, width, height, diffRatio). Explain the visual cause of each flagged region from the pixels and source/content together.
@@ -232,7 +245,13 @@ If any page fails, you are not done: fix it with `Write` / `Edit`, re-capture th
 
 Run this step IN ADDITION to Steps 1-4 when the original user task has a concrete visual target: "clone this site", "move this Figma design to code", "rebuild this screen", "make it look exactly like X", or "build this Imagen/Stitch/generated mockup and overview". For these tasks the normal dual-oracle is necessary but NOT sufficient. After it returns, run the following TWO additional MANDATORY verifications and LOOP until BOTH pass.
 
-1. Pixel-perfect design-compare subagent (visual oracle). Dispatch a focused, read-only `explore` subagent. It must crop/zoom BOTH the reference (target / Figma export / source-site screenshot / generated page snapshot) and the ACTUAL screenshot into matching regions and read them with `ReadMediaFile` **pixel-by-pixel** - header, nav, each card, spacing, type ramp, color tokens - not at a glance. It must also compare the overview text or annotations against the rendered content and DOM text. Anchor every claim with the available image-diff evidence (project tooling, `kimi-webbridge`, or `ReadMediaFile` side-by-side comparison). It judges whether layout geometry, spacing, design tokens (color, type, radius, shadow), and the design itself are identical to the target, region by region. Anything off by more than rounding is a finding.
+1. Pixel-perfect design-compare subagent (visual oracle). Dispatch a focused, read-only `explore` subagent. It must crop/zoom BOTH the reference (target / Figma export / source-site screenshot / generated page snapshot) and the ACTUAL screenshot into matching regions and read them with `ReadMediaFile` **pixel-by-pixel** - header, nav, each card, spacing, type ramp, color tokens - not at a glance. It must also compare the overview text or annotations against the rendered content and DOM text. Anchor every claim with the bundled tool:
+
+```
+node "$SKILL_DIR/scripts/visual-qa.mjs" image-diff <reference.png> <actual.png>
+```
+
+   It judges whether layout geometry, spacing, design tokens (color, type, radius, shadow), and the design itself are identical to the target, region by region. Anything off by more than rounding is a finding.
 
 2. Code-level design-system fidelity (code oracle). Dispatch a read-only `coder` subagent:
 
@@ -266,7 +285,7 @@ RULE (mandatory, non-negotiable): the reference-fidelity task is NOT done until 
 
 ## Reference evidence is not the verdict
 
-The diff/width numbers quantify pixels and columns. They cannot judge whether the result is a real design system, whether features work, or whether intent was met. A 99/100 `similarityScore` can still hide a pasted-image fake, a broken interaction, or clipped CJK descenders. Use the numbers to aim the oracles, then trust the synthesized review.
+The script quantifies pixels and columns. It cannot judge whether the result is a real design system, whether features work, or whether intent was met. A 99/100 `similarityScore` can still hide a pasted-image fake, a broken interaction, or clipped CJK descenders. Use the numbers to aim the oracles, then trust the synthesized review.
 
 Illustrative output (locked field names):
 

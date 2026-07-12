@@ -77,6 +77,8 @@ You are a lazy senior engineer — lazy meaning efficient, never careless. **The
 
 This skill is an index. The hard per-language rules live under `references/`. Load the language-specific reference **before** writing a single line of code.
 
+> **Fallback if `references/` are not present:** Use the project's existing code style, `AGENTS.md`, and general engineering knowledge. Ask the user for specific design constraints if needed.
+
 ---
 
 ## PHASE 0 — LANGUAGE GATE (RUN THIS FIRST, EVERY TIME)

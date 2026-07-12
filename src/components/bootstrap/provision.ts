@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { execFileSync, execSync } from 'node:child_process';
-import { linkManagedBins } from '../../install/bin-links.js';
+import { linkManagedBins, getManagedBinTargets } from '../../install/bin-links.js';
 import { findOnPath } from '../../shared/cross-platform.js';
 
 export interface ProvisionResult {
@@ -103,8 +103,12 @@ export function runBootstrapProvisioning(cacheDir: string, binDir: string, kimiC
   const warnings: string[] = [];
   let binLinksOk = true;
   try {
-    const linked = linkManagedBins(cacheDir, binDir);
-    if (linked.length < 4) warnings.push(`Only ${linked.length}/4 managed bins linked`);
+    const linked = new Set(linkManagedBins(cacheDir, binDir));
+    const managed = getManagedBinTargets(cacheDir).map((b) => b.name);
+    const missingManaged = managed.filter((name) => !linked.has(name));
+    if (missingManaged.length) {
+      warnings.push(`Missing managed bins: ${missingManaged.join(', ')}`);
+    }
   } catch (e) {
     binLinksOk = false;
     warnings.push(`Bin link failed: ${e instanceof Error ? e.message : String(e)}`);

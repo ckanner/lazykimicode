@@ -71,7 +71,9 @@ function writeRemoteMcpPlaceholders(kimiCodeHome: string, dryRun = false): void 
   const configPath = path.join(kimiCodeHome, 'config.toml');
   if (!fs.existsSync(configPath) || dryRun) return;
   const raw = fs.readFileSync(configPath, 'utf-8');
-  if (raw.includes('grep_app') || raw.includes('context7')) return;
+  const hasGrepApp = raw.includes('grep_app');
+  const hasContext7 = raw.includes('context7');
+  if (hasGrepApp && hasContext7) return;
   const placeholder = `\n# Remote MCP placeholders (lazykimicode)\n# Enable after obtaining API keys:\n# [mcpServers.grep_app]\n# command = "npx"\n# args = ["-y", "@grep-app/mcp"]\n# env = { GREP_APP_API_KEY = "..." }\n#\n# [mcpServers.context7]\n# command = "npx"\n# args = ["-y", "@context7/mcp"]\n# env = { CONTEXT7_API_KEY = "..." }\n`;
   fs.writeFileSync(configPath, raw.trimEnd() + placeholder, 'utf-8');
 }

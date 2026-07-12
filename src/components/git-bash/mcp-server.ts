@@ -93,8 +93,9 @@ export async function executeGitBash(
     child.stdout.on('data', (chunk: string) => { stdout += chunk; });
     child.stderr.on('data', (chunk: string) => { stderr += chunk; });
     child.on('error', reject);
-    child.on('close', (exitCode) => {
-      resolve({ stdout, stderr, exitCode: exitCode ?? 0 });
+    child.on('close', (exitCode, signal) => {
+      // A null exitCode means the process was terminated by a signal; treat it as an error.
+      resolve({ stdout, stderr, exitCode: exitCode ?? (signal ? 1 : 0) });
     });
   });
 }

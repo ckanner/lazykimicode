@@ -66,7 +66,7 @@ Once installed, `lazykimicode` hooks run on Kimi events without any manual setup
 | `SessionStart` | `bootstrap`, `rules`, `telemetry`, `codegraph` | Provision binaries, load rules, emit daily-active telemetry, ensure codegraph index |
 | `UserPromptSubmit` | `rules`, `ultrawork`, `ulw-loop` | Inject project rules; detect `ultrawork`/`ulw`; parse `OMO_ULW_LOOP_STEER:` |
 | `PreToolUse` | `git-bash`, `ulw-loop` | Recommend `git_bash` on Windows; deny budgeted `CreateGoal` |
-| `PostToolUse` | `comment-checker`, `lsp`, `rules`, `codegraph` | Check for stale TODO/FIXME; run LSP diagnostics; reload rules; guide codegraph usage |
+| `PostToolUse` | `comment-checker`, `lsp`, `rules`, `codegraph` | Check for stale TODO/FIXME after Write/Edit; run LSP diagnostics; reload rules; guide codegraph usage |
 | `PostCompact` | `rules`, `lsp`, `git-bash` | Reset caches after context compaction |
 | `Stop` / `SubagentStop` | `start-work-continuation`, `executor-verify` | Block stop when work is incomplete; require `EVIDENCE_RECORDED:` |
 

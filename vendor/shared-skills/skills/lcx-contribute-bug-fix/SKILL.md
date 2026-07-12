@@ -336,6 +336,8 @@ This skill is designed for the Kimi Code CLI plugin harness. Map its workflow an
 | `codex_app.set_thread_title` | Remove — Kimi has no thread title concept |
 | `apply_patch` / Codex write or edit | `Write` for new files, `Edit` for incremental changes |
 | `browser:control-in-app-browser` (Codex) | Use the `kimi-webbridge` skill if available, or `FetchURL` for public pages; ask the user if neither is sufficient |
+
+> **Fallback if `kimi-webbridge` is not available:** Use `FetchURL` to read the page, or ask the user to perform the browser step manually and paste the result.
 | OpenCode `task(...)` helper | `Agent(...)` |
 | `team_*(...)` / `teammode` | `AgentSwarm` |
 

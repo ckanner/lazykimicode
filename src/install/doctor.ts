@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import * as toml from 'smol-toml';
 import { resolveKimiEnv, pluginCacheDir } from '../shared/paths.js';
 import { MANAGED_BINS } from './bin-links.js';
 import { VERSION } from '../shared/version.js';
@@ -60,9 +61,24 @@ export function runDoctor(options: DoctorOptions = {}): HealthCheck[] {
   const configPath = path.join(env.kimiCodeHome, 'config.toml');
   if (fs.existsSync(configPath)) {
     const raw = fs.readFileSync(configPath, 'utf-8');
-    const omoHooks = (raw.match(/\[\[hooks\]\]/g) ?? []).length;
-    if (raw.includes('lazykimicode')) {
-      results.push({ name: 'config-hooks', ok: true, message: `${omoHooks} hook block(s) found in config.toml` });
+    const hookInfo = (() => {
+      try {
+        const parsed = toml.parse(raw) as Record<string, unknown>;
+        const hooks = (parsed.hooks ?? []) as Array<{ command?: unknown }>;
+        return {
+          count: hooks.length,
+          hasLazykimicode: hooks.some((h) => String(h.command ?? '').includes('lazykimicode')),
+        };
+      } catch {
+        // Fallback to a conservative string heuristic if the file is not valid TOML.
+        return {
+          count: (raw.match(/\[\[hooks\]\]/g) ?? []).length,
+          hasLazykimicode: /lazykimicode[\\/].*components[\\/].*cli\.mjs/.test(raw),
+        };
+      }
+    })();
+    if (hookInfo.hasLazykimicode) {
+      results.push({ name: 'config-hooks', ok: true, message: `${hookInfo.count} hook block(s) found in config.toml` });
     } else {
       results.push({ name: 'config-hooks', ok: false, message: 'No lazykimicode hooks found in config.toml' });
     }

@@ -104,6 +104,9 @@ Routing table, per-platform auth (set `TWITTER_*` env vars, `gh auth login`, a t
 
 **Kimi Code CLI has no built-in browser tool.** Tier 2 requires an external browser bridge. Options:
 1. If the `kimi-webbridge` skill is available in this workspace, load it and follow its instructions.
+
+   > **Fallback if `kimi-webbridge` is not available:** Use `FetchURL` to read the page, or ask the user to perform the browser step manually and paste the result.
+
 2. Otherwise, ask the user to provide the required output (screenshot, page source after login, etc.) or to set up a local browser bridge that exposes CDP or screenshots.
 
 If a local CloakBrowser / agent-browser setup exists (not provided by Kimi), drive it via `Bash`:
