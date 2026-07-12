@@ -17,6 +17,28 @@ export interface HealthCheck {
   message: string;
 }
 
+function findOnPath(name: string): string | null {
+  const cmd = process.platform === 'win32' ? 'where' : 'which';
+  try {
+    const out = execFileSync(cmd, [name], { encoding: 'utf-8', timeout: 5000 }).trim();
+    return out.split(/\r?\n/)[0] || null;
+  } catch {
+    return null;
+  }
+}
+
+function runVersion(command: string, fallbackPath?: string): string {
+  const candidates = fallbackPath ? [fallbackPath, command] : [command];
+  for (const candidate of candidates) {
+    try {
+      return execFileSync(candidate, ['--version'], { encoding: 'utf-8', timeout: 5000 }).trim();
+    } catch {
+      // try next candidate
+    }
+  }
+  throw new Error(`${command} --version failed`);
+}
+
 export function runDoctor(options: DoctorOptions = {}): HealthCheck[] {
   const env = resolveKimiEnv(options);
   const version = process.env.OMO_KIMI_VERSION ?? VERSION;
@@ -24,10 +46,15 @@ export function runDoctor(options: DoctorOptions = {}): HealthCheck[] {
   const results: HealthCheck[] = [];
 
   // Kimi CLI
-  try {
-    const out = execFileSync('kimi', ['--version'], { encoding: 'utf-8', timeout: 5000 }).trim();
-    results.push({ name: 'kimi-cli', ok: true, message: `Kimi Code CLI found: ${out}` });
-  } catch {
+  const kimiPath = findOnPath('kimi');
+  if (kimiPath) {
+    try {
+      const out = runVersion('kimi', kimiPath);
+      results.push({ name: 'kimi-cli', ok: true, message: `Kimi Code CLI found: ${out}` });
+    } catch {
+      results.push({ name: 'kimi-cli', ok: false, message: 'Kimi Code CLI found on PATH but --version failed' });
+    }
+  } else {
     results.push({ name: 'kimi-cli', ok: false, message: 'Kimi Code CLI not found on PATH' });
   }
 
@@ -70,10 +97,10 @@ export function runDoctor(options: DoctorOptions = {}): HealthCheck[] {
   }
 
   // ast-grep
-  try {
-    const out = execFileSync('which', ['sg'], { encoding: 'utf-8' }).trim();
-    results.push({ name: 'ast-grep', ok: true, message: `ast-grep found: ${out}` });
-  } catch {
+  const sgPath = findOnPath('sg');
+  if (sgPath) {
+    results.push({ name: 'ast-grep', ok: true, message: `ast-grep found: ${sgPath}` });
+  } else {
     results.push({ name: 'ast-grep', ok: false, message: 'ast-grep (sg) not found; install via `cargo install ast-grep` or `brew install ast-grep`' });
   }
 

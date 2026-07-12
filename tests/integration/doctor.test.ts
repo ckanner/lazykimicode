@@ -8,7 +8,12 @@ import { runKimiInstaller } from '../../src/install/install-kimi.js';
 const PROJECT_ROOT = path.resolve(process.cwd());
 
 function writeExecutableScript(filePath: string, body: string): void {
-  fs.writeFileSync(filePath, `#!/bin/sh\n${body}\n`, { mode: 0o755 });
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  if (process.platform === 'win32') {
+    fs.writeFileSync(`${filePath}.cmd`, `@echo off\n${body}\n`, { mode: 0o755 });
+  } else {
+    fs.writeFileSync(filePath, `#!/bin/sh\n${body}\n`, { mode: 0o755 });
+  }
 }
 
 describe('doctor integration', () => {
