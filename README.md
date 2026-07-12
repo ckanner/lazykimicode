@@ -132,7 +132,7 @@ If the skill name is unique, `/skill:<skill-name>` also works.
 
 ## Configuration
 
-`LAZYKIMICODE_*` is the primary environment variable namespace. The legacy `OMO_KIMI_*` and `OMO_*` names are still accepted as fallbacks so existing setups keep working.
+`LAZYKIMICODE_*` is the environment variable namespace used by the harness.
 
 | Environment variable | Purpose |
 |---|---|

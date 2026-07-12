@@ -106,7 +106,7 @@ async function main() {
       const entry = {
         ...h,
         command,
-        statusMessage: `(OmO ${VERSION}) ${h.statusMessage ?? comp}`,
+        statusMessage: `(LazyKimiCode ${VERSION}) ${h.statusMessage ?? comp}`,
       };
       fs.writeFileSync(path.join(OUT, fileName), JSON.stringify(entry, null, 2));
     }

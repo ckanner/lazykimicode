@@ -32,7 +32,7 @@ jobs:
       - run: pnpm run sync:skills
       - name: Inject PostHog API key
         env:
-          LAZYKIMICODE_POSTHOG_API_KEY: ${{ secrets.LAZYKIMICODE_POSTHOG_API_KEY || secrets.OMO_KIMI_POSTHOG_API_KEY }}
+          LAZYKIMICODE_POSTHOG_API_KEY: ${{ secrets.LAZYKIMICODE_POSTHOG_API_KEY }}
         run: |
           if [ -z "$LAZYKIMICODE_POSTHOG_API_KEY" ]; then
             echo "::warning::LAZYKIMICODE_POSTHOG_API_KEY secret is not set. Telemetry will be skipped in the release build."

@@ -1,5 +1,5 @@
 // Shell-like argument splitter that respects single/double quotes and backslash
-// escapes, so paths or flags containing spaces can be passed via OMO_KIMI_LSP_ARGS.
+// escapes, so paths or flags containing spaces can be passed via LAZYKIMICODE_LSP_ARGS.
 // Backslashes are kept literal unless they escape a quote, another backslash, or
 // whitespace; this preserves Windows paths such as C:\Users\name\server.exe.
 export function parseLspArgs(raw: string): string[] {

@@ -25,6 +25,7 @@ describe('build script', () => {
 
       const env = { ...process.env };
       delete env.LAZYKIMICODE_POSTHOG_API_KEY;
+      delete env.OMO_KIMI_POSTHOG_API_KEY;
 
       const result = spawnSync(
         process.execPath,
@@ -34,7 +35,7 @@ describe('build script', () => {
 
       const output = `${result.stdout}\n${result.stderr}`;
       expect(output).toContain(
-        'Warning: LAZYKIMICODE_POSTHOG_API_KEY (or OMO_KIMI_POSTHOG_API_KEY fallback) not set. Telemetry will be skipped in this build.',
+        'Warning: LAZYKIMICODE_POSTHOG_API_KEY not set. Telemetry will be skipped in this build.',
       );
       expect(result.status).toBe(0);
 

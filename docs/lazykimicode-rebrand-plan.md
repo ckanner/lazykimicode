@@ -1,10 +1,14 @@
 # LazyKimiCode Rebrand & Finalization Plan
 
+> **Status:** Completed and superseded by `docs/lazykimicode-finalize-plan.md`.
+>
+> The original plan below described a rebrand that retained `OMO_*`/`OMO_KIMI_*` env vars as backward-compatible fallbacks. That fallback compatibility was subsequently removed; the current implementation uses only the `LAZYKIMICODE_*` namespace. This document is preserved as a historical record of the migration steps.
+>
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
 > **Note:** `docs/superpowers/` is gitignored for generated metadata, so this plan lives at `docs/lazykimicode-rebrand-plan.md` to remain tracked.
 
-**Goal:** Complete the migration from `OMO`/`OmO` branding to `LazyKimiCode`/`lazykimicode` across code, docs, configuration, and CI, while keeping legacy `OMO_*`/`OMO_KIMI_*` env vars as fallbacks. Fix stale limitation notes and align all documentation with the actual implementation.
+**Goal:** Complete the migration from `OMO`/`OmO` branding to `LazyKimiCode`/`lazykimicode` across code, docs, configuration, and CI. Fix stale limitation notes and align all documentation with the actual implementation.
 
 **Architecture:** A single source-of-truth module (`src/shared/env.ts`) owns environment-variable name resolution with backward-compatible fallbacks. All components import helpers from it instead of reading `process.env` directly. Docs, manifests, skills, and CI are updated to advertise the new `LAZYKIMICODE_*` names and branding.
 

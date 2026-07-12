@@ -2,63 +2,38 @@ import os from 'node:os';
 import path from 'node:path';
 
 /**
- * Read a lazykimicode environment variable.
+ * Read a LazyKimiCode environment variable.
  *
- * New code should use the `LAZYKIMICODE_*` namespace. The legacy `OMO_KIMI_*`
- * aliases are still accepted as fallbacks so existing user configurations keep
- * working during the rebrand transition.
+ * All harness configuration uses the `LAZYKIMICODE_*` namespace.
  */
 export function getEnv(name: string, fallback?: string): string | undefined {
-  const primary = process.env[`LAZYKIMICODE_${name}`];
-  if (primary !== undefined) return primary;
-  const legacy = process.env[`OMO_KIMI_${name}`];
-  if (legacy !== undefined) return legacy;
-  return fallback;
+  return process.env[`LAZYKIMICODE_${name}`] ?? fallback;
 }
 
 /** Read a boolean-ish env var; returns true only when the value is exactly '1' or 'true'. */
 export function getEnvBool(name: string): boolean {
-  const primary = process.env[`LAZYKIMICODE_${name}`];
-  if (primary !== undefined) {
-    return primary === '1' || primary.toLowerCase() === 'true';
-  }
-  const legacy = process.env[`OMO_KIMI_${name}`];
-  if (legacy !== undefined) {
-    return legacy === '1' || legacy.toLowerCase() === 'true';
-  }
-  return false;
+  const value = process.env[`LAZYKIMICODE_${name}`];
+  if (value === undefined) return false;
+  return value === '1' || value.toLowerCase() === 'true';
 }
 
-/** Legacy telemetry disable aliases. */
+/** Return true if anonymous telemetry should be disabled. */
 export function isTelemetryDisabled(): boolean {
-  const disabled =
-    process.env.LAZYKIMICODE_DISABLE_POSTHOG === '1' ||
-    process.env.LAZYKIMICODE_DISABLE_POSTHOG?.toLowerCase() === 'true' ||
-    process.env.OMO_KIMI_DISABLE_POSTHOG === '1' ||
-    process.env.OMO_KIMI_DISABLE_POSTHOG?.toLowerCase() === 'true' ||
-    process.env.OMO_DISABLE_POSTHOG === '1' ||
-    process.env.OMO_DISABLE_POSTHOG?.toLowerCase() === 'true';
-  if (disabled) return true;
+  const disabledValue = process.env.LAZYKIMICODE_DISABLE_POSTHOG;
+  if (disabledValue === '1' || disabledValue?.toLowerCase() === 'true') {
+    return true;
+  }
 
-  const telemetryVars = [
-    process.env.LAZYKIMICODE_SEND_ANONYMOUS_TELEMETRY,
-    process.env.OMO_KIMI_SEND_ANONYMOUS_TELEMETRY,
-    process.env.OMO_SEND_ANONYMOUS_TELEMETRY,
-  ];
-  for (const value of telemetryVars) {
-    if (value === undefined) continue;
-    if (['0', 'false', 'no'].includes(value.toLowerCase())) return true;
+  const telemetryValue = process.env.LAZYKIMICODE_SEND_ANONYMOUS_TELEMETRY;
+  if (telemetryValue !== undefined) {
+    return ['0', 'false', 'no'].includes(telemetryValue.toLowerCase());
   }
   return false;
 }
 
 /** Project directory override. */
 export function getProjectDir(): string {
-  return (
-    process.env.LAZYKIMICODE_PROJECT ??
-    process.env.OMO_KIMI_PROJECT ??
-    process.cwd()
-  );
+  return process.env.LAZYKIMICODE_PROJECT ?? process.cwd();
 }
 
 /** Kimi Code home directory override. */
@@ -81,20 +56,12 @@ export function getBinDir(): string {
 
 /** Team-mode state directory. */
 export function getTeamsDir(): string {
-  return (
-    process.env.LAZYKIMICODE_TEAMS_DIR ??
-    process.env.OMO_TEAMS_DIR ??
-    path.join(os.homedir(), '.omo', 'teams')
-  );
+  return process.env.LAZYKIMICODE_TEAMS_DIR ?? path.join(os.homedir(), '.omo', 'teams');
 }
 
 /** User configuration directory. `.omo` is kept as the shared harness convention. */
 export function getConfigDir(): string {
-  return (
-    process.env.LAZYKIMICODE_CONFIG_DIR ??
-    process.env.OMO_KIMI_CONFIG_DIR ??
-    path.join(os.homedir(), '.omo')
-  );
+  return process.env.LAZYKIMICODE_CONFIG_DIR ?? path.join(os.homedir(), '.omo');
 }
 
 /** Telemetry state file override. */

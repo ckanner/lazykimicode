@@ -4,7 +4,7 @@ import { getEnv, isTelemetryDisabled } from '../../shared/env.js';
 export const DEFAULT_POSTHOG_HOST = 'https://us.i.posthog.com';
 
 // Public project API key; safe to ship in client-side code.
-// Override via LAZYKIMICODE_POSTHOG_API_KEY env var (OMO_KIMI_POSTHOG_API_KEY fallback).
+// Override via LAZYKIMICODE_POSTHOG_API_KEY env var.
 export const DEFAULT_POSTHOG_API_KEY = 'phc_placeholder_replace_in_build';
 
 export interface CaptureOptions {
