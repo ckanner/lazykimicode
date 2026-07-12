@@ -82,8 +82,8 @@
     const disabled =
       process.env.LAZYKIMICODE_DISABLE_POSTHOG === '1' ||
       process.env.LAZYKIMICODE_DISABLE_POSTHOG?.toLowerCase() === 'true' ||
-      process.env.OMO_KIMI_DISABLE_POSTHOG === '1' ||
-      process.env.OMO_KIMI_DISABLE_POSTHOG?.toLowerCase() === 'true' ||
+      process.env.LAZYKIMICODE_DISABLE_POSTHOG === '1' ||
+      process.env.LAZYKIMICODE_DISABLE_POSTHOG?.toLowerCase() === 'true' ||
       process.env.OMO_DISABLE_POSTHOG === '1' ||
       process.env.OMO_DISABLE_POSTHOG?.toLowerCase() === 'true';
     if (disabled) return true;
@@ -101,13 +101,13 @@
   }
 
   export function getProjectDir(): string {
-    return process.env.LAZYKIMICODE_PROJECT ?? process.env.OMO_KIMI_PROJECT ?? process.cwd();
+    return process.env.LAZYKIMICODE_PROJECT ?? process.env.LAZYKIMICODE_PROJECT ?? process.cwd();
   }
 
   export function getTeamsDir(): string {
     return (
       process.env.LAZYKIMICODE_TEAMS_DIR ??
-      process.env.OMO_TEAMS_DIR ??
+      process.env.LAZYKIMICODE_TEAMS_DIR ??
       path.join(os.homedir(), '.omo', 'teams')
     );
   }
@@ -147,9 +147,9 @@
 - [ ] **Step 2: Add unit tests for the new helpers**
 
   Modify `tests/unit/shared/paths.test.ts` (or create `tests/unit/shared/env.test.ts`) to assert:
-  - `getEnv('LSP_COMMAND')` prefers `LAZYKIMICODE_LSP_COMMAND` over `OMO_KIMI_LSP_COMMAND`.
+  - `getEnv('LSP_COMMAND')` prefers `LAZYKIMICODE_LSP_COMMAND` over `LAZYKIMICODE_LSP_COMMAND`.
   - `isTelemetryDisabled()` returns `true` for `LAZYKIMICODE_DISABLE_POSTHOG=1` and for `OMO_DISABLE_POSTHOG=1`.
-  - `getProjectDir()` falls back through `OMO_KIMI_PROJECT` to `process.cwd()`.
+  - `getProjectDir()` falls back through `LAZYKIMICODE_PROJECT` to `process.cwd()`.
 
 - [ ] **Step 3: Run targeted tests**
 
@@ -181,16 +181,16 @@
 
   Mechanical replacements per file:
 
-  - `process.env.OMO_KIMI_PROJECT ?? process.cwd()` → `getProjectDir()`
-  - `process.env.OMO_TEAMS_DIR ?? ...` → `getTeamsDir()`
+  - `process.env.LAZYKIMICODE_PROJECT ?? process.cwd()` → `getProjectDir()`
+  - `process.env.LAZYKIMICODE_TEAMS_DIR ?? ...` → `getTeamsDir()`
   - `process.env.OMO_KIMI_CONFIG_DIR ?? ...` → `getConfigDir()`
   - `process.env.OMO_KIMI_VERSION ?? VERSION` → `getEnv('VERSION') ?? VERSION`
   - `process.env.OMO_KIMI_PLUGIN_CACHE ?? ''` → `getEnv('PLUGIN_CACHE') ?? ''`
   - `process.env.OMO_KIMI_BIN_DIR ?? ''` → `getEnv('BIN_DIR') ?? ''`
-  - `process.env.OMO_KIMI_LSP_COMMAND` → `getEnv('LSP_COMMAND')`
-  - `process.env.OMO_KIMI_LSP_ARGS` → `getEnv('LSP_ARGS')`
-  - `process.env.OMO_KIMI_POSTHOG_API_KEY` → `getEnv('POSTHOG_API_KEY')`
-  - `process.env.OMO_KIMI_POSTHOG_HOST` → `getEnv('POSTHOG_HOST')`
+  - `process.env.LAZYKIMICODE_LSP_COMMAND` → `getEnv('LSP_COMMAND')`
+  - `process.env.LAZYKIMICODE_LSP_ARGS` → `getEnv('LSP_ARGS')`
+  - `process.env.LAZYKIMICODE_POSTHOG_API_KEY` → `getEnv('POSTHOG_API_KEY')`
+  - `process.env.LAZYKIMICODE_POSTHOG_HOST` → `getEnv('POSTHOG_HOST')`
   - `process.env.OMO_KIMI_MIGRATION_STATE_DIR` → `getEnv('MIGRATION_STATE_DIR')`
   - `process.env.OMO_KIMI_SKIP_BOOTSTRAP === '1'` → `getEnvBool('SKIP_BOOTSTRAP')`
   - `process.env.OMO_KIMI_STATE_FILE` → `getStateFile()`
@@ -328,20 +328,20 @@
 - [ ] **Step 1: Replace env var names in tests**
 
   Mechanical replacements:
-  - `OMO_KIMI_DISABLE_POSTHOG` → `LAZYKIMICODE_DISABLE_POSTHOG`
+  - `LAZYKIMICODE_DISABLE_POSTHOG` → `LAZYKIMICODE_DISABLE_POSTHOG`
   - `OMO_KIMI_STATE_DIR` → `LAZYKIMICODE_STATE_DIR`
-  - `OMO_KIMI_PROJECT` → `LAZYKIMICODE_PROJECT`
+  - `LAZYKIMICODE_PROJECT` → `LAZYKIMICODE_PROJECT`
   - `OMO_KIMI_SKIP_BOOTSTRAP` → `LAZYKIMICODE_SKIP_BOOTSTRAP`
   - `OMO_KIMI_CONFIG_DIR` → `LAZYKIMICODE_CONFIG_DIR`
   - `OMO_KIMI_MIGRATION_STATE_DIR` → `LAZYKIMICODE_MIGRATION_STATE_DIR`
-  - `OMO_KIMI_POSTHOG_API_KEY` → `LAZYKIMICODE_POSTHOG_API_KEY`
-  - `OMO_KIMI_POSTHOG_HOST` → `LAZYKIMICODE_POSTHOG_HOST`
-  - `OMO_KIMI_LSP_COMMAND` → `LAZYKIMICODE_LSP_COMMAND`
-  - `OMO_KIMI_LSP_ARGS` → `LAZYKIMICODE_LSP_ARGS`
+  - `LAZYKIMICODE_POSTHOG_API_KEY` → `LAZYKIMICODE_POSTHOG_API_KEY`
+  - `LAZYKIMICODE_POSTHOG_HOST` → `LAZYKIMICODE_POSTHOG_HOST`
+  - `LAZYKIMICODE_LSP_COMMAND` → `LAZYKIMICODE_LSP_COMMAND`
+  - `LAZYKIMICODE_LSP_ARGS` → `LAZYKIMICODE_LSP_ARGS`
   - `OMO_KIMI_PLUGIN_CACHE` → `LAZYKIMICODE_PLUGIN_CACHE`
   - `OMO_KIMI_BIN_DIR` → `LAZYKIMICODE_BIN_DIR`
-  - `OMO_TEAMS_DIR` → `LAZYKIMICODE_TEAMS_DIR`
-  - `OMO_ULW_LOOP_STEER:` → `LAZYKIMICODE_ULW_LOOP_STEER:`
+  - `LAZYKIMICODE_TEAMS_DIR` → `LAZYKIMICODE_TEAMS_DIR`
+  - `LAZYKIMICODE_ULW_LOOP_STEER:` → `LAZYKIMICODE_ULW_LOOP_STEER:`
 
 - [ ] **Step 2: Update string assertions for new branding**
 
@@ -354,10 +354,10 @@
 
   ```typescript
   it('falls back to OMO_KIMI_* when LAZYKIMICODE_* is unset', () => {
-    process.env.OMO_KIMI_LSP_COMMAND = 'legacy-lsp';
+    process.env.LAZYKIMICODE_LSP_COMMAND = 'legacy-lsp';
     delete process.env.LAZYKIMICODE_LSP_COMMAND;
     expect(getEnv('LSP_COMMAND')).toBe('legacy-lsp');
-    delete process.env.OMO_KIMI_LSP_COMMAND;
+    delete process.env.LAZYKIMICODE_LSP_COMMAND;
   });
   ```
 
@@ -386,16 +386,16 @@
 - Modify: `tests/unit/scripts/build.test.ts`
 
 **Interfaces:**
-- Produces: release builds use `LAZYKIMICODE_POSTHOG_API_KEY` while still accepting `OMO_KIMI_POSTHOG_API_KEY` as a fallback
+- Produces: release builds use `LAZYKIMICODE_POSTHOG_API_KEY` while still accepting `LAZYKIMICODE_POSTHOG_API_KEY` as a fallback
 
 - [ ] **Step 1: Update build script**
 
   In `scripts/build.mjs`:
 
   ```javascript
-  const posthogKey = process.env.LAZYKIMICODE_POSTHOG_API_KEY ?? process.env.OMO_KIMI_POSTHOG_API_KEY;
+  const posthogKey = process.env.LAZYKIMICODE_POSTHOG_API_KEY ?? process.env.LAZYKIMICODE_POSTHOG_API_KEY;
   if (!posthogKey) {
-    console.warn('Warning: LAZYKIMICODE_POSTHOG_API_KEY (or OMO_KIMI_POSTHOG_API_KEY fallback) not set. Telemetry will be skipped in this build.');
+    console.warn('Warning: LAZYKIMICODE_POSTHOG_API_KEY (or LAZYKIMICODE_POSTHOG_API_KEY fallback) not set. Telemetry will be skipped in this build.');
   }
   ```
 
@@ -408,7 +408,7 @@
   ```yaml
       - name: Inject PostHog API key
         env:
-          LAZYKIMICODE_POSTHOG_API_KEY: ${{ secrets.LAZYKIMICODE_POSTHOG_API_KEY || secrets.OMO_KIMI_POSTHOG_API_KEY }}
+          LAZYKIMICODE_POSTHOG_API_KEY: ${{ secrets.LAZYKIMICODE_POSTHOG_API_KEY || secrets.LAZYKIMICODE_POSTHOG_API_KEY }}
         run: |
           if [ -z "$LAZYKIMICODE_POSTHOG_API_KEY" ]; then
             echo "::warning::LAZYKIMICODE_POSTHOG_API_KEY secret is not set. Telemetry will be skipped in the release build."
@@ -421,7 +421,7 @@
 
   `tests/unit/scripts/build.test.ts`:
   - Rename test title to reference `LAZYKIMICODE_POSTHOG_API_KEY`.
-  - Set `LAZYKIMICODE_POSTHOG_API_KEY` (and optionally assert fallback still works with `OMO_KIMI_POSTHOG_API_KEY`).
+  - Set `LAZYKIMICODE_POSTHOG_API_KEY` (and optionally assert fallback still works with `LAZYKIMICODE_POSTHOG_API_KEY`).
   - Update expected warning string.
 
 - [ ] **Step 4: Run build and build test**
@@ -454,18 +454,18 @@
 
   In `README.md`, `AGENTS.md`, and `docs/capabilities.md`:
 
-  - `OMO_KIMI_DISABLE_POSTHOG` → `LAZYKIMICODE_DISABLE_POSTHOG`
-  - `OMO_KIMI_POSTHOG_API_KEY` → `LAZYKIMICODE_POSTHOG_API_KEY`
-  - `OMO_KIMI_POSTHOG_HOST` → `LAZYKIMICODE_POSTHOG_HOST`
-  - `OMO_KIMI_LSP_COMMAND` → `LAZYKIMICODE_LSP_COMMAND`
-  - `OMO_KIMI_LSP_ARGS` → `LAZYKIMICODE_LSP_ARGS`
-  - `OMO_KIMI_PROJECT` → `LAZYKIMICODE_PROJECT`
-  - `OMO_TEAMS_DIR` → `LAZYKIMICODE_TEAMS_DIR`
-  - `OMO_ULW_LOOP_STEER:` → `LAZYKIMICODE_ULW_LOOP_STEER:`
+  - `LAZYKIMICODE_DISABLE_POSTHOG` → `LAZYKIMICODE_DISABLE_POSTHOG`
+  - `LAZYKIMICODE_POSTHOG_API_KEY` → `LAZYKIMICODE_POSTHOG_API_KEY`
+  - `LAZYKIMICODE_POSTHOG_HOST` → `LAZYKIMICODE_POSTHOG_HOST`
+  - `LAZYKIMICODE_LSP_COMMAND` → `LAZYKIMICODE_LSP_COMMAND`
+  - `LAZYKIMICODE_LSP_ARGS` → `LAZYKIMICODE_LSP_ARGS`
+  - `LAZYKIMICODE_PROJECT` → `LAZYKIMICODE_PROJECT`
+  - `LAZYKIMICODE_TEAMS_DIR` → `LAZYKIMICODE_TEAMS_DIR`
+  - `LAZYKIMICODE_ULW_LOOP_STEER:` → `LAZYKIMICODE_ULW_LOOP_STEER:`
 
 - [ ] **Step 2: Correct factual discrepancies**
 
-  - `README.md`: change "three built-in MCP servers" to "four built-in MCP servers" and list them.
+  - `README.md`: change "four built-in MCP servers" to "four built-in MCP servers" and list them.
   - `docs/superpowers/plans/lazykimicode-plan.md`: update the `package.json` snippet, plugin manifest snippet, cache path, hook generation note, and `--codex-home` reference. Add `rules` to the ported skills list. Replace `OmO` references with `LazyKimiCode` where appropriate.
 
 - [ ] **Step 3: Document the full env var surface**
@@ -523,8 +523,8 @@
   function rebrandSkill(content) {
     return content
       .replace(/## OMO Kimi K2\.7 Orchestration Calibration/g, '## LazyKimiCode K2.7 Orchestration Calibration')
-      .replace(/OMO_KIMI_LSP_COMMAND/g, 'LAZYKIMICODE_LSP_COMMAND')
-      .replace(/OMO_KIMI_LSP_ARGS/g, 'LAZYKIMICODE_LSP_ARGS')
+      .replace(/LAZYKIMICODE_LSP_COMMAND/g, 'LAZYKIMICODE_LSP_COMMAND')
+      .replace(/LAZYKIMICODE_LSP_ARGS/g, 'LAZYKIMICODE_LSP_ARGS')
       .replace(/OMO_SOURCE_ROOT/g, 'LAZYKIMICODE_SOURCE_ROOT')
       .replace(/OH_MY_KIMICODE_SOURCE_ROOT/g, 'LAZYKIMICODE_SOURCE_ROOT')
       .replace(/\bOmO\b/g, 'LazyKimiCode')
@@ -629,7 +629,7 @@
 - [ ] **Step 2: Audit remaining `OMO`/`OmO` references**
 
   ```bash
-  grep -R "OMO_KIMI_\|OMO_TEAMS_DIR\|OMO_ULW_LOOP_STEER\|OMO_DISABLE_POSTHOG\|OMO_SOURCE_ROOT\|\\bOmO\\b" --include="*.{ts,tsx,mjs,js,json,md}" src/ plugin/ scripts/ tests/ docs/ README.md AGENTS.md package.json .github/ || echo "no legacy references in source"
+  grep -R "OMO_KIMI_\|LAZYKIMICODE_TEAMS_DIR\|OMO_ULW_LOOP_STEER\|OMO_DISABLE_POSTHOG\|OMO_SOURCE_ROOT\|\\bOmO\\b" --include="*.{ts,tsx,mjs,js,json,md}" src/ plugin/ scripts/ tests/ docs/ README.md AGENTS.md package.json .github/ || echo "no legacy references in source"
   ```
 
   Expected exceptions:
@@ -654,7 +654,7 @@
   - LAZYKIMICODE_* env vars are now primary; OMO_KIMI_* / OMO_* remain fallbacks
   - All source env reads route through src/shared/env.ts
   - Rebranded hooks, plugin manifest, package metadata, docs, and skills
-  - CI prefers LAZYKIMICODE_POSTHOG_API_KEY with fallback to OMO_KIMI_POSTHOG_API_KEY
+  - CI prefers LAZYKIMICODE_POSTHOG_API_KEY with fallback to LAZYKIMICODE_POSTHOG_API_KEY
   - Removed stale limitation notes"
   git push origin main
   ```

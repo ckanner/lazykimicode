@@ -22,11 +22,24 @@ function copyDir(src, dst) {
   }
 }
 
+function rebrandSkillContent(content) {
+  return content
+    .replace(/## OMO Kimi K2\.7 Orchestration Calibration/g, '## LazyKimiCode K2.7 Orchestration Calibration')
+    .replace(/OMO_KIMI_LSP_COMMAND/g, 'LAZYKIMICODE_LSP_COMMAND')
+    .replace(/OMO_KIMI_LSP_ARGS/g, 'LAZYKIMICODE_LSP_ARGS')
+    .replace(/OMO_SOURCE_ROOT/g, 'LAZYKIMICODE_SOURCE_ROOT')
+    .replace(/OH_MY_KIMICODE_SOURCE_ROOT/g, 'LAZYKIMICODE_SOURCE_ROOT')
+    .replace(/Oh My KimiCode \(OmO harness\)/g, 'LazyKimiCode')
+    .replace(/Oh My KimiCode/g, 'LazyKimiCode')
+    .replace(/\bOmO\b/g, 'LazyKimiCode');
+}
+
 function rewriteSkillMd(content) {
   // Strip any legacy Codex compatibility section.
   content = content.replace(/## Codex Harness Tool Compatibility[\s\S]*?(?=\n## |\n*$)/, '');
   // Strip the LazyCodex-specific agent YAML references; Kimi does not load agent TOMLs from skills.
   content = content.replace(/agents\/openai\.yaml[\s\S]{0,200}?\n\n/, '\n');
+  content = rebrandSkillContent(content);
   const hasCompat = content.includes('## Kimi Code Harness Compatibility') ||
     content.includes('# Kimi Code Harness Compatibility');
   if (!hasCompat) {

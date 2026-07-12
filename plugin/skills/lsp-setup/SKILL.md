@@ -1,6 +1,6 @@
 ---
 name: lsp-setup
-description: "Configure a Language Server (LSP) for a specific language so lazykimicode diagnostics, go-to-definition, find-references, and rename work. Use when you need to: configure LSP, lsp setup, set up or install a language server, fix 'no LSP server configured' / 'server not installed', choose between servers (basedpyright vs pyright vs ty vs ruff), or wire OMO_KIMI_LSP_COMMAND / OMO_KIMI_LSP_ARGS. Routes by file extension to references/<language>/README.md for the exact builtin server, per-OS install commands (macOS/Linux/Windows), config snippets, initialization options, alternatives, and troubleshooting. Covers typescript, python, go, rust, c/c++, java, kotlin, c#/razor, swift, ruby, php, dart, elixir, zig, lua, bash, yaml, terraform, haskell, julia."
+description: "Configure a Language Server (LSP) for a specific language so lazykimicode diagnostics, go-to-definition, find-references, and rename work. Use when you need to: configure LSP, lsp setup, set up or install a language server, fix 'no LSP server configured' / 'server not installed', choose between servers (basedpyright vs pyright vs ty vs ruff), or wire LAZYKIMICODE_LSP_COMMAND / LAZYKIMICODE_LSP_ARGS. Routes by file extension to references/<language>/README.md for the exact builtin server, per-OS install commands (macOS/Linux/Windows), config snippets, initialization options, alternatives, and troubleshooting. Covers typescript, python, go, rust, c/c++, java, kotlin, c#/razor, swift, ruby, php, dart, elixir, zig, lua, bash, yaml, terraform, haskell, julia."
 type: prompt
 whenToUse: When setting up or troubleshooting LSP diagnostics for a project.
 ---
@@ -55,7 +55,14 @@ reference before installing or configuring anything**.
 Scan the project to see which languages are present and whether each server is
 installed and configured.
 
-Inspect manually:
+If `scripts/detect-lsp.ts` exists in this skill, run it:
+
+```bash
+bun scripts/detect-lsp.ts <projectDir>      # human report (default: cwd)
+bun scripts/detect-lsp.ts <projectDir> --json
+```
+
+Otherwise, inspect manually:
 
 ```bash
 # List language files in the project
@@ -90,27 +97,27 @@ override the project root, or point to a non-builtin server.
 
 Environment variables:
 
-- `OMO_KIMI_LSP_COMMAND` — the language server executable (e.g.
+- `LAZYKIMICODE_LSP_COMMAND` — the language server executable (e.g.
   `typescript-language-server`, `pyright-langserver`, `rust-analyzer`).
-- `OMO_KIMI_LSP_ARGS` — space-separated arguments passed to the executable
+- `LAZYKIMICODE_LSP_ARGS` — space-separated arguments passed to the executable
   (e.g. `--stdio` for servers that need it).
 
 Examples:
 
 ```bash
 # TypeScript / JavaScript
-export OMO_KIMI_LSP_COMMAND=typescript-language-server
-export OMO_KIMI_LSP_ARGS="--stdio"
+export LAZYKIMICODE_LSP_COMMAND=typescript-language-server
+export LAZYKIMICODE_LSP_ARGS="--stdio"
 
 # Python with pyright
-export OMO_KIMI_LSP_COMMAND=pyright-langserver
-export OMO_KIMI_LSP_ARGS="--stdio"
+export LAZYKIMICODE_LSP_COMMAND=pyright-langserver
+export LAZYKIMICODE_LSP_ARGS="--stdio"
 
 # Go
-export OMO_KIMI_LSP_COMMAND=gopls
+export LAZYKIMICODE_LSP_COMMAND=gopls
 
 # Rust
-export OMO_KIMI_LSP_COMMAND=rust-analyzer
+export LAZYKIMICODE_LSP_COMMAND=rust-analyzer
 ```
 
 If the project uses a per-project config file (`.omo/lsp.json` or
@@ -124,22 +131,38 @@ Each language reference gives a ready-to-paste snippet.
 Run a real diagnostics roundtrip against a source file. This spawns the server,
 opens the file, requests diagnostics, and reports `OK`/`FAIL`.
 
-Verify through the lazykimicode LSP MCP tools directly:
+If `scripts/verify-lsp.ts` exists in this skill, run it:
+
+```bash
+bun scripts/verify-lsp.ts <path/to/file.ext>
+bun scripts/verify-lsp.ts <file> --timeout=90000
+```
+
+Otherwise, verify through the lazykimicode LSP MCP tools directly:
 
 - Call `lsp_status` to check harness status.
 - Call `lsp_diagnostics` with `{"file": "<path/to/file.ext>"}` to request diagnostics for a file.
 
 `OK` = the server started and answered. `FAIL: language server not installed`
 = go back to step 2. Other `FAIL` text carries the server/startup error.
-`SKIP` = the engine source could not be located; check that `OMO_KIMI_LSP_COMMAND`
+`SKIP` = the engine source could not be located; check that `LAZYKIMICODE_LSP_COMMAND`
 is set and the binary is on `PATH`, then call the LSP tool again.
 
 ---
 
-## Notes
+## Scripts
 
-This skill does not ship helper scripts. Use the `Bash`, `Read`, and LSP MCP
-commands shown in each phase above.
+| Script | Purpose |
+|---|---|
+| `scripts/detect-lsp.ts` | Scan a directory; per detected language report server id, install status, install hint, config status. `--json` for machine output. |
+| `scripts/verify-lsp.ts` | Real LSP diagnostics roundtrip for one file; `OK`/`FAIL`/`SKIP` + exit code 0/1/3. |
+| `scripts/lsp-server-table.ts` | Embedded snapshot of the primary builtin server per language. |
+
+Run with [Bun](https://bun.sh): `curl -fsSL https://bun.sh/install | bash`.
+
+> These helper scripts are part of the LazyCodex original. The Kimi Code CLI
+> build of lazykimicode does **not** ship them; use the equivalent `Bash` and
+> LSP MCP tool commands shown above.
 
 ---
 

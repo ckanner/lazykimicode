@@ -22,11 +22,11 @@ Hooks are fail-open advisory components. They exit `0` when they only want to ad
 |---|---|---|---|
 | `SessionStart` | `bootstrap` | `^startup$` | Link managed binaries, seed agent profile cache, install `sg` (ast-grep) if missing |
 | `SessionStart` | `rules` | `.*` | Inject `AGENTS.md` and `.omo/rules/*.md` into context |
-| `SessionStart` | `telemetry` | `.*` | Daily-active telemetry (opt-out via `OMO_KIMI_DISABLE_POSTHOG=1`) |
+| `SessionStart` | `telemetry` | `.*` | Daily-active telemetry (opt-out via `LAZYKIMICODE_DISABLE_POSTHOG=1`) |
 | `SessionStart` | `codegraph` | `.*` | Ensure a CodeGraph index exists for the project |
 | `UserPromptSubmit` | `rules` | `.*` | Re-inject project rules for the current prompt |
 | `UserPromptSubmit` | `ultrawork` | `.*` | Detect `ultrawork`/`ulw` keywords and inject autonomous-mode instructions |
-| `UserPromptSubmit` | `ulw-loop` | `.*` | Parse `OMO_ULW_LOOP_STEER:` steering markers |
+| `UserPromptSubmit` | `ulw-loop` | `.*` | Parse `LAZYKIMICODE_ULW_LOOP_STEER:` steering markers |
 | `PreToolUse` | `git-bash` | `^Bash$` | Recommend the `git_bash` MCP over raw `Bash` (advises native Bash on non-Windows) |
 | `PreToolUse` | `ulw-loop` | `^CreateGoal$` | Deny budgeted `CreateGoal` calls in ulw-loop mode |
 | `PostToolUse` | `comment-checker` | `^(Write\|Edit)$` | Warn when unresolved TODO/FIXME/HACK/XXX/BUG markers are left in the file |
@@ -67,8 +67,8 @@ Indexed languages: TypeScript, JavaScript, Python, Go, Rust.
 Backed by the persistent `lsp-daemon` binary. Configure the LSP server with:
 
 ```bash
-export OMO_KIMI_LSP_COMMAND=typescript-language-server
-export OMO_KIMI_LSP_ARGS="--stdio"
+export LAZYKIMICODE_LSP_COMMAND=typescript-language-server
+export LAZYKIMICODE_LSP_ARGS="--stdio"
 ```
 
 | Tool | Input | Output | Purpose |
@@ -127,17 +127,27 @@ Invoke with `/skill:lazykimicode:<name>` (or `/skill:<name>` if unique).
 
 ## 4. Configuration
 
+`LAZYKIMICODE_*` is the primary environment variable namespace. The legacy `OMO_KIMI_*` and `OMO_*` names are still accepted as fallbacks so existing setups keep working.
+
 | Environment variable | Default | Purpose |
 |---|---|---|
-| `OMO_KIMI_DISABLE_POSTHOG` | unset | Set to `1` to disable telemetry |
-| `OMO_KIMI_POSTHOG_API_KEY` | placeholder | Real PostHog project API key |
-| `OMO_KIMI_POSTHOG_HOST` | `https://us.i.posthog.com` | PostHog host |
-| `OMO_KIMI_LSP_COMMAND` | unset | LSP server executable |
-| `OMO_KIMI_LSP_ARGS` | unset | Space-separated args for the LSP server |
-| `OMO_KIMI_PROJECT` | `process.cwd()` | Project directory |
+| `LAZYKIMICODE_DISABLE_POSTHOG` | unset | Set to `1` to disable telemetry |
+| `LAZYKIMICODE_POSTHOG_API_KEY` | placeholder | Real PostHog project API key |
+| `LAZYKIMICODE_POSTHOG_HOST` | `https://us.i.posthog.com` | PostHog host |
+| `LAZYKIMICODE_LSP_COMMAND` | unset | LSP server executable |
+| `LAZYKIMICODE_LSP_ARGS` | unset | Space-separated args for the LSP server |
+| `LAZYKIMICODE_PROJECT` | `process.cwd()` | Project directory |
+| `LAZYKIMICODE_TEAMS_DIR` | `~/.omo/teams` | Team mode state directory |
+| `LAZYKIMICODE_CONFIG_DIR` | `~/.omo` | User configuration directory |
+| `LAZYKIMICODE_STATE_DIR` | `~/.local/share/lazykimicode` | Telemetry state directory |
+| `LAZYKIMICODE_STATE_FILE` | unset | Explicit telemetry state file |
+| `LAZYKIMICODE_PLUGIN_CACHE` | unset | Override plugin cache path used by bootstrap |
+| `LAZYKIMICODE_BIN_DIR` | `~/.local/bin` or `<KIMI_CODE_HOME>/bin` | Managed binary directory |
+| `LAZYKIMICODE_VERSION` | `package.json` version | Override reported version |
+| `LAZYKIMICODE_SKIP_BOOTSTRAP` | unset | Set to `1` to skip first bootstrap |
+| `LAZYKIMICODE_MIGRATION_STATE_DIR` | `~/.local/share/lazykimicode` | Installer migration state directory |
 | `KIMI_CODE_HOME` | `~/.kimi-code` | Kimi Code home directory |
 | `KIMI_LOCAL_BIN_DIR` | `~/.local/bin` | Directory for managed binary symlinks |
-| `OMO_TEAMS_DIR` | `~/.omo/teams` | Team mode state directory |
 
 ---
 
@@ -205,4 +215,4 @@ The full verification command used in CI and development:
 pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build
 ```
 
-Latest result: **40 test files, 257 tests passing**.
+Latest result: **41 test files, 268 tests passing**.

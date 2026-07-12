@@ -6,7 +6,7 @@ This repo builds a Kimi Code CLI plugin plus a Node installer.
 
 - `src/components/<name>/` — hook handler source code
 - `src/install/` — installer and config patcher
-- `src/shared/` — types, paths, serialization, telemetry
+- `src/shared/` — types, paths, serialization, telemetry, env var helpers (`src/shared/env.ts`)
 - `src/cli/` — CLI entry
 - `plugin/` — built plugin assets (manifest, skills, hooks, component dist)
 - `scripts/` — build and sync scripts
@@ -33,12 +33,12 @@ pnpm run build
 | `rules` | `SessionStart`, `UserPromptSubmit`, `PostToolUse`, `PostCompact` | Load `AGENTS.md` and `.omo/rules/*.md` into context |
 | `start-work-continuation` | `Stop`, `SubagentStop` | Block stop and provide resume guidance while `.omo/boulder.json` has unchecked tasks |
 | `teammode` | Skill-driven | Parallel multi-agent state script (`init`, `add-member`, `member-prompt`, `set-status`, `worktree-add`, `worktree-remove`, `integrate`, `archive`, `delete`, `status`) |
-| `telemetry` | `SessionStart` | Anonymous daily-active telemetry (opt-out via `OMO_KIMI_DISABLE_POSTHOG=1`) |
+| `telemetry` | `SessionStart` | Anonymous daily-active telemetry (opt-out via `LAZYKIMICODE_DISABLE_POSTHOG=1`) |
 | `ultrawork` | `UserPromptSubmit` | Detect `ultrawork`/`ulw` keywords and trigger autonomous mode |
 | `ulw-loop` | `UserPromptSubmit`, `PreToolUse` | Steering parser; guard against budgeted `CreateGoal` |
 
 Release builds inject the PostHog API key via CI. Local/debug builds without
-`OMO_KIMI_POSTHOG_API_KEY` will skip telemetry with a build-time warning.
+`LAZYKIMICODE_POSTHOG_API_KEY` will skip telemetry with a build-time warning.
 
 ## Test
 
@@ -46,7 +46,7 @@ Release builds inject the PostHog API key via CI. Local/debug builds without
 pnpm test
 ```
 
-Latest result: **40 test files, 257 tests passing**.
+Latest result: **41 test files, 268 tests passing**.
 
 ## Adding a new component
 

@@ -36,22 +36,22 @@ Reference: [Hooks | Kimi Code CLI Docs](https://moonshotai.github.io/kimi-code/e
 
 | File | Current reads | Required helper |
 |---|---|---|
-| `src/components/bootstrap/session-start.ts` | `OMO_KIMI_VERSION`, `OMO_KIMI_PLUGIN_CACHE`, `OMO_KIMI_BIN_DIR`, `OMO_KIMI_PROJECT` | `getEnv`, `getProjectDir` |
-| `src/components/codegraph/bootstrap.ts` | `OMO_KIMI_PROJECT` | `getProjectDir` |
-| `src/components/codegraph/serve.mjs` | `OMO_KIMI_PROJECT` | `getProjectDir` |
-| `src/components/lsp/cli.ts` | `OMO_KIMI_PROJECT`, `OMO_KIMI_LSP_COMMAND`, `OMO_KIMI_LSP_ARGS` | `getEnv`, `getProjectDir` |
-| `src/components/lsp/daemon.ts` | `OMO_KIMI_PROJECT`, `OMO_KIMI_LSP_COMMAND`, `OMO_KIMI_LSP_ARGS` | `getEnv`, `getProjectDir` |
-| `src/components/lsp/diagnostics.ts` | `OMO_KIMI_PROJECT` | `getProjectDir` |
-| `src/components/lsp/mcp-server.ts` | `OMO_KIMI_PROJECT`, `OMO_KIMI_LSP_COMMAND`, `OMO_KIMI_LSP_ARGS` | `getEnv`, `getProjectDir` |
-| `src/components/rules/cli.ts` | `OMO_KIMI_PROJECT` | `getProjectDir` |
-| `src/components/start-work-continuation/boulder.ts` | `OMO_KIMI_PROJECT` | `getProjectDir` |
-| `src/components/teammode/scripts/team.ts` | `OMO_TEAMS_DIR` | `getTeamsDir` |
-| `src/components/telemetry/posthog.ts` | `OMO_KIMI_DISABLE_POSTHOG`, `OMO_DISABLE_POSTHOG`, `OMO_KIMI_POSTHOG_API_KEY`, `OMO_KIMI_POSTHOG_HOST`, `OMO_KIMI_VERSION` | `isTelemetryDisabled`, `getEnv` |
-| `src/components/ulw-loop/steer.ts` | `OMO_ULW_LOOP_STEER:` marker | dual-marker parser |
+| `src/components/bootstrap/session-start.ts` | `OMO_KIMI_VERSION`, `OMO_KIMI_PLUGIN_CACHE`, `OMO_KIMI_BIN_DIR`, `LAZYKIMICODE_PROJECT` | `getEnv`, `getProjectDir` |
+| `src/components/codegraph/bootstrap.ts` | `LAZYKIMICODE_PROJECT` | `getProjectDir` |
+| `src/components/codegraph/serve.mjs` | `LAZYKIMICODE_PROJECT` | `getProjectDir` |
+| `src/components/lsp/cli.ts` | `LAZYKIMICODE_PROJECT`, `LAZYKIMICODE_LSP_COMMAND`, `LAZYKIMICODE_LSP_ARGS` | `getEnv`, `getProjectDir` |
+| `src/components/lsp/daemon.ts` | `LAZYKIMICODE_PROJECT`, `LAZYKIMICODE_LSP_COMMAND`, `LAZYKIMICODE_LSP_ARGS` | `getEnv`, `getProjectDir` |
+| `src/components/lsp/diagnostics.ts` | `LAZYKIMICODE_PROJECT` | `getProjectDir` |
+| `src/components/lsp/mcp-server.ts` | `LAZYKIMICODE_PROJECT`, `LAZYKIMICODE_LSP_COMMAND`, `LAZYKIMICODE_LSP_ARGS` | `getEnv`, `getProjectDir` |
+| `src/components/rules/cli.ts` | `LAZYKIMICODE_PROJECT` | `getProjectDir` |
+| `src/components/start-work-continuation/boulder.ts` | `LAZYKIMICODE_PROJECT` | `getProjectDir` |
+| `src/components/teammode/scripts/team.ts` | `LAZYKIMICODE_TEAMS_DIR` | `getTeamsDir` |
+| `src/components/telemetry/posthog.ts` | `LAZYKIMICODE_DISABLE_POSTHOG`, `OMO_DISABLE_POSTHOG`, `LAZYKIMICODE_POSTHOG_API_KEY`, `LAZYKIMICODE_POSTHOG_HOST`, `OMO_KIMI_VERSION` | `isTelemetryDisabled`, `getEnv` |
+| `src/components/ulw-loop/steer.ts` | `LAZYKIMICODE_ULW_LOOP_STEER:` marker | dual-marker parser |
 | `src/install/doctor.ts` | `OMO_KIMI_VERSION` | `getEnv` |
-| `src/install/install-kimi.ts` | `OMO_KIMI_DISABLE_POSTHOG`, `OMO_KIMI_MIGRATION_STATE_DIR`, `OMO_KIMI_SKIP_BOOTSTRAP`, `OMO_KIMI_PLUGIN_CACHE`, `OMO_KIMI_VERSION` | `isTelemetryDisabled`, `getEnv`, `getEnvBool` |
-| `src/shared/paths.ts` | `OMO_KIMI_PROJECT`, `OMO_KIMI_VERSION`, `OMO_KIMI_CONFIG_DIR` | `getEnv`, `getProjectDir`, `getConfigDir` |
-| `src/shared/telemetry.ts` | `OMO_KIMI_STATE_FILE`, `OMO_KIMI_STATE_DIR`, `OMO_KIMI_DISABLE_POSTHOG`, `OMO_DISABLE_POSTHOG`, `OMO_KIMI_SEND_ANONYMOUS_TELEMETRY`, `OMO_SEND_ANONYMOUS_TELEMETRY` | `getEnv`, `isTelemetryDisabled` |
+| `src/install/install-kimi.ts` | `LAZYKIMICODE_DISABLE_POSTHOG`, `OMO_KIMI_MIGRATION_STATE_DIR`, `OMO_KIMI_SKIP_BOOTSTRAP`, `OMO_KIMI_PLUGIN_CACHE`, `OMO_KIMI_VERSION` | `isTelemetryDisabled`, `getEnv`, `getEnvBool` |
+| `src/shared/paths.ts` | `LAZYKIMICODE_PROJECT`, `OMO_KIMI_VERSION`, `OMO_KIMI_CONFIG_DIR` | `getEnv`, `getProjectDir`, `getConfigDir` |
+| `src/shared/telemetry.ts` | `OMO_KIMI_STATE_FILE`, `OMO_KIMI_STATE_DIR`, `LAZYKIMICODE_DISABLE_POSTHOG`, `OMO_DISABLE_POSTHOG`, `OMO_KIMI_SEND_ANONYMOUS_TELEMETRY`, `OMO_SEND_ANONYMOUS_TELEMETRY` | `getEnv`, `isTelemetryDisabled` |
 
 ### 2.2 Display strings containing `OmO`
 
@@ -61,8 +61,8 @@ All `src/components/*/hooks.json` files use `"(OmO) ..."` in `statusMessage`. Th
 
 ### 2.3 Plugin / package metadata
 
-- `plugin/kimi.plugin.json`: `"description": "OmO agent harness for Kimi Code CLI"`, `"omo"` keyword, `"skillInstructions"` contains `(OmO for Kimi Code)`, `"shortDescription": "OmO agent harness for Kimi Code CLI"`.
-- `package.json`: `"description": "OmO agent harness for Kimi Code CLI"`, `"omo"` keyword.
+- `plugin/kimi.plugin.json`: `"description": "LazyKimiCode agent harness for Kimi Code CLI"`, `"omo"` keyword, `"skillInstructions"` contains ``, `"shortDescription": "LazyKimiCode agent harness for Kimi Code CLI"`.
+- `package.json`: `"description": "LazyKimiCode agent harness for Kimi Code CLI"`, `"omo"` keyword.
 
 ### 2.4 Documentation
 
@@ -71,14 +71,14 @@ All `src/components/*/hooks.json` files use `"(OmO) ..."` in `statusMessage`. Th
 ### 2.5 Skills
 
 - Every `plugin/skills/*/SKILL.md` starts with `## OMO Kimi K2.7 Orchestration Calibration`.
-- `plugin/skills/lsp-setup/SKILL.md` documents `OMO_KIMI_LSP_COMMAND`/`OMO_KIMI_LSP_ARGS`.
+- `plugin/skills/lsp-setup/SKILL.md` documents `LAZYKIMICODE_LSP_COMMAND`/`LAZYKIMICODE_LSP_ARGS`.
 - `plugin/skills/lcx-report-bug/SKILL.md` uses `OMO_SOURCE_ROOT` in its bash snippets.
 - `vendor/shared-skills/` contains the same upstream text; it should remain untouched. The rebrand should be applied by `scripts/sync-skills.mjs` when copying skills into `plugin/skills/`.
 
 ### 2.6 CI / build script
 
-- `.github/workflows/release.yml` uses `secrets.OMO_KIMI_POSTHOG_API_KEY`.
-- `scripts/build.mjs` warns about `OMO_KIMI_POSTHOG_API_KEY`.
+- `.github/workflows/release.yml` uses `secrets.LAZYKIMICODE_POSTHOG_API_KEY`.
+- `scripts/build.mjs` warns about `LAZYKIMICODE_POSTHOG_API_KEY`.
 
 ### 2.7 Tests
 

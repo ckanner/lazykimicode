@@ -1,6 +1,6 @@
 # lazykimicode
 
-OmO agent harness for [Kimi Code CLI](https://moonshotai.github.io/kimi-code/).
+LazyKimiCode agent harness for [Kimi Code CLI](https://moonshotai.github.io/kimi-code/).
 
 This is the Kimi Code CLI edition of [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent), analogous to how [LazyCodex](https://github.com/code-yeongyu/lazycodex) is the OpenAI Codex CLI edition.
 
@@ -64,7 +64,7 @@ Once installed, `lazykimicode` hooks run on Kimi events without any manual setup
 | Event | Component | Behavior |
 |---|---|---|
 | `SessionStart` | `bootstrap`, `rules`, `telemetry`, `codegraph` | Provision binaries, load rules, emit daily-active telemetry, ensure codegraph index |
-| `UserPromptSubmit` | `rules`, `ultrawork`, `ulw-loop` | Inject project rules; detect `ultrawork`/`ulw`; parse `OMO_ULW_LOOP_STEER:` |
+| `UserPromptSubmit` | `rules`, `ultrawork`, `ulw-loop` | Inject project rules; detect `ultrawork`/`ulw`; parse `LAZYKIMICODE_ULW_LOOP_STEER:` |
 | `PreToolUse` | `git-bash`, `ulw-loop` | Recommend `git_bash` on Windows; deny budgeted `CreateGoal` |
 | `PostToolUse` | `comment-checker`, `lsp`, `rules`, `codegraph` | Check for stale TODO/FIXME after Write/Edit; run LSP diagnostics; reload rules; guide codegraph usage |
 | `PostCompact` | `rules`, `lsp`, `git-bash` | Reset caches after context compaction |
@@ -73,7 +73,7 @@ Once installed, `lazykimicode` hooks run on Kimi events without any manual setup
 
 ### MCP servers
 
-The plugin exposes three built-in MCP servers:
+The plugin exposes four built-in MCP servers:
 
 - **`codegraph`** — structural code search and impact analysis
   - `codegraph_search`
@@ -101,8 +101,8 @@ The plugin exposes three built-in MCP servers:
 Configure your LSP server via environment variables:
 
 ```bash
-export OMO_KIMI_LSP_COMMAND=typescript-language-server
-export OMO_KIMI_LSP_ARGS="--stdio"
+export LAZYKIMICODE_LSP_COMMAND=typescript-language-server
+export LAZYKIMICODE_LSP_ARGS="--stdio"
 ```
 
 The `git_bash` MCP is declared globally in `plugin/kimi.plugin.json`; on Windows it executes commands through Git Bash, and on other platforms it advises using the native Bash tool.
@@ -132,20 +132,27 @@ If the skill name is unique, `/skill:<skill-name>` also works.
 
 ## Configuration
 
+`LAZYKIMICODE_*` is the primary environment variable namespace. The legacy `OMO_KIMI_*` and `OMO_*` names are still accepted as fallbacks so existing setups keep working.
+
 | Environment variable | Purpose |
 |---|---|
-| `OMO_KIMI_DISABLE_POSTHOG=1` | Disable anonymous telemetry |
-| `OMO_KIMI_POSTHOG_API_KEY` | Use a real PostHog key instead of the placeholder |
-| `OMO_KIMI_POSTHOG_HOST` | PostHog host (default `https://us.i.posthog.com`) |
-| `OMO_KIMI_LSP_COMMAND` | LSP server executable |
-| `OMO_KIMI_LSP_ARGS` | Space-separated args for the LSP server |
-| `OMO_KIMI_PROJECT` | Override project directory |
+| `LAZYKIMICODE_DISABLE_POSTHOG=1` | Disable anonymous telemetry |
+| `LAZYKIMICODE_POSTHOG_API_KEY` | Use a real PostHog key instead of the placeholder |
+| `LAZYKIMICODE_POSTHOG_HOST` | PostHog host (default `https://us.i.posthog.com`) |
+| `LAZYKIMICODE_LSP_COMMAND` | LSP server executable |
+| `LAZYKIMICODE_LSP_ARGS` | Space-separated args for the LSP server |
+| `LAZYKIMICODE_PROJECT` | Override project directory |
+| `LAZYKIMICODE_TEAMS_DIR` | Override team-mode state directory (default `~/.omo/teams`) |
+| `LAZYKIMICODE_CONFIG_DIR` | User configuration directory (default `~/.omo`) |
+| `LAZYKIMICODE_STATE_DIR` | Telemetry state directory |
+| `LAZYKIMICODE_BIN_DIR` | Managed binary directory |
+| `LAZYKIMICODE_VERSION` | Override reported version |
+| `LAZYKIMICODE_SKIP_BOOTSTRAP` | Set to `1` to skip first bootstrap |
 | `KIMI_CODE_HOME` | Override Kimi Code home (default `~/.kimi-code`) |
 | `KIMI_LOCAL_BIN_DIR` | Override bin directory for managed binaries |
-| `OMO_TEAMS_DIR` | Override team-mode state directory (default `~/.omo/teams`) |
 
 Release builds inject the PostHog API key via CI. Local/debug builds without
-`OMO_KIMI_POSTHOG_API_KEY` will skip telemetry with a build-time warning.
+`LAZYKIMICODE_POSTHOG_API_KEY` will skip telemetry with a build-time warning.
 
 ---
 
@@ -180,7 +187,7 @@ pnpm run sync:skills
 pnpm run sync:hooks
 ```
 
-Latest full-suite result: **40 test files, 257 tests passing**.
+Latest full-suite result: **41 test files, 268 tests passing**.
 
 ---
 
@@ -188,7 +195,7 @@ Latest full-suite result: **40 test files, 257 tests passing**.
 
 - Run `npx lazykimicode doctor` to check the local installation.
 - If a skill references a tool that seems missing, make sure the plugin is enabled (`/plugins info lazykimicode`) and that `pnpm run build` produced `plugin/components/*/dist/*.mjs`.
-- For LSP issues, verify `OMO_KIMI_LSP_COMMAND` points to a working stdio LSP server.
+- For LSP issues, verify `LAZYKIMICODE_LSP_COMMAND` points to a working stdio LSP server.
 
 ---
 
