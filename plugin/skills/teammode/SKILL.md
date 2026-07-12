@@ -86,6 +86,9 @@ A bundled, dependency-free Node script owns all team state so you never author `
 or the member manual by hand. Run it with `node` (or `bun`); it works on macOS, Linux, and
 Windows. From the repository root, use `plugin/components/teammode/scripts/team.mjs`.
 
+> **Build note:** `plugin/components/teammode/scripts/team.mjs` is produced by `pnpm run build`.
+> For development, edit the source TypeScript at `src/components/teammode/scripts/team.ts`.
+
 ```
 node plugin/components/teammode/scripts/team.mjs init        --name "<team>" --session-name "<session>" --shape swarm|pipeline [--session <leader_thread_id>] [--worktree] [--base-branch dev]
 node plugin/components/teammode/scripts/team.mjs add-member  --team <session_id> --id A --name "<short role>" --focus "<part/ownership/perspective>" --lens area|ownership|perspective --deliverable "<...>" [--branch <branch>]

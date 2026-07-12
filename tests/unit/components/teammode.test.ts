@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
@@ -38,6 +38,16 @@ describe('teammode', () => {
     delete process.env.OMO_TEAMS_DIR;
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
+
+  function withCwd<T>(dir: string, fn: () => T): T {
+    const previous = process.cwd();
+    process.chdir(dir);
+    try {
+      return fn();
+    } finally {
+      process.chdir(previous);
+    }
+  }
 
   it('initializes a team', () => {
     init(sessionId);
@@ -172,35 +182,36 @@ describe('teammode', () => {
   it('worktree-add creates worktree path', () => {
     const repoDir = path.join(tmpDir, 'repo');
     fs.mkdirSync(repoDir, { recursive: true });
-    process.chdir(repoDir);
-    execSync('git init', { stdio: 'ignore' });
-    execSync('git config init.defaultBranch main');
-    execSync('git config user.email "test@test.com"');
-    execSync('git config user.name "Test"');
-    execSync('git checkout -b main');
-    fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
-    execSync('git add README.md');
-    execSync('git commit -m "initial"');
-    execSync('git checkout -b dev');
+    withCwd(repoDir, () => {
+      execSync('git init', { stdio: 'ignore' });
+      execSync('git config init.defaultBranch main');
+      execSync('git config user.email "test@test.com"');
+      execSync('git config user.name "Test"');
+      execSync('git checkout -b main');
+      fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
+      execSync('git add README.md');
+      execSync('git commit -m "initial"');
+      execSync('git checkout -b dev');
 
-    initTeam({ sessionName: sessionId, name: 'My Team', shape: 'swarm', baseBranch: 'dev' });
-    addMemberFull({
-      team: sessionId,
-      id: 'A',
-      name: 'Alice',
-      focus: 'auth',
-      lens: 'ownership',
-      deliverable: 'Secure login flow',
+      initTeam({ sessionName: sessionId, name: 'My Team', shape: 'swarm', baseBranch: 'dev' });
+      addMemberFull({
+        team: sessionId,
+        id: 'A',
+        name: 'Alice',
+        focus: 'auth',
+        lens: 'ownership',
+        deliverable: 'Secure login flow',
+      });
+
+      worktreeAdd(sessionId, 'A');
+
+      const team = JSON.parse(fs.readFileSync(path.join(tmpDir, sessionId, 'team.json'), 'utf-8'));
+      const member = team.members[0];
+      expect(member.worktreePath).toBeTruthy();
+      expect(fs.existsSync(member.worktreePath)).toBe(true);
+      expect(member.branch).toBe('A/dev');
+      expect(team.worktreeMode).toBe(true);
     });
-
-    worktreeAdd(sessionId, 'A');
-
-    const team = JSON.parse(fs.readFileSync(path.join(tmpDir, sessionId, 'team.json'), 'utf-8'));
-    const member = team.members[0];
-    expect(member.worktreePath).toBeTruthy();
-    expect(fs.existsSync(member.worktreePath)).toBe(true);
-    expect(member.branch).toBe('A/dev');
-    expect(team.worktreeMode).toBe(true);
   });
 
   it('archives a team', () => {
@@ -267,10 +278,9 @@ describe('teammode', () => {
   it('status prints formatted team json', () => {
     initTeam({ sessionName: sessionId, name: 'My Team', shape: 'swarm' });
     const logs: string[] = [];
-    const originalLog = console.log;
-    console.log = (msg: string) => logs.push(msg);
+    const logSpy = vi.spyOn(console, 'log').mockImplementation((msg: string) => logs.push(msg));
     status(sessionId);
-    console.log = originalLog;
+    logSpy.mockRestore();
     const parsed = JSON.parse(logs[0]);
     expect(parsed.name).toBe('My Team');
     expect(parsed.shape).toBe('swarm');
@@ -284,68 +294,70 @@ describe('teammode', () => {
     it('removes worktree, clears branch, and archives member', () => {
       const repoDir = path.join(tmpDir, 'repo');
       fs.mkdirSync(repoDir, { recursive: true });
-      process.chdir(repoDir);
-      execSync('git init', { stdio: 'ignore' });
-      execSync('git config init.defaultBranch main');
-      execSync('git config user.email "test@test.com"');
-      execSync('git config user.name "Test"');
-      execSync('git checkout -b main');
-      fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
-      execSync('git add README.md');
-      execSync('git commit -m "initial"');
+      withCwd(repoDir, () => {
+        execSync('git init', { stdio: 'ignore' });
+        execSync('git config init.defaultBranch main');
+        execSync('git config user.email "test@test.com"');
+        execSync('git config user.name "Test"');
+        execSync('git checkout -b main');
+        fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
+        execSync('git add README.md');
+        execSync('git commit -m "initial"');
 
-      initTeam({ sessionName: sessionId, name: 'My Team', shape: 'swarm' });
-      addMemberFull({
-        team: sessionId,
-        id: 'A',
-        name: 'Alice',
-        focus: 'auth',
-        lens: 'ownership',
-        deliverable: 'Secure login flow',
+        initTeam({ sessionName: sessionId, name: 'My Team', shape: 'swarm' });
+        addMemberFull({
+          team: sessionId,
+          id: 'A',
+          name: 'Alice',
+          focus: 'auth',
+          lens: 'ownership',
+          deliverable: 'Secure login flow',
+        });
+        worktreeAdd(sessionId, 'A');
+
+        let team = JSON.parse(fs.readFileSync(path.join(tmpDir, sessionId, 'team.json'), 'utf-8'));
+        const worktreePath = team.members[0].worktreePath;
+        expect(fs.existsSync(worktreePath)).toBe(true);
+
+        worktreeRemove(sessionId, 'A');
+
+        expect(fs.existsSync(worktreePath)).toBe(false);
+        team = JSON.parse(fs.readFileSync(path.join(tmpDir, sessionId, 'team.json'), 'utf-8'));
+        expect(team.members[0].worktreePath).toBe('');
+        expect(team.members[0].branch).toBe('');
+        expect(team.members[0].status).toBe('archived');
+        expect(team.members[0].statusNote).toBe('worktree removed');
       });
-      worktreeAdd(sessionId, 'A');
-
-      let team = JSON.parse(fs.readFileSync(path.join(tmpDir, sessionId, 'team.json'), 'utf-8'));
-      const worktreePath = team.members[0].worktreePath;
-      expect(fs.existsSync(worktreePath)).toBe(true);
-
-      worktreeRemove(sessionId, 'A');
-
-      expect(fs.existsSync(worktreePath)).toBe(false);
-      team = JSON.parse(fs.readFileSync(path.join(tmpDir, sessionId, 'team.json'), 'utf-8'));
-      expect(team.members[0].worktreePath).toBe('');
-      expect(team.members[0].branch).toBe('');
-      expect(team.members[0].status).toBe('archived');
-      expect(team.members[0].statusNote).toBe('worktree removed');
     });
 
     it('deletes branch when deleteBranch is true', () => {
       const repoDir = path.join(tmpDir, 'repo');
       fs.mkdirSync(repoDir, { recursive: true });
-      process.chdir(repoDir);
-      execSync('git init', { stdio: 'ignore' });
-      execSync('git config init.defaultBranch main');
-      execSync('git config user.email "test@test.com"');
-      execSync('git config user.name "Test"');
-      execSync('git checkout -b main');
-      fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
-      execSync('git add README.md');
-      execSync('git commit -m "initial"');
+      withCwd(repoDir, () => {
+        execSync('git init', { stdio: 'ignore' });
+        execSync('git config init.defaultBranch main');
+        execSync('git config user.email "test@test.com"');
+        execSync('git config user.name "Test"');
+        execSync('git checkout -b main');
+        fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
+        execSync('git add README.md');
+        execSync('git commit -m "initial"');
 
-      initTeam({ sessionName: sessionId, name: 'My Team', shape: 'swarm' });
-      addMemberFull({
-        team: sessionId,
-        id: 'A',
-        name: 'Alice',
-        focus: 'auth',
-        lens: 'ownership',
-        deliverable: 'Secure login flow',
+        initTeam({ sessionName: sessionId, name: 'My Team', shape: 'swarm' });
+        addMemberFull({
+          team: sessionId,
+          id: 'A',
+          name: 'Alice',
+          focus: 'auth',
+          lens: 'ownership',
+          deliverable: 'Secure login flow',
+        });
+        worktreeAdd(sessionId, 'A');
+        worktreeRemove(sessionId, 'A', false, true);
+
+        const branches = execSync('git branch --list', { cwd: repoDir, encoding: 'utf-8' });
+        expect(branches).not.toContain('A/main');
       });
-      worktreeAdd(sessionId, 'A');
-      worktreeRemove(sessionId, 'A', false, true);
-
-      const branches = execSync('git branch --list', { cwd: repoDir, encoding: 'utf-8' });
-      expect(branches).not.toContain('A/main');
     });
 
     it('throws when member has no worktree', () => {
@@ -366,39 +378,40 @@ describe('teammode', () => {
     it('merges member branch into base branch and updates status', () => {
       const repoDir = path.join(tmpDir, 'repo');
       fs.mkdirSync(repoDir, { recursive: true });
-      process.chdir(repoDir);
-      execSync('git init', { stdio: 'ignore' });
-      execSync('git config init.defaultBranch main');
-      execSync('git config user.email "test@test.com"');
-      execSync('git config user.name "Test"');
-      execSync('git checkout -b main');
-      fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
-      execSync('git add README.md');
-      execSync('git commit -m "initial"');
+      withCwd(repoDir, () => {
+        execSync('git init', { stdio: 'ignore' });
+        execSync('git config init.defaultBranch main');
+        execSync('git config user.email "test@test.com"');
+        execSync('git config user.name "Test"');
+        execSync('git checkout -b main');
+        fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
+        execSync('git add README.md');
+        execSync('git commit -m "initial"');
 
-      initTeam({ sessionName: sessionId, name: 'My Team', shape: 'swarm' });
-      addMemberFull({
-        team: sessionId,
-        id: 'A',
-        name: 'Alice',
-        focus: 'auth',
-        lens: 'ownership',
-        deliverable: 'Secure login flow',
+        initTeam({ sessionName: sessionId, name: 'My Team', shape: 'swarm' });
+        addMemberFull({
+          team: sessionId,
+          id: 'A',
+          name: 'Alice',
+          focus: 'auth',
+          lens: 'ownership',
+          deliverable: 'Secure login flow',
+        });
+        worktreeAdd(sessionId, 'A');
+
+        const team = JSON.parse(fs.readFileSync(path.join(tmpDir, sessionId, 'team.json'), 'utf-8'));
+        const worktreePath = team.members[0].worktreePath;
+        fs.writeFileSync(path.join(worktreePath, 'feature.md'), '# feature');
+        execSync('git add feature.md', { cwd: worktreePath });
+        execSync('git commit -m "feature"', { cwd: worktreePath });
+
+        integrate(sessionId, 'A');
+
+        expect(fs.readFileSync(path.join(repoDir, 'feature.md'), 'utf-8')).toContain('# feature');
+        const updated = JSON.parse(fs.readFileSync(path.join(tmpDir, sessionId, 'team.json'), 'utf-8'));
+        expect(updated.members[0].status).toBe('reported');
+        expect(updated.members[0].statusNote).toContain('integrated into main');
       });
-      worktreeAdd(sessionId, 'A');
-
-      const team = JSON.parse(fs.readFileSync(path.join(tmpDir, sessionId, 'team.json'), 'utf-8'));
-      const worktreePath = team.members[0].worktreePath;
-      fs.writeFileSync(path.join(worktreePath, 'feature.md'), '# feature');
-      execSync('git add feature.md', { cwd: worktreePath });
-      execSync('git commit -m "feature"', { cwd: worktreePath });
-
-      integrate(sessionId, 'A');
-
-      expect(fs.readFileSync(path.join(repoDir, 'feature.md'), 'utf-8')).toContain('# feature');
-      const updated = JSON.parse(fs.readFileSync(path.join(tmpDir, sessionId, 'team.json'), 'utf-8'));
-      expect(updated.members[0].status).toBe('reported');
-      expect(updated.members[0].statusNote).toContain('integrated into main');
     });
 
 
@@ -406,82 +419,84 @@ describe('teammode', () => {
     it('checks out base branch when not currently on it', () => {
       const repoDir = path.join(tmpDir, 'repo');
       fs.mkdirSync(repoDir, { recursive: true });
-      process.chdir(repoDir);
-      execSync('git init', { stdio: 'ignore' });
-      execSync('git config init.defaultBranch main');
-      execSync('git config user.email "test@test.com"');
-      execSync('git config user.name "Test"');
-      execSync('git checkout -b main');
-      fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
-      execSync('git add README.md');
-      execSync('git commit -m "initial"');
+      withCwd(repoDir, () => {
+        execSync('git init', { stdio: 'ignore' });
+        execSync('git config init.defaultBranch main');
+        execSync('git config user.email "test@test.com"');
+        execSync('git config user.name "Test"');
+        execSync('git checkout -b main');
+        fs.writeFileSync(path.join(repoDir, 'README.md'), '# test');
+        execSync('git add README.md');
+        execSync('git commit -m "initial"');
 
-      initTeam({ sessionName: sessionId, name: 'My Team', shape: 'swarm' });
-      addMemberFull({
-        team: sessionId,
-        id: 'A',
-        name: 'Alice',
-        focus: 'auth',
-        lens: 'ownership',
-        deliverable: 'Secure login flow',
+        initTeam({ sessionName: sessionId, name: 'My Team', shape: 'swarm' });
+        addMemberFull({
+          team: sessionId,
+          id: 'A',
+          name: 'Alice',
+          focus: 'auth',
+          lens: 'ownership',
+          deliverable: 'Secure login flow',
+        });
+        worktreeAdd(sessionId, 'A');
+
+        const team = JSON.parse(fs.readFileSync(path.join(tmpDir, sessionId, 'team.json'), 'utf-8'));
+        const worktreePath = team.members[0].worktreePath;
+        fs.writeFileSync(path.join(worktreePath, 'feature.md'), '# feature');
+        execSync('git add feature.md', { cwd: worktreePath });
+        execSync('git commit -m "feature"', { cwd: worktreePath });
+
+        execSync('git checkout -b other');
+
+        integrate(sessionId, 'A');
+
+        const currentBranch = execSync('git branch --show-current', { cwd: repoDir, encoding: 'utf-8' }).trim();
+        expect(currentBranch).toBe('main');
+        expect(fs.readFileSync(path.join(repoDir, 'feature.md'), 'utf-8')).toContain('# feature');
       });
-      worktreeAdd(sessionId, 'A');
-
-      const team = JSON.parse(fs.readFileSync(path.join(tmpDir, sessionId, 'team.json'), 'utf-8'));
-      const worktreePath = team.members[0].worktreePath;
-      fs.writeFileSync(path.join(worktreePath, 'feature.md'), '# feature');
-      execSync('git add feature.md', { cwd: worktreePath });
-      execSync('git commit -m "feature"', { cwd: worktreePath });
-
-      execSync('git checkout -b other');
-
-      integrate(sessionId, 'A');
-
-      const currentBranch = execSync('git branch --show-current', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      expect(currentBranch).toBe('main');
-      expect(fs.readFileSync(path.join(repoDir, 'feature.md'), 'utf-8')).toContain('# feature');
     });
 
     it('aborts merge and reports conflict', () => {
       const repoDir = path.join(tmpDir, 'repo');
       fs.mkdirSync(repoDir, { recursive: true });
-      process.chdir(repoDir);
-      execSync('git init', { stdio: 'ignore' });
-      execSync('git config init.defaultBranch main');
-      execSync('git config user.email "test@test.com"');
-      execSync('git config user.name "Test"');
-      execSync('git checkout -b main');
-      fs.writeFileSync(path.join(repoDir, 'shared.txt'), 'base');
-      execSync('git add shared.txt');
-      execSync('git commit -m "initial"');
+      withCwd(repoDir, () => {
+        execSync('git init', { stdio: 'ignore' });
+        execSync('git config init.defaultBranch main');
+        execSync('git config user.email "test@test.com"');
+        execSync('git config user.name "Test"');
+        execSync('git checkout -b main');
+        fs.writeFileSync(path.join(repoDir, 'shared.txt'), 'base');
+        execSync('git add shared.txt');
+        execSync('git commit -m "initial"');
 
-      initTeam({ sessionName: sessionId, name: 'My Team', shape: 'swarm' });
-      addMemberFull({
-        team: sessionId,
-        id: 'A',
-        name: 'Alice',
-        focus: 'auth',
-        lens: 'ownership',
-        deliverable: 'Secure login flow',
+        initTeam({ sessionName: sessionId, name: 'My Team', shape: 'swarm' });
+        addMemberFull({
+          team: sessionId,
+          id: 'A',
+          name: 'Alice',
+          focus: 'auth',
+          lens: 'ownership',
+          deliverable: 'Secure login flow',
+        });
+        worktreeAdd(sessionId, 'A');
+
+        const team = JSON.parse(fs.readFileSync(path.join(tmpDir, sessionId, 'team.json'), 'utf-8'));
+        const worktreePath = team.members[0].worktreePath;
+
+        fs.writeFileSync(path.join(worktreePath, 'shared.txt'), 'A');
+        execSync('git add shared.txt', { cwd: worktreePath });
+        execSync('git commit -m "A change"', { cwd: worktreePath });
+
+        fs.writeFileSync(path.join(repoDir, 'shared.txt'), 'main');
+        execSync('git add shared.txt', { cwd: repoDir });
+        execSync('git commit -m "main change"', { cwd: repoDir });
+
+        expect(() => integrate(sessionId, 'A')).toThrow('Integration conflicts');
+
+        expect(fs.readFileSync(path.join(repoDir, 'shared.txt'), 'utf-8')).toBe('main');
+        const currentBranch = execSync('git branch --show-current', { cwd: repoDir, encoding: 'utf-8' }).trim();
+        expect(currentBranch).toBe('main');
       });
-      worktreeAdd(sessionId, 'A');
-
-      const team = JSON.parse(fs.readFileSync(path.join(tmpDir, sessionId, 'team.json'), 'utf-8'));
-      const worktreePath = team.members[0].worktreePath;
-
-      fs.writeFileSync(path.join(worktreePath, 'shared.txt'), 'A');
-      execSync('git add shared.txt', { cwd: worktreePath });
-      execSync('git commit -m "A change"', { cwd: worktreePath });
-
-      fs.writeFileSync(path.join(repoDir, 'shared.txt'), 'main');
-      execSync('git add shared.txt', { cwd: repoDir });
-      execSync('git commit -m "main change"', { cwd: repoDir });
-
-      expect(() => integrate(sessionId, 'A')).toThrow('Integration conflicts');
-
-      expect(fs.readFileSync(path.join(repoDir, 'shared.txt'), 'utf-8')).toBe('main');
-      const currentBranch = execSync('git branch --show-current', { cwd: repoDir, encoding: 'utf-8' }).trim();
-      expect(currentBranch).toBe('main');
     });
   });
 });

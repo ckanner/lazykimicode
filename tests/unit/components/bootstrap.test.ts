@@ -140,12 +140,22 @@ describe('bootstrap', () => {
         fs.mkdirSync(path.dirname(bin), { recursive: true });
         fs.writeFileSync(bin, '', 'utf-8');
       }
-      const result = runBootstrapProvisioning(cacheDir, binDir, tmpDir);
-      expect(result.binLinksOk).toBe(true);
-      expect(fs.existsSync(result.agentCacheDir)).toBe(true);
-      expect(Array.isArray(result.warnings)).toBe(true);
-      // On CI Windows npm may not be on PATH, so only npm/sg warnings are acceptable.
-      expect(result.warnings.every((w) => w.includes('ast-grep') || w.includes('npm'))).toBe(true);
+
+      // Provide a fake sg binary on PATH so the test does not invoke npm install.
+      const fakeSg = path.join(tmpDir, 'sg');
+      fs.writeFileSync(fakeSg, '#!/bin/sh\necho "ast-grep 0.1.0"', 'utf-8');
+      fs.chmodSync(fakeSg, 0o755);
+      const originalPath = process.env.PATH;
+      process.env.PATH = `${tmpDir}${path.delimiter}${originalPath}`;
+      try {
+        const result = runBootstrapProvisioning(cacheDir, binDir, tmpDir);
+        expect(result.binLinksOk).toBe(true);
+        expect(fs.existsSync(result.agentCacheDir)).toBe(true);
+        expect(result.sgAvailable).toBe(true);
+        expect(Array.isArray(result.warnings)).toBe(true);
+      } finally {
+        process.env.PATH = originalPath;
+      }
     });
   });
 });

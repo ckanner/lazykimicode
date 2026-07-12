@@ -84,6 +84,17 @@ async function buildInstaller() {
 }
 
 async function main() {
+  fs.rmSync(path.join(__dirname, '..', 'dist'), { recursive: true, force: true });
+  const pluginComponentsDir = path.join(__dirname, '..', 'plugin', 'components');
+  if (fs.existsSync(pluginComponentsDir)) {
+    for (const name of fs.readdirSync(pluginComponentsDir)) {
+      const distDir = path.join(pluginComponentsDir, name, 'dist');
+      if (fs.existsSync(distDir)) {
+        fs.rmSync(distDir, { recursive: true, force: true });
+      }
+    }
+  }
+
   await Promise.all(COMPONENTS.map(buildComponent));
   await Promise.all([
     buildMcp('codegraph', 'serve.mjs'),

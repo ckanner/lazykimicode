@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { execFileSync, execSync } from 'node:child_process';
 import { resolveKimiEnv, pluginCacheDir } from '../shared/paths.js';
 import { MANAGED_BINS } from './bin-links.js';
 import { VERSION } from '../shared/version.js';
+import { findOnPath, runVersion } from '../shared/cross-platform.js';
 
 export interface DoctorOptions {
   kimiCodeHome?: string;
@@ -15,31 +15,6 @@ export interface HealthCheck {
   name: string;
   ok: boolean;
   message: string;
-}
-
-function findOnPath(name: string): string | null {
-  const cmd = process.platform === 'win32' ? 'where' : 'which';
-  try {
-    const out = execFileSync(cmd, [name], { encoding: 'utf-8', timeout: 5000 }).trim();
-    return out.split(/\r?\n/)[0] || null;
-  } catch {
-    return null;
-  }
-}
-
-function runVersion(command: string, fallbackPath?: string): string {
-  const candidates = fallbackPath ? [fallbackPath, command] : [command];
-  for (const candidate of candidates) {
-    try {
-      if (process.platform === 'win32' && /\.(cmd|bat)$/i.test(candidate)) {
-        return execSync(`"${candidate}" --version`, { encoding: 'utf-8', timeout: 5000 }).trim();
-      }
-      return execFileSync(candidate, ['--version'], { encoding: 'utf-8', timeout: 5000 }).trim();
-    } catch {
-      // try next candidate
-    }
-  }
-  throw new Error(`${command} --version failed`);
 }
 
 export function runDoctor(options: DoctorOptions = {}): HealthCheck[] {

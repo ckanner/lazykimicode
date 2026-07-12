@@ -48,4 +48,17 @@ describe('patchConfigToml', () => {
     expect(content).toContain('# Keep this comment');
     expect(content).toContain('[[hooks]]');
   });
+
+  it('writes clean TOML when config is empty or missing', () => {
+    const configPath = path.join(tmpDir, 'config.toml');
+    fs.writeFileSync(configPath, '');
+    const hooks = [{ event: 'SessionStart', matcher: '.*', command: 'node "x" hook session-start', timeout: 10 }];
+    const r = patchConfigToml(configPath, hooks);
+    expect(r.wrote).toBe(true);
+    expect(r.backupPath).toBeUndefined();
+    const content = fs.readFileSync(configPath, 'utf-8');
+    expect(content).toContain('[[hooks]]');
+    expect(content).toContain('event = "SessionStart"');
+    expect(content).toContain('command = "node \\"x\\" hook session-start"');
+  });
 });

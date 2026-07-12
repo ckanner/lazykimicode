@@ -107,7 +107,7 @@ Execute a Prometheus work plan until every top-level checkbox is complete. This 
 ## Usage
 
 ```text
-$start-work [plan-name] [--worktree <absolute-path>]
+/skill:lazykimicode:start-work [plan-name] [--worktree <absolute-path>]
 ```
 
 - `plan-name` (optional): a full or partial file stem under `.omo/plans/`.
@@ -125,7 +125,7 @@ $start-work [plan-name] [--worktree <absolute-path>]
 
 ### No-plan bootstrap
 
-When the user explicitly said `start work` / `$start-work` and no selectable plan exists, treat that phrase as approval: bootstrap `ulw-plan` to create the approved plan before execution and implementation, instead of stalling or asking for generic approval again. A brief or notes file without waves, checkboxes, and acceptance criteria is NOT decision-complete — enter this bootstrap too.
+When the user explicitly said `start work` / `/skill:lazykimicode:start-work` and no selectable plan exists, treat that phrase as approval: bootstrap `ulw-plan` to create the approved plan before execution and implementation, instead of stalling or asking for generic approval again. A brief or notes file without waves, checkboxes, and acceptance criteria is NOT decision-complete — enter this bootstrap too.
 
 1. Invoke the `ulw-plan` skill from the current request and require its dynamic adversarial workflow: collect, verify, design, adversarial plan-review, synthesize.
 2. The generated Prometheus plan must be saved under `.omo/plans/<slug>.md` before implementation or Boulder state writes that point at plan work.
@@ -181,7 +181,7 @@ Each sub-agent prompt must include:
    - Terminal / TUI: drive a real pty; `tmux send-keys` is fine for a boot/behavior smoke, but color/layout/CJK evidence goes through a real web terminal or screenshot tool, NEVER `tmux capture-pane`.
    - Browser use: in Kimi Code, use the `kimi-webbridge` skill first when available and the scenario does not need an authenticated or persistent user browser profile; otherwise drive the real page with Chrome, or agent-browser (https://github.com/vercel-labs/agent-browser) when Chrome is unavailable.
    - Computer use: OS-level GUI automation against the running desktop app when the surface is not a page.
-   - TUI visual evidence: when a TUI claim needs visual QA or PR proof, use the project's TUI visual QA script if one exists (e.g. `node script/qa/web-terminal-visual-qa.mjs --command "<cmd>" --input "{Enter}" --evidence-dir <dir>`) and attach `terminal.png` plus `metadata.json`. If no such script exists, capture real pty output and screenshots with the best available local tool.
+   - TUI visual evidence: when a TUI claim needs visual QA or PR proof, use the project's TUI visual QA script if one exists and attach `terminal.png` plus `metadata.json`. If no such script exists, capture real pty output and screenshots with the best available local tool.
 6. The adversarial classes that apply to this sub-task (from the 9 ultraqa classes) and how each is probed.
 7. Required artifact path and cleanup receipt.
 

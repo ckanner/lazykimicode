@@ -1,6 +1,6 @@
 ---
 name: frontend
-description: "MUST USE for frontend/web UI/UX/visual work: building, styling, redesigning pages/components, React setup, performance audits, visual QA, taste, and polish. Routes four rulesets: design taste router and brand references; perfection for Playwright/Chromium Lighthouse/Core Web Vitals; ui-ux-db palettes/fonts/guidelines; designpowers personas/accessibility/critique/handoff; plus curl-only lazyweb real-app-screen research for design direction. Triggers: frontend, UI, UX, design, redesign, styling, layout, animation, motion, premium, luxury, minimal, brutalist, Awwwards, DESIGN.md, mockup, React, Lighthouse, accessibility, WCAG, Core Web Vitals, looks generic, make it pretty, like X brand, lazyweb, design research."
+description: "MUST USE for frontend/web UI/UX/visual work: building, styling, redesigning pages/components, React setup, performance audits, visual QA, taste, and polish. Uses the project's existing code style, DESIGN.md or AGENTS.md if present, available browser tooling, and companion skills (visual-qa, review-work). Triggers: frontend, UI, UX, design, redesign, styling, layout, animation, motion, premium, luxury, minimal, brutalist, Awwwards, DESIGN.md, mockup, React, Lighthouse, accessibility, WCAG, Core Web Vitals, looks generic, make it pretty, like X brand, design research."
 type: prompt
 whenToUse: When building, redesigning, auditing, or generating mockups for frontend, web UI, UX, visual design, styling, layout, animation, performance, accessibility, or SEO work.
 ---
@@ -73,129 +73,99 @@ Never ask the user "should I continue", "proceed to the next task", or any appro
 
 # Frontend
 
-This file is a router, not a rulebook. The rules live in four rulesets under `references/`; your first job is to load the smallest set of files that covers the request, state which you loaded in one sentence, then execute under their guidance. Loading nothing and freestyling produces the generic AI-slop output this skill exists to prevent; loading everything wastes context and creates contradictory instructions.
+This skill is a router for frontend work. The primary source of truth is the
+**project itself** — existing code style, `AGENTS.md`, `DESIGN.md` if it exists,
+and the configured tooling. Load the smallest set of guidance that covers the
+request, state which you loaded in one sentence, then execute under that
+guidance. Loading nothing and freestyling produces the generic AI-slop output
+this skill exists to prevent.
 
+> Some LazyCodex distributions bundle `references/design/`, `references/perfection/`, `references/ui-ux-db/`, and `references/designpowers/` rulesets. This distribution does **not** ship them; if they are absent, use the project files and existing skills as the primary workflow described below.
+>
 > **Fallback if `references/` are not present:** Use the project's existing code style, `AGENTS.md`, and general engineering knowledge. Ask the user for specific design constraints if needed.
 
 **The bar is not clean-and-correct — it is work a senior designer at Linear, Stripe, or Supabase would ship.** Correct-but-flat is a failure, not a finish. Protect the surface as hard as you protect the build: design is a first-class deliverable, not a one-shot decision you lock and walk away from.
 
 ## Phase 0 — Route (before any UI work)
 
-| Request involves… | Read |
+| Request involves… | Read first |
 |---|---|
-| ANY UI implementation, styling, redesign, mockup, or visual decision | `references/design/README.md` FIRST. It enforces two mandatory gates — the Design System Gate (a `DESIGN.md` must exist before any component is written) and the React Dev Tooling Gate (react-grab / react-scan / react-doctor installed by default) — then routes to the taste and brand references below. |
-| Writing or modifying frontend code, OR auditing performance / SEO / accessibility / quality | ALSO `references/perfection/README.md`. Lighthouse 100 in every category, measured on real Playwright Chromium (never the `lighthouse` CLI), achieved through architecture — never by dropping animations or hiding content. |
-| Looking up a concrete style, color palette, font pairing, chart type, landing-page structure, or UX guideline — or generating a project design system from keywords | `references/ui-ux-db/README.md`. A searchable CSV database with a CLI; a lookup tool, not a posture. Load on demand; `design` stays the source of truth for taste and the `DESIGN.md` contract. |
-| ANY implementation or redesign that creates or updates `DESIGN.md` — plus explicit operating-layer asks (personas, critique, debt, handoff, synthetic user testing) | `references/designpowers/README.md` + `references/designpowers/lane-c-review.md`. An internal frontend ruleset, not a separate skill: lane-c is the Phase Final flatness/critique reviewer, and its accessibility-constraints and accepted-debt language fills the required `DESIGN.md` sections. Load other lanes only when their phase applies. |
+| ANY UI implementation, styling, redesign, mockup, or visual decision | The project's `DESIGN.md` if it exists, plus `AGENTS.md`. Extract existing tokens, primitives, and conventions before writing new UI. |
+| Writing or modifying frontend code, OR auditing performance / SEO / accessibility / quality | The project's component/style docs, `package.json`/tooling config, and `AGENTS.md`. Measure with the project's configured Playwright/Lighthouse/browser tooling when available. |
+| Looking up a concrete style, color palette, font pairing, chart type, landing-page structure, or UX guideline | Use web research (`kimi-webbridge`, `FetchURL`) or ask the user for brand/design constraints. |
+| ANY implementation or redesign that creates or updates `DESIGN.md` | Draft the contract in `DESIGN.md` first: tokens, typography, spacing, primitives, motion, responsive behavior, accessibility constraints, and accepted debt. |
 
-**For implementation work, design + perfection load together.** A page that hits Lighthouse 100 but looks like AI slop has failed; a page that looks beautiful but ships a 2 MB bundle has failed. Both win or neither does.
+**For implementation work, design + quality load together.** A page that hits performance targets but looks like AI slop has failed; a page that looks beautiful but ships a 2 MB bundle has failed. Both win or neither does.
 
 ## Design System and Component Workflow
 
 Every implementation must choose one of these branches before UI code changes:
 
 1. **Concrete visual reference:** the user supplied a reference — treat it as the visual contract, then handle it by kind:
-   - **Static visual reference** (screenshot, generated mockup, Stitch / image-generator output, Figma export, overview, or annotated packet): load `references/design/image-to-code-skill.md` plus the relevant design/perfection files, extract the reference's exact tokens, layout geometry, copy, spacing, states, and responsive intent into `DESIGN.md`, then implement reusable primitives against that contract.
-   - **Live site or URL reference** (the user names a site to clone or gives a URL): load `references/design/clone-from-url.md`. Kimi Code CLI has no built-in browser tool, so use the `ultimate-browsing` skill, `FetchURL`, or ask the user for help extracting runtime truth — tokens, layout geometry, default/hover/focus/active states, transitions and keyframes, and downloaded assets — into `DESIGN.md`, then clone-code reusable primitives against that contract.
+   - **Static visual reference** (screenshot, generated mockup, image-generator output, Figma export, overview, or annotated packet): extract the reference's exact tokens, layout geometry, copy, spacing, states, and responsive intent into `DESIGN.md`, then implement reusable primitives against that contract.
+   - **Live site or URL reference** (the user names a site to clone or gives a URL): use the `kimi-webbridge` skill, `FetchURL`, or ask the user for help extracting runtime truth — tokens, layout geometry, default/hover/focus/active states, transitions and keyframes, and downloaded assets — into `DESIGN.md`, then clone-code reusable primitives against that contract.
    Final QA for both runs the `visual-qa` skill in reference-fidelity mode: compare the actual UI against the reference pixel-by-pixel and verify the code is an extensible design-system implementation, not a screenshot-matched one-off.
-2. **Greenfield or fresh setup:** if the user gave no concrete visual reference, design research is a build step with named deliverables — not exploration to be budgeted. Exploration-stop instincts ("enough exploration", two-wave caps) do not apply here. Fire every research lane IN PARALLEL before `DESIGN.md` is written, and open `DESIGN.md` with a `## 0. Research Log` section recording each lane's deliverable — a lane with no Research Log line did not run. Skip a lane only when its tool or network is genuinely unavailable, and name the skip in `DESIGN.md`:
-   - **Embedded references:** use `references/design/_INDEX.md` to shortlist 2-3 plausible Layer B references, then read exactly one Layer A style skill and one Layer B reference in full — every line, no partial reads (they are 200-500 lines; a sliced read produces the flattened token set this gate exists to prevent). Log the shortlist, the pick, and why. Use `open-design` only when the curated set has no fit; add `ui-ux-db` lookups for palette/type/domain questions.
-   - **Lazyweb real-product screens:** READ `references/design/lazyweb.md` FIRST and run its recipe verbatim — do not improvise curl calls against lazyweb.com; the recipe mints its own anonymous token. Log the queries run, how many screens you actually VIEWED, and the layout grammar harvested — never pixel copies.
-   - **Concept drafts:** generate 2-3 concept drafts (via an available image-generation tool or skill), each seeded with the loaded Layer A + Layer B tokens (palette, type, material); pick the strongest and treat the chosen draft as the reference-fidelity contract. Log the draft paths and the pick. If no image generator is available, skip this lane and name the skip in `DESIGN.md`.
-   Synthesize every lane into `DESIGN.md`. Treat sources as source material, not mood labels: extract tokens, layout grammar, component anatomy, interaction states, motion, and taste decisions, then recombine them into project-specific primitives. Never freestyle past the selected references, never copy logos or brand-specific copy. Then run the Primitive Showcase Gate (`references/design/README.md` Phase 0) before any product screen.
+2. **Greenfield or fresh setup:** if the user gave no concrete visual reference, design research is a build step with named deliverables. Fire every research lane IN PARALLEL before `DESIGN.md` is written, and open `DESIGN.md` with a `## 0. Research Log` section recording each lane's deliverable — a lane with no Research Log line did not run. Skip a lane only when its tool or network is genuinely unavailable, and name the skip in `DESIGN.md`:
+   - **Project context:** read `AGENTS.md`, existing `DESIGN.md`, and neighboring components to inherit the established design system.
+   - **Web research:** use `kimi-webbridge` or `FetchURL` to find 2-3 plausible reference sites/screens for the domain, harvest layout grammar and tokens, and log what you actually viewed.
+   - **Concept drafts:** generate 2-3 concept drafts (via an available image-generation tool or skill), each seeded with the loaded tokens (palette, type, material); pick the strongest and treat the chosen draft as the reference-fidelity contract. Log the draft paths and the pick. If no image generator is available, skip this lane and name the skip in `DESIGN.md`.
+   Synthesize every lane into `DESIGN.md`. Treat sources as source material, not mood labels: extract tokens, layout grammar, component anatomy, interaction states, motion, and taste decisions, then recombine them into project-specific primitives. Never freestyle past the selected references, never copy logos or brand-specific copy. Run a Primitive Showcase Gate (render every primitive/state in isolation) before any product screen.
 3. **Existing project with `DESIGN.md` or a component system:** read it, follow it, and update it before implementation only when the requested work needs a new token, primitive, state, motion rule, accessibility constraint, accepted debt, or reference-fidelity requirement.
 4. **Existing project with UI but no `DESIGN.md` and no reusable component layer:** STOP and ask the user one focused question: should you preserve the current look with copy-nearby styling, or extract a real `DESIGN.md` plus reusable components before continuing? Do not silently choose.
 
-For implementation, redesign, or design-system work that creates or updates `DESIGN.md`, `references/designpowers/README.md` + `lane-c-review.md` are part of the default load — feed their personas, accessibility, critique, debt, handoff, and role-reference guidance into the branch above. The resulting `DESIGN.md` is the implementation contract: tokens, typography, spacing, primitives, motion, responsive behavior, accessibility constraints, and accepted debt must be named there before code uses them. Verify component primitives, states, and final screens with real visual QA evidence; pass design-system decisions, implementation evidence, and unresolved debt into the `review-work` skill for significant implementation work.
+For implementation, redesign, or design-system work that creates or updates `DESIGN.md`, feed personas, accessibility, critique, debt, handoff, and role-reference guidance into the branch above. The resulting `DESIGN.md` is the implementation contract: tokens, typography, spacing, primitives, motion, responsive behavior, accessibility constraints, and accepted debt must be named there before code uses them. Verify component primitives, states, and final screens with real visual QA evidence; pass design-system decisions, implementation evidence, and unresolved debt into the `review-work` skill for significant implementation work.
 
-## Ruleset 1 — design (`references/design/`)
+## React dev tooling
 
-The reference library has one architecture file, 12 taste skills (Layer A — *how to execute*), and 70 brand design systems (Layer B — *what it should look like*). Most non-trivial tasks load **one Layer A + one Layer B**. `README.md` carries the full routing flow, stacking rules, anti-patterns, and the mandatory browser-based Design QA phase; `_INDEX.md` catalogs all 83 files with mood-to-brand mappings — read it whenever routing is not obvious from the tables below.
+If the project uses React, prefer the tooling already configured in the project:
 
-### Layer 0 — architecture
+- React DevTools, react-scan/react-grab/react-doctor if present.
+- The project's test runner (Vitest, Jest, Playwright).
+- The project's linter/formatter (ESLint, Biome, Prettier).
 
-| File | Read when |
-|---|---|
-| `design-system-architecture.md` | The project has no `DESIGN.md` (defines the structure you must create first — 8 sections plus a greenfield-only `## 0. Research Log`), or you are extracting a design system from existing UI code. |
+Only add new dev dependencies when the project genuinely lacks a needed tool and the user approves.
 
-### Layer A — taste skills (pick AT MOST ONE style skill; they encode opposing philosophies)
+## Performance and quality audits
 
-| File | Read when the user says… |
-|---|---|
-| `taste-skill.md` | Neutral or operational UI with no surface ambition — internal tools, dashboards, "just make it usable". The safe default; do NOT settle here when the brief signals glossy / premium / startup-grade craft. |
-| `gpt-tasteskill.md` | "Awwwards-tier", "wow factor", "cinematic", "scroll-triggered" marketing/landing experiences. |
-| `minimalist-skill.md` | "minimal", "clean", "Notion-like", "Linear-like", "editorial". |
-| `brutalist-skill.md` | "brutalist", "raw", "Swiss", "experimental", "anti-design". |
-| `soft-skill.md` | "premium", "luxury", "calm", "expensive", "elegant", AND glossy / glassy / liquid-glass / startup-grade product surfaces — pair with a high-craft Layer B (`supabase`, `linear.app`, `vercel`, `stripe`). |
-| `redesign-skill.md` | Improving EXISTING UI — "this looks bad", "fix the design". Audit-first workflow; never use on greenfield. |
-| `image-to-code-skill.md` | "Generate the design first, then code it." Pair with one imagegen file below. |
-| `output-skill.md` | Stacks on any style skill when output is incomplete — placeholders, `// TODO`, half-done components. |
-| `stitch-skill.md` | Stacks on any style skill for Google Stitch compatibility or a `DESIGN.md` doc export. A complete worked export ships as `stitch-design-example.md`. |
-| `imagegen-frontend-web.md` / `imagegen-frontend-mobile.md` / `imagegen-brandkit.md` | Image-only output (mockup, app-screen concepts, brand board). These NEVER write code — switch to `image-to-code-skill.md` if code is wanted. |
+Audit in a production build (never a dev server) using the project's configured
+tooling:
 
-### Layer B — brand design systems (orthogonal to Layer A; stack freely)
+- Playwright + Lighthouse via `playwright-lighthouse` or similar if available.
+- `lighthouse` CLI only if Playwright-based measurement is unavailable.
+- Run mobile AND desktop presets, 3–5 runs, take the median, diagnose from the JSON report.
 
-When the user names a brand or site — "Linear-style", "like Stripe's landing", "Aside-style browser agent" — load `references/design/<brand>.md` as the token source of truth (palette, type scale, components, do/don'ts). Coverage includes `aside` `apple` `stripe` `linear.app` `notion` `vercel` `claude` `figma` `airbnb` `nike` `tesla` `spotify` `raycast` `revolut` and ~56 more; the full list with mood shortcuts is in `_INDEX.md`. Extract the tokens and apply them to the project's own content — never copy logos or trademarked imagery. If the named brand is missing, fall back to a Layer A mood match or the `open-design` skill.
+If no audit tooling is configured, use `kimi-webbridge`/browser automation or ask the user which tool to run.
 
-### React dev tooling
+## UI-UX research
 
-| File | Read when |
-|---|---|
-| `react-dev-tooling-skill.md` | A React project lacks react-grab / react-scan / react-doctor, or you need per-framework install snippets and the dev-only gating pattern (`NODE_ENV === 'development'`). |
+For concrete style lookups (palette, font pairing, chart type, landing-page structure, UX guideline), use web research:
 
-## Ruleset 2 — perfection (`references/perfection/`)
-
-| File | Read when |
-|---|---|
-| `README.md` | Any frontend code is written or audited. Carries the seven tenets: real-browser audits only, 100-in-every-category floor, fix-at-the-architecture, never weaken UX for points, design-system compliance checks, and the response format for audit reports. |
-| `react-perf-tooling.md` | Before ANY React audit. The Playwright + `playwright-lighthouse` + `react-scan/lite` injection recipe, per-route render budgets, and the React-specific root-cause checklist. Lighthouse 100 with 30+ unnecessary renders is NOT done. |
-
-Audit CLI (build for production first; never measure a dev server):
-
-```bash
-uv run $SKILL_DIR/scripts/perfection/lighthouse-audit.py https://localhost:3000
-```
-
-Run mobile AND desktop presets, 3–5 runs, take the median, diagnose from the JSON report.
-
-## Ruleset 3 — ui-ux-db (`references/ui-ux-db/`)
-
-`README.md` documents the search CLI and the master-plus-overrides persistence pattern. The CLI (run from the ruleset directory so it finds `data/`):
-
-```bash
-python3 $SKILL_DIR/references/ui-ux-db/scripts/search.py "<query>" --design-system -p "Project"   # full design-system generation
-python3 $SKILL_DIR/references/ui-ux-db/scripts/search.py "<query>" --domain <domain>             # targeted lookup
-python3 $SKILL_DIR/references/ui-ux-db/scripts/search.py "<query>" --stack <stack>               # stack best practices
-```
-
-Domains: `product` `style` `typography` `color` `landing` `chart` `ux` `react` `web` `prompt`. Stacks: `html-tailwind` (default) `react` `nextjs` `vue` `svelte` `astro` `swiftui` `react-native` `flutter` `shadcn` `jetpack-compose`.
-
-## Ruleset 4 — designpowers (`references/designpowers/`)
-
-`README.md` routes design operating-layer guidance from the pinned `Owl-Listener/designpowers` reference corpus into the existing frontend workflow. Load it — together with `lane-c-review.md` — for every implementation or redesign that creates or updates `DESIGN.md`, and additionally when a task needs explicit personas, accessibility and cognitive constraints, design critique, design debt, handoff, synthetic user testing, motion guidance, or role-reference prompts. It does not replace this frontend skill, `visual-qa`, `ulw-plan`, `start-work`, or `review-work`; it supplies richer design context that must first be distilled into the project `DESIGN.md`, then used as the design-system contract for implementation and verification.
+- `kimi-webbridge` for unauthenticated pages.
+- `FetchURL` for static pages.
+- Ask the user for brand/design constraints when the target is internal or requires authentication.
 
 ## Quick routes — most common requests
 
 | Request | Load |
 |---|---|
-| "Build a landing page" (no direction given) | `design/README.md` + `design/_INDEX.md` shortlist → exactly one Layer B reference + `design/taste-skill.md` + `perfection/README.md` |
-| "Aside-style AI browser / browser agent page" | `design/README.md` + `design/aside.md` + `design/taste-skill.md` + `perfection/README.md` |
-| "Linear-style landing page" | `design/README.md` + `design/linear.app.md` + `design/taste-skill.md` + `perfection/README.md` |
-| "Premium SaaS hero like Stripe" | `design/README.md` + `design/stripe.md` + `design/soft-skill.md` + `perfection/README.md` |
-| "Improve this existing dashboard" | `design/README.md` + `design/redesign-skill.md` + `perfection/README.md` |
-| "Build this screenshot / image-generator mock / Stitch output exactly" | `design/README.md` + `design/image-to-code-skill.md` + `perfection/README.md` + `visual-qa` reference-fidelity mode |
-| "Audit my site" / "make this page faster" | `perfection/README.md` (+ `perfection/react-perf-tooling.md` if React) |
-| "Mockup image of a fintech app" — no code | `design/imagegen-frontend-mobile.md` (+ a Layer B brand if named) |
-| "What palette/fonts fit a wellness brand?" | `ui-ux-db/README.md` → search CLI |
-| "What do shipped apps in this space look like?" / design-direction research | `design/lazyweb.md` (curl-only) + `design/_INDEX.md` shortlist |
-| "Set up this React project" | `design/README.md` + `design/react-dev-tooling-skill.md` |
-| "Use designpowers", "make the design workflow stronger", "add personas/accessibility/debt/handoff" | `design/README.md` + `designpowers/README.md` (+ `perfection/README.md` if implementation or audit follows) |
+| "Build a landing page" (no direction given) | `AGENTS.md` + existing `DESIGN.md` + web research for 1-2 reference sites + `perfection` quality gates |
+| "Aside-style AI browser / browser agent page" | `AGENTS.md` + existing design system + research the named reference + `visual-qa` |
+| "Linear-style landing page" | Same: project design system + web research + `visual-qa` |
+| "Premium SaaS hero like Stripe" | Same: project design system + web research + `visual-qa` |
+| "Improve this existing dashboard" | `AGENTS.md` + existing `DESIGN.md` + audit-first workflow |
+| "Build this screenshot / image-generator mock / Stitch output exactly" | `DESIGN.md` contract extraction + `visual-qa` reference-fidelity mode |
+| "Audit my site" / "make this page faster" | Project audit tooling + Playwright/Lighthouse |
+| "Mockup image of a fintech app" — no code | Available image-generation tool/skill |
+| "What palette/fonts fit a wellness brand?" | Web research (`kimi-webbridge`/`FetchURL`) |
+| "What do shipped apps in this space look like?" / design-direction research | Web research + `FetchURL` |
+| "Set up this React project" | `AGENTS.md` + project manifest + install/configure existing tooling |
+| "Add personas/accessibility/debt/handoff" | Draft the relevant sections into `DESIGN.md`; use `review-work` for significant implementation |
 
-## Shared axioms (all four rulesets agree — apply always)
+## Shared axioms (apply always)
 
 - **No design system = no UI work.** `DESIGN.md` exists before components do; every color, font size, and spacing value traces back to a token in it.
 - **Concrete reference = contract.** When a screenshot, generated mockup, overview, or annotated reference exists, the implementation must match its pixels, copy, component structure, and responsive intent unless the user explicitly accepts a deviation.
-- **Never weaken UX OR flatten the surface to buy points.** No dropping animations, hiding content, simplifying interactions, or replacing rendered/lit material with flat fills and flat geometric primitives for a Lighthouse score or a deadline. Hit 100 AND keep the surface dimensional — both, or neither.
+- **Never weaken UX OR flatten the surface to buy points.** No dropping animations, hiding content, simplifying interactions, or replacing rendered/lit material with flat fills and flat geometric primitives for a Lighthouse score or a deadline. Hit the targets AND keep the surface dimensional — both, or neither.
 - **No emojis as icons.** SVG icon sets only (Lucide, Heroicons, Radix, Phosphor).
 - **GPU-composited animation only** — `transform`, `opacity`, `filter`; never animate layout properties.
 - **Slop animation is forbidden — motion serves meaning.** Every animation or hover must map to a real interaction, state change, or affordance. A hover that changes nothing, motion on a non-interactive element, or a decorative micro-animation with no informational purpose is slop — do not add it.
@@ -205,8 +175,8 @@ Domains: `product` `style` `typography` `color` `landing` `chart` `ux` `react` `
 
 | Situation | Load |
 |---|---|
-| Brand/style not among the 70 in `references/design/`, or the user says "Open Design" | `open-design` skill — the local nexu-io/open-design library (137+ design skills, 150+ design systems) |
-| Driving a browser for the Design QA phase | `visual-qa` skill. For live-site extraction, use `ultimate-browsing`, `FetchURL`, or ask the user; Kimi Code CLI has no built-in browser tool. |
+| Brand/style research when the named brand is unknown | `kimi-webbridge` skill or `FetchURL` for public sites; ask the user for internal brand books |
+| Driving a browser for the Design QA phase | `visual-qa` skill. For live-site extraction, use `kimi-webbridge`, `FetchURL`, or ask the user; Kimi Code CLI has no built-in browser tool. |
 | Pure TypeScript/logic work with zero visual surface | `programming` skill alone — this skill adds nothing there |
 
 ## Activation
@@ -219,6 +189,6 @@ Use for any frontend, web UI, UX, visual, design, styling, layout, animation, pe
 - For parallel research and multi-lane design exploration, use `AgentSwarm` with a prompt template containing `frontend` and the lane name, or fire sequential `Agent(prompt=..., subagent_type="explore")` calls.
 - For implementation, use `Agent(prompt=..., subagent_type="coder")`.
 - For file writes and edits, use `Write` and `Edit`.
-- Kimi Code CLI has no built-in browser tool. Use the `ultimate-browsing` skill, `FetchURL`, or ask the user when live-site extraction or real-browser QA is required.
+- Kimi Code CLI has no built-in browser tool. Use the `kimi-webbridge` skill, `FetchURL`, or ask the user when live-site extraction or real-browser QA is required.
 - Replace Codex-only runtime concepts (`codex_app.*`, `multi_agent_v1/v2.*`, `lazycodex-gate-reviewer`, per-skill agent YAMLs) with the `Agent` / `AgentSwarm` patterns above.
-- Run audit and search scripts through `Bash`; capture output as evidence (`EVIDENCE_RECORDED: <path-or-output>`).
+- Run audit and search commands through `Bash`; capture output as evidence (`EVIDENCE_RECORDED: <path-or-output>`).

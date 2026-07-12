@@ -136,7 +136,7 @@ The agent looks for these ten categories. The first three are stylistic, the nex
 10. **Oversized modules** — any source file exceeding **250 pure LOC** (non-blank, non-comment lines). This is an architectural defect, not a style preference. Measure: `awk '!/^[[:space:]]*$/ && !/^[[:space:]]*(#|\/\/)/' <file> | wc -l`.
 
    **When found, do NOT just flag it. Execute a full modular refactoring:**
-   1. Run the project's size checker (e.g., `check-no-excuse-rules.py`) recursively on scope to list all violations. If the project does not have such a script, use the `awk` measurement above directly.
+   1. Run the project's size checker if it has one; otherwise use the `awk` measurement above directly to list violations on the scope.
    2. For each oversized file, identify distinct responsibilities (single-responsibility principle).
    3. Plan the split: name each new file after the concept it owns (never `utils.py`, `helpers.py`, `common.py`, `part_1.py`).
    4. Present the split plan to the user before executing.

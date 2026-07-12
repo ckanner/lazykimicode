@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, execSync } from 'node:child_process';
 import { linkManagedBins } from '../../install/bin-links.js';
+import { findOnPath } from '../../shared/cross-platform.js';
 
 export interface ProvisionResult {
   binLinksOk: boolean;
@@ -44,16 +45,19 @@ You are a code reviewer. Check correctness, style, tests, and edge cases. Be pre
 }
 
 export function checkAstGrep(): { available: boolean; path?: string } {
-  try {
-    const out = execFileSync('which', ['sg'], { encoding: 'utf-8' }).trim();
-    return { available: true, path: out };
-  } catch {
-    return { available: false };
+  const found = findOnPath('sg');
+  if (found) {
+    return { available: true, path: found };
   }
+  return { available: false };
 }
 
 function sgBinName(): string {
   return process.platform === 'win32' ? 'sg.exe' : 'sg';
+}
+
+function npmCommand(): string {
+  return process.platform === 'win32' ? 'npm.cmd' : 'npm';
 }
 
 export function installAstGrep(binDir: string): { installed: boolean; path?: string; warning?: string } {
@@ -65,11 +69,20 @@ export function installAstGrep(binDir: string): { installed: boolean; path?: str
   const installDir = path.join(os.homedir(), '.omo', 'sg-npm');
   try {
     fs.mkdirSync(installDir, { recursive: true });
-    execFileSync('npm', ['install', '--no-save', '--prefix', installDir, '@ast-grep/cli'], {
-      encoding: 'utf-8',
-      timeout: 120000,
-      stdio: 'pipe',
-    });
+    const npm = npmCommand();
+    if (process.platform === 'win32') {
+      execSync(`"${npm}" install --no-save --prefix "${installDir}" @ast-grep/cli`, {
+        encoding: 'utf-8',
+        timeout: 120000,
+        stdio: 'pipe',
+      });
+    } else {
+      execFileSync(npm, ['install', '--no-save', '--prefix', installDir, '@ast-grep/cli'], {
+        encoding: 'utf-8',
+        timeout: 120000,
+        stdio: 'pipe',
+      });
+    }
     const candidate = path.join(installDir, 'node_modules', '@ast-grep', 'cli', sgBinName());
     if (!fs.existsSync(candidate)) {
       return { installed: false, warning: 'npm installed @ast-grep/cli but binary not found' };

@@ -1377,17 +1377,17 @@ git commit -m "test(integration): add uninstall, doctor, and release-zip e2e tes
 - `codegraph` 行：更新 remote MCP 说明为已提供占位。
 - `start-work-continuation` 行：改为 block stop + resume guidance。
 - `git-bash` 行：说明 manifest 已声明。
-- 更新 test count 为 38/220。
+- 更新 test count 为 39/243。
 
 - [x] **Step 2: 修正 capabilities.md**
 
-- 更新 test count 为 38/220。
+- 更新 test count 为 39/243。
 
 - [x] **Step 3: 修正 Plan 文档**
 
-- 移除/修正 `zod` 声明。
+- 移除 `zod` 依赖声明（已在本轮修复中从 `package.json` 移除）。
 - 修正路径引用。
-- 把所有已完成的 `- [x]` 改为 `- [x]`。
+- 把所有已完成的计划任务标记为 `- [x]`。
 - 移除或更新 stale TODO 示例代码。
 
 - [x] **Step 4: 运行完整验证**

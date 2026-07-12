@@ -10,6 +10,7 @@ import { patchConfigToml } from './config-patcher.js';
 import { linkManagedBins, unlinkManagedBins } from './bin-links.js';
 import { captureEvent } from '../components/telemetry/posthog.js';
 import { VERSION } from '../shared/version.js';
+import { findOnPath, runVersion } from '../shared/cross-platform.js';
 
 export interface InstallOptions {
   kimiCodeHome?: string;
@@ -54,8 +55,12 @@ function applyAutonomousMode(kimiCodeHome: string, dryRun = false): void {
 }
 
 export function detectKimiInstallation(): { installed: boolean; version?: string } {
+  const kimiPath = findOnPath('kimi');
+  if (!kimiPath) {
+    return { installed: false };
+  }
   try {
-    const out = execFileSync('kimi', ['--version'], { encoding: 'utf-8', timeout: 5000 }).trim();
+    const out = runVersion('kimi', kimiPath);
     return { installed: true, version: out };
   } catch {
     return { installed: false };

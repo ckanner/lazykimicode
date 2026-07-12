@@ -9,6 +9,7 @@ describe('installer integration', () => {
   let tmpDir: string;
   let originalConfigDir: string | undefined;
   let originalSkipBootstrap: string | undefined;
+  let originalMigrationStateDir: string | undefined;
 
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'omo-installer-'));
@@ -16,6 +17,7 @@ describe('installer integration', () => {
     process.env.OMO_KIMI_CONFIG_DIR = path.join(tmpDir, '.omo');
     originalSkipBootstrap = process.env.OMO_KIMI_SKIP_BOOTSTRAP;
     process.env.OMO_KIMI_SKIP_BOOTSTRAP = '1';
+    originalMigrationStateDir = process.env.OMO_KIMI_MIGRATION_STATE_DIR;
   });
 
   afterEach(() => {
@@ -28,6 +30,11 @@ describe('installer integration', () => {
       delete process.env.OMO_KIMI_SKIP_BOOTSTRAP;
     } else {
       process.env.OMO_KIMI_SKIP_BOOTSTRAP = originalSkipBootstrap;
+    }
+    if (originalMigrationStateDir === undefined) {
+      delete process.env.OMO_KIMI_MIGRATION_STATE_DIR;
+    } else {
+      process.env.OMO_KIMI_MIGRATION_STATE_DIR = originalMigrationStateDir;
     }
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
@@ -95,7 +102,6 @@ describe('installer integration', () => {
     expect(fs.existsSync(statePath)).toBe(true);
     const state = JSON.parse(fs.readFileSync(statePath, 'utf-8'));
     expect(state.lastInstalledVersion).toBe(pkg.version);
-    delete process.env.OMO_KIMI_MIGRATION_STATE_DIR;
 
     const config = fs.readFileSync(path.join(tmpDir, 'config.toml'), 'utf-8');
     expect(config).toContain('grep_app');

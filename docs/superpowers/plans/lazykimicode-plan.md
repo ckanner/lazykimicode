@@ -10,7 +10,7 @@
 
 **Architecture:** A Kimi plugin (`kimi.plugin.json`) provides Skills, plugin MCP servers, and a `sessionStart` skill. A companion Node installer patches `~/.kimi-code/config.toml` with `[hooks]` entries, installs component binaries, registers MCP strategy, and handles migrations/updates. Codex-specific concepts (`codex_app.*` threads, `multi_agent_v1.spawn_agent`, `.codex-plugin` hooks) are translated into Kimi-native equivalents (`Agent` / `AgentSwarm`, config.toml hooks, Kimi Skills).
 
-**Tech Stack:** TypeScript 5.x, Node.js ESM (>=22), pnpm, `smol-toml` (Kimi already uses it), `vitest` for unit tests, GitHub Actions for CI.
+**Tech Stack:** TypeScript 6.x, Node.js ESM (>=22), pnpm, `smol-toml` (Kimi already uses it), `vitest` for unit tests, GitHub Actions for CI.
 
 ---
 

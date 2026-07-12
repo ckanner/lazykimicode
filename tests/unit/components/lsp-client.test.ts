@@ -108,8 +108,8 @@ describe('LspClient', () => {
     const client = new LspClient(transport);
     await client.initialize('file:///tmp/');
     client.requestDiagnostics(pathToFileURL(file).href);
-    // Wait for the asynchronous send to be observed by the mock transport.
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    // Flush the synchronous send through the mock transport.
+    await new Promise((resolve) => setImmediate(resolve));
     expect(didChangeText).toBe(content);
     client.close();
   });

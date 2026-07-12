@@ -213,7 +213,7 @@
 - `codegraph` 行：把 “remote MCP defaults not yet provided” 改为 “remote MCP defaults are provided as disabled placeholders in `.mcp.json` and `plugin/.mcp.json`; user must enable after adding API keys”。
 - `git-bash` 行：说明 plugin manifest 已声明 `git_bash` MCP，Windows 安装器也会写入 `config.toml`。
 - 组件表中的 `start-work-continuation`：把 “Resume work” 改为 “Block stop and prompt to resume when Boulder has unchecked tasks”。
-- 更新 test count 为 38/220。
+- 更新 test count 为 39/243。
 
 ### 5.2 `docs/capabilities.md`
 
@@ -221,7 +221,7 @@
 
 ### 5.3 `docs/superpowers/plans/lazykimicode-plan.md`
 
-- 移除 `zod` 用于 manifest/config validation 的声明，改为 “TOML parsing via smol-toml; zod is listed as a dependency but not currently used in source”。
+- 移除 `zod` 用于 manifest/config validation 的声明，改为 “TOML parsing via smol-toml; zod has been removed from dependencies”。（已在本轮修复中移除。）
 - 修正文件路径引用（`docs/...` → `docs/superpowers/plans/...` 或不引用路径）。
 - 把所有已完成的 Task checkbox 改为 `- [x]`。
 - 移除或更新 `// TODO: send to PostHog` 和 `// TODO: add-member...` 代码示例（这些功能已实现）。
