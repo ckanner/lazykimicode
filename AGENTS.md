@@ -27,7 +27,7 @@ pnpm run build
 | `bootstrap` | `SessionStart` | Link managed binaries, seed agent profiles, install `sg` if missing |
 | `codegraph` | `SessionStart`, `PostToolUse` | Structural code search MCP (TS/JS/Python/Go/Rust indexer). Exposed tools: `codegraph_search`, `codegraph_relate`, `codegraph_reindex`, `codegraph_status`, `codegraph_explore`, `codegraph_files`, `codegraph_callers`, `codegraph_callees`, `codegraph_impact`. The MCP server and hooks are registered by the installer (`src/install/hook-defs.ts`); remote MCP defaults (`grep_app`, `context7`) are provided as disabled placeholders in `.mcp.json`. |
 | `comment-checker` | `PostToolUse` | Warn on commits/edits that leave unresolved `TODO/FIXME/HACK/XXX/BUG` markers |
-| `executor-verify` | `SubagentStop` | Require `EVIDENCE_RECORDED:` before a coder subagent can stop |
+| `executor-verify` | `SubagentStop` | Advise when a coder subagent stops without `EVIDENCE_RECORDED:` (SubagentStop is observation-only, so this emits a warning rather than blocking) |
 | `git-bash` | `PreToolUse`, `PostCompact` | Recommend Git Bash on Windows; `git_bash` MCP is declared globally in `plugin/kimi.plugin.json` and handles non-Windows platforms by advising the native Bash tool |
 | `lsp` | `PostToolUse`, `PostCompact` | Real LSP client MCP (`lsp_status`, `lsp_diagnostics`, `lsp_goto_definition`, `lsp_find_references`, `lsp_symbols`, `lsp_prepare_rename`, `lsp_rename`). The plugin MCP uses a persistent `lsp-daemon` binary to avoid cold-starting the LSP server; a stateless `lsp_tools_mcp` fallback is also declared in `plugin/kimi.plugin.json` |
 | `rules` | `SessionStart`, `UserPromptSubmit`, `PostToolUse`, `PostCompact` | Load `AGENTS.md` and `.lazykimicode/rules/*.md` into context |
