@@ -90,7 +90,7 @@ describe('git-bash mcp-server entry', () => {
     expect(names).toContain('diagnose');
   });
 
-  it('which_bash reports not-required on non-Windows', () => {
+  it.skipIf(process.platform === 'win32')('which_bash reports not-required on non-Windows', () => {
     const result = spawnSync('node', [SERVER], {
       input: [
         JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize' }),
@@ -106,7 +106,7 @@ describe('git-bash mcp-server entry', () => {
     expect(text.source).toBe('not-required');
   });
 
-  it('diagnose reports disabled on non-Windows', () => {
+  it.skipIf(process.platform === 'win32')('diagnose reports disabled on non-Windows', () => {
     const result = spawnSync('node', [SERVER], {
       input: [
         JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize' }),
@@ -122,7 +122,7 @@ describe('git-bash mcp-server entry', () => {
     expect(text.status).toContain('disabled');
   });
 
-  it('run errors on non-Windows', () => {
+  it.skipIf(process.platform === 'win32')('run errors on non-Windows', () => {
     const result = spawnSync('node', [SERVER], {
       input: [
         JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize' }),
