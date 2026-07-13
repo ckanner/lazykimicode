@@ -6,9 +6,9 @@ const ROOT = path.resolve(import.meta.dirname, '../../..');
 const SKILL_DIR = path.join(ROOT, 'plugin', 'skills');
 
 const EXPECTED_SKILLS = [
-  'ast-grep', 'coding-agent-sessions', 'debugging', 'frontend', 'git-master',
+  'ast-grep', 'coding-agent-sessions', 'comment-checker', 'debugging', 'frontend', 'git-master',
   'init-deep', 'lcx-contribute-bug-fix', 'lcx-doctor', 'lcx-report-bug',
-  'lsp-setup', 'programming', 'refactor', 'remove-ai-slops', 'review-work',
+  'lsp', 'lsp-setup', 'programming', 'refactor', 'remove-ai-slops', 'review-work',
   'rules', 'start-work', 'teammode', 'ultimate-browsing', 'ultrawork',
   'ulw-loop', 'ulw-plan', 'ulw-research', 'visual-qa',
 ];

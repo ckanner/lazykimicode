@@ -107,12 +107,14 @@ Invoke with `/skill:lazykimicode:<name>` (or `/skill:<name>` if unique).
 | `teammode` | Parallel multi-agent orchestration via `AgentSwarm` |
 | `ast-grep` | Structural search using `sg` (ast-grep) |
 | `coding-agent-sessions` | Find and inspect local coding-agent session histories |
+| `comment-checker` | Respond to automatic comment-checker feedback after edits |
 | `debugging` | Systematic debugging workflow |
 | `frontend` | Frontend-focused development guidance |
 | `git-master` | Git workflow guidance |
 | `lcx-doctor` | Health check the local installation |
 | `lcx-report-bug` | File a bug issue in the correct repository |
 | `lcx-contribute-bug-fix` | Implement and deliver a verified bug fix |
+| `lsp` | Use the lazykimicode LSP MCP tools |
 | `lsp-setup` | Set up and configure LSP for the project |
 | `programming` | General programming guidance |
 | `refactor` | Refactoring workflows |
